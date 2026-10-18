@@ -1,0 +1,11 @@
+{
+  "appId": "com.office.offline",
+  "appName": "Office Offline",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

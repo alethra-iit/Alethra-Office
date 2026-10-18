@@ -1,0 +1,26 @@
+{
+  "name": "office-offline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Office Web (Word, Excel, PowerPoint, PDF) yang dibungkus menjadi aplikasi Android offline dengan Capacitor",
+  "scripts": {
+    "vendor": "node scripts/vendor-libs.js",
+    "sync": "npx cap sync android",
+    "build:debug": "npm run vendor && npx cap sync android && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "docx": "9.5.1",
+    "exceljs": "4.4.0",
+    "mammoth": "1.6.0",
+    "pdf-lib": "1.17.1",
+    "pdf-lib-plus-encrypt": "1.1.0",
+    "pdfjs-dist": "3.11.174",
+    "xlsx": "0.18.5"
+  }
+}

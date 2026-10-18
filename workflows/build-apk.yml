@@ -1,0 +1,76 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # untuk membuat GitHub Release otomatis
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cek aplikasi tidak memuat sumber dari internet
+        run: |
+          if grep -rnE "(cdnjs\.cloudflare|cdn\.jsdelivr|unpkg\.com|fonts\.googleapis)" www --include=*.html --include=*.js -l | grep -v '^www/lib/'; then
+            echo "Ditemukan referensi CDN di kode aplikasi (selain www/lib)"; exit 1
+          fi
+          echo "OK: tidak ada ketergantungan CDN"
+
+      - name: Sync web assets ke proyek Android
+        run: npx cap sync android
+
+      # Ditandatangani dengan android/app/office.jks (key tetap) dan versionCode = nomor run,
+      # jadi setiap APK baru otomatis bisa menimpa (update) APK sebelumnya.
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Ganti nama APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/Office-Offline.apk
+          ls -lh dist
+
+      - name: Upload artifact APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Office-Offline-APK
+          path: dist/Office-Offline.apk
+          if-no-files-found: error
+
+      - name: Buat GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.${{ github.run_number }}
+          name: Office Offline v1.${{ github.run_number }}
+          files: dist/Office-Offline.apk
