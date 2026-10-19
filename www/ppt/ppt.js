@@ -172,6 +172,20 @@ const CSS=`
 .pp .ibig{flex-direction:column;height:68px;min-width:50px;gap:2px;font-size:11px;line-height:1.1;white-space:normal;text-align:center;padding:2px 3px}
 .pp .ibig em{font-size:26px;line-height:1.1}
 .pp .ibig span{display:block}
+.pp .xi{display:block;width:20px;height:20px;flex:none}
+.pp .b.big .xi,.pp .ibig .xi{width:28px;height:28px}
+.pp .b.big em,.pp .ibig em{display:flex;justify-content:center;align-items:center;line-height:1}
+.pp .b.rw .xi,.pp .b.sm .xi{width:16px;height:16px}
+.pp .b.rw em{display:inline-flex;align-items:center}
+.pp .clr .xi{width:16px;height:16px}
+.pp .qat .xi{width:16px;height:16px;margin:auto}
+.pp .menu button{display:flex;align-items:center;gap:12px}.pp .menu .xi{width:20px;height:20px}
+.pp .pm .xi{width:18px;height:18px}
+.pp .status .xi{width:15px;height:15px;margin:auto}
+.pp .ai .xi{width:14px;height:14px}
+.pp .shg .b .xi{width:16px;height:16px}
+.pp .b:disabled .xi{opacity:.9}
+@media (pointer:coarse){.pp .b.big .xi,.pp .ibig .xi{width:30px;height:30px}.pp .b.rw .xi{width:18px;height:18px}.pp .qat .xi{width:18px;height:18px}}
 .pp .ob.tbl .tx{flex:1 1 auto;height:100%}
 .pp .ob.tbl .tx table{height:100%}
 .pp .tx table,.pp-print .tx table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:inherit}
@@ -351,6 +365,160 @@ const AN={t:'flex-start',m:'center',b:'flex-end'};
 const VERT={v90:'writing-mode:vertical-rl;height:100%;width:auto;',v270:'writing-mode:vertical-rl;transform:rotate(180deg);height:100%;width:auto;',st:'writing-mode:vertical-rl;text-orientation:upright;height:100%;width:auto;'};
 
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ===== Ikon SVG gaya Excel 2013 (garis abu-abu + aksen oranye PowerPoint) ===== */
+const PXA='#d24726',PXAL='#f8d5c8',PXB='#2f5496',PXBL='#bcd0ec',PXO='#ed7d31',PXY='#ffc000',PXG='#2b8a3e',PXGL='#c6e0b4',PXR='#c0392b';
+const PXS=b=>'<svg class="xi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'+b+'</svg>';
+const PXT=(x,y,fs,t,f,o)=>'<text x="'+x+'" y="'+y+'" font-size="'+fs+'" text-anchor="middle" fill="'+(f||'currentColor')+'" stroke="none" font-family="'+(o&&o.ff||'Arial,sans-serif')+'"'+(o&&o.i?' font-style="italic"':'')+(o&&o.n?'':' font-weight="700"')+'>'+t+'</text>';
+const PXC=(c,b)=>'<g stroke="'+c+'">'+b+'</g>';
+const PXGRID=(x,y,w,h,c,r,hf)=>{let s='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="#fff"/>';if(hf)s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+(h/r)+'" fill="'+hf+'" stroke="none"/>';
+  for(let i=1;i<r;i++)s+='<path d="M'+x+' '+(y+h*i/r)+'h'+w+'"/>';for(let i=1;i<c;i++)s+='<path d="M'+(x+w*i/c)+' '+y+'v'+h+'"/>';return s+'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"/>';};
+const PXMAG='<circle cx="10" cy="10" r="5.8"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/>';
+const PXGLOBE=PXC(PXB,'<circle cx="12" cy="12" r="8.5" fill="#fff"/><path d="M3.5 12h17M12 3.5c-3.2 3.2-3.2 13.8 0 17M12 3.5c3.2 3.2 3.2 13.8 0 17"/>');
+const PXBUB=a=>'<path d="M4 4.5h16v11H11l-4.5 4v-4H4z" fill="#fff2cc" stroke="#bf9000"/>'+(a||'');
+const PXCHART=b=>PXS('<path d="M3.5 3.5v17h17"/><rect x="6.5" y="12" width="3" height="8" fill="#4472c4" stroke="none"/><rect x="11" y="7" width="3" height="13" fill="#ed7d31" stroke="none"/><rect x="15.5" y="10" width="3" height="10" fill="#4472c4" stroke="none"/>'+(b||''));
+const PXSTAR='<path d="M18 13.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill="#ffc000" stroke="#a67c00" stroke-width=".8"/>';
+const PXSTAGE='<rect x="3.5" y="3.5" width="17" height="12" fill="#fff"/><path d="M12 15.5v3M12 18.5l-3.5 3M12 18.5l3.5 3"/>';
+const PXLOCK='<rect x="6" y="11" width="12" height="9" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3" stroke="#8a6d00"/>';
+const PX={
+ /* --- Beranda --- */
+ paste:PXS('<rect x="4.5" y="5" width="11" height="14.5" rx="1.2"/><rect x="7.5" y="3" width="5" height="3.6" rx=".8" fill="#fff"/>'+PXC(PXA,'<rect x="10.5" y="10" width="10" height="8" fill="#fff"/><path d="M10.5 12.6h10"/>')),
+ pastet:PXS('<rect x="4.5" y="5" width="11" height="14.5" rx="1.2"/><rect x="7.5" y="3" width="5" height="3.6" rx=".8" fill="#fff"/>'+PXT(16.5,20,10,'A',PXA)),
+ cut:PXS('<circle cx="7" cy="17.5" r="2.6"/><circle cx="17" cy="17.5" r="2.6"/><path d="M8.7 15.4L16 3.5M15.3 15.4L8 3.5"/>'),
+ copy:PXS('<rect x="8.5" y="8.5" width="11.5" height="12" rx="1" fill="#fff"/><path d="M15.5 8.5v-4a1 1 0 0 0-1-1h-9.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h3.5"/>'),
+ painter:PXS('<rect x="4" y="3.5" width="12" height="5" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M16 6h3.2v5.5H11V14"/><rect x="9" y="14" width="4" height="7" rx="1.2" fill="#fff"/>'),
+ newslide:PXS('<rect x="3.5" y="4.5" width="14" height="11" fill="#fff"/><path d="M6 8h9M6 11h6" stroke="#9a9a9a"/><circle cx="17.5" cy="17.5" r="4.2" fill="'+PXA+'" stroke="'+PXA+'"/><path d="M17.5 15.4v4.2M15.4 17.5h4.2" stroke="#fff"/>'),
+ layout:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><rect x="6" y="6.5" width="12" height="3" fill="'+PXAL+'" stroke="'+PXA+'"/><rect x="6" y="11.5" width="5" height="6"/><rect x="13" y="11.5" width="5" height="6"/>'),
+ reset:PXS('<rect x="3.5" y="5" width="13" height="10" fill="#fff"/><path d="M6 8h8M6 11h5" stroke="#9a9a9a"/>'+PXC(PXA,'<path d="M21 15.5a4.8 4.8 0 1 1-1.5-3.5"/><path d="M21 9.5v3h-3"/>')),
+ section:PXS('<rect x="3.5" y="4" width="8" height="3.6" fill="'+PXAL+'" stroke="'+PXA+'"/><rect x="3.5" y="10" width="17" height="4"/><rect x="3.5" y="16.5" width="17" height="4"/>'),
+ grow:PXS('<path d="M3 19L8.5 5l5.5 14M5 14.5h7"/><path d="M18 11V4M15.2 6.8L18 4l2.8 2.8" stroke="'+PXA+'"/>'),
+ shrink:PXS('<path d="M3 19L8 7l5 12M4.8 15h6.4"/><path d="M18 4v7M15.2 8.2L18 11l2.8-2.8" stroke="'+PXA+'"/>'),
+ rmfmt:PXS('<path d="M2.5 16L6 6.5 9.5 16M3.7 12.8h4.6"/><path d="M13.5 20.5h7M14 20.5l-3.5-3.5a1.4 1.4 0 0 1 0-2l5.5-5.5a1.4 1.4 0 0 1 2 0l3 3a1.4 1.4 0 0 1 0 2l-5.2 5.3" stroke="#c0455e" fill="#f9d3da"/>'),
+ bold:PXS(PXT(12,18,18,'B')),
+ italic:PXS(PXT(12,18,18,'I',null,{i:1,ff:'Georgia,serif',n:1})),
+ underline:PXS(PXT(12,16.5,16,'U')+'<path d="M6 21h12"/>'),
+ shadow:PXS(PXT(12.5,18.5,17,'S','#bdbdbd')+PXT(11,17,17,'S')),
+ strike:PXS(PXT(12,16.5,14,'abc',null,{n:1})+'<path d="M3 12.5h18" stroke="'+PXA+'"/>'),
+ bullets:PXS('<circle cx="5" cy="7" r="1.5" fill="'+PXA+'" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="'+PXA+'" stroke="none"/><circle cx="5" cy="17" r="1.5" fill="'+PXA+'" stroke="none"/><path d="M9.5 7h11M9.5 12h11M9.5 17h11"/>'),
+ numbered:PXS(PXT(5,9,7.5,'1',PXA)+PXT(5,14,7.5,'2',PXA)+PXT(5,19,7.5,'3',PXA)+'<path d="M9.5 7h11M9.5 12h11M9.5 17h11"/>'),
+ outd:PXS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M8 9.2L4.2 12 8 14.8z" fill="'+PXA+'" stroke="'+PXA+'"/>'),
+ ind:PXS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M4 9.2L7.8 12 4 14.8z" fill="'+PXA+'" stroke="'+PXA+'"/>'),
+ smart:PXS('<rect x="9" y="3.5" width="6" height="5" fill="#dbe6f6" stroke="'+PXB+'"/><rect x="3.5" y="15.5" width="6" height="5" fill="#dbe6f6" stroke="'+PXB+'"/><rect x="14.5" y="15.5" width="6" height="5" fill="#dbe6f6" stroke="'+PXB+'"/><path d="M12 8.5v3.5M6.5 15.5V12h11v3.5"/>'),
+ arrange:PXS('<rect x="3.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="9.5" y="3.5" width="11" height="11" fill="'+PXAL+'" stroke="'+PXA+'"/>'),
+ qstyle:PXS('<rect x="3.5" y="3.5" width="13" height="12" fill="'+PXAL+'" stroke="'+PXA+'"/><path d="M12 18l6.5-6.5 3 3L15 21z" fill="#ffd966" stroke="#8a6d00"/>'),
+ fill:PXS('<path d="M4.5 12.5L11 6l6.5 6.5-5.5 5.5a1.4 1.4 0 0 1-2 0z" fill="#fff"/><path d="M11 6L9.2 4.2"/><path d="M19.5 14c1 1.5 1.6 2.4 1.6 3.2a1.6 1.6 0 0 1-3.2 0c0-.8.6-1.7 1.6-3.2z" fill="'+PXA+'" stroke="'+PXA+'" stroke-width=".8"/>'),
+ nofill:PXS('<rect x="4.5" y="4.5" width="15" height="15" fill="#fff"/><path d="M4.5 19.5l15-15" stroke="'+PXR+'" stroke-width="1.8"/>'),
+ outline:PXS('<path d="M5 19l1-4 10-10 3 3-10 10z" fill="#fff"/><path d="M14 7l3 3"/><path d="M3.5 21.5h9" stroke="'+PXA+'"/>'),
+ find:PXS(PXMAG+'<path d="M3.5 4h5" stroke="'+PXA+'"/>'),
+ replace:PXS(PXT(7,10,9,'ab')+PXT(17,20,9,'ac')+PXC(PXA,'<path d="M12 6.5h6.5a2 2 0 0 1 2 2V11M18.5 9.5l2 2 2-2"/>')),
+ pick:PXS('<path d="M6 3.5v14l3.8-3.4 2.7 6 2.4-1.1-2.7-5.8H17.5z" fill="#fff"/>'),
+ /* --- Sisipkan --- */
+ table:PXS(PXC(PXB,PXGRID(3.5,4,17,16,3,4,'#9db7dd'))),
+ pic:PXS('<rect x="3.5" y="4.5" width="17" height="15" rx="1" fill="#fff"/><circle cx="9" cy="9.5" r="1.8" fill="#f2b01e" stroke="none"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="#2b8a3e"/>'),
+ picon:PXS(PXGLOBE+'<rect x="12" y="13" width="9" height="7" fill="#fff"/><path d="M12.5 19l2.5-3 2 2 1.5-1.5 2 2.5" stroke="#2b8a3e"/>'),
+ shot:PXS('<rect x="3.5" y="5" width="17" height="11" rx="1" fill="#fff"/><path d="M8 20h8M12 16v4"/><rect x="7" y="8" width="7" height="5" stroke-dasharray="1.6 1.4" stroke="'+PXA+'"/>'),
+ album:PXS('<rect x="3.5" y="9" width="12" height="11" fill="#fff"/><rect x="8.5" y="4" width="12" height="11" fill="#fff"/><circle cx="12.5" cy="8" r="1.4" fill="#f2b01e" stroke="none"/><path d="M8.5 13.5l3-3 2.5 2.5 2-2 4.5 4.5" stroke="#2b8a3e"/>'),
+ shapes:PXS('<circle cx="9" cy="9" r="5" fill="#dbe6f6" stroke="'+PXB+'"/><rect x="11.5" y="11.5" width="8.5" height="8.5" fill="#fbe0cc" stroke="'+PXO+'"/>'),
+ chart:PXCHART(),
+ store:PXS('<path d="M5 8h14l-1 12H6z" fill="#fff"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M9.5 13h5" stroke="'+PXA+'"/>'),
+ link:PXS('<path d="M10 14a3.5 3.5 0 0 0 5 0l3.5-3.5a3.5 3.5 0 0 0-5-5L12 7" stroke="'+PXB+'"/><path d="M14 10a3.5 3.5 0 0 0-5 0L5.5 13.5a3.5 3.5 0 0 0 5 5L12 17" stroke="'+PXB+'"/>'),
+ action:PXS('<rect x="3.5" y="4.5" width="13" height="10" fill="#fff"/><path d="M12 11v9l2.4-2.2 2 3.7 1.8-1-2-3.6 3.3-.4z" fill="'+PXA+'" stroke="'+PXA+'" stroke-width=".8"/>'),
+ cmnew:PXS(PXBUB(PXC(PXA,'<path d="M12 7v6M9 10h6"/>'))),
+ cmdel:PXS(PXBUB('<path d="M9.5 7.5l5 5M14.5 7.5l-5 5" stroke="'+PXR+'" stroke-width="1.8"/>')),
+ cmprev:PXS(PXBUB(PXC(PXA,'<path d="M13.5 7.5L10 10l3.5 2.5"/>'))),
+ cmnext:PXS(PXBUB(PXC(PXA,'<path d="M10.5 7.5L14 10l-3.5 2.5"/>'))),
+ cmshow:PXS(PXBUB()),
+ textbox:PXS('<rect x="3.5" y="4.5" width="17" height="15" fill="#fff"/>'+PXT(12,16,12,'A')+'<path d="M3.5 4.5h2M18.5 4.5h2M3.5 19.5h2M18.5 19.5h2" stroke="'+PXA+'" stroke-width="2.2"/>'),
+ hdr:PXS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M4.5 8.5h15" stroke="'+PXA+'"/><path d="M8 12.5h8M8 15.5h8"/>'),
+ wordart:PXS('<text x="12" y="19" font-size="20" font-weight="700" text-anchor="middle" fill="#bcd0ec" stroke="'+PXB+'" stroke-width=".9" font-family="Georgia,serif" font-style="italic">A</text>'),
+ dt:PXS('<rect x="3.5" y="5" width="14" height="14" rx="1.2" fill="#fff"/><path d="M3.5 9h14M7.5 3.5v3M13.5 3.5v3"/><circle cx="17" cy="17" r="4.5" fill="#fff"/><path d="M17 14.5V17l1.8 1.2"/>'),
+ slnum:PXS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/>'+PXT(12,16,11,'#',PXA)),
+ obj:PXS('<rect x="4" y="5" width="16" height="14" fill="#fff"/><rect x="7" y="8" width="6" height="5" fill="#bcd0ec" stroke="'+PXB+'"/><circle cx="16" cy="14.5" r="2.5" fill="#fbe0cc" stroke="'+PXO+'"/>'),
+ eq:PXS(PXT(12,18,19,'π')),
+ sym:PXS(PXT(12,18,19,'Ω')),
+ video:PXS('<rect x="3.5" y="5.5" width="17" height="13" fill="#fff"/><path d="M6.5 5.5v13M17.5 5.5v13" stroke-dasharray="1.6 1.6"/><path d="M10 9.2l4.5 2.8-4.5 2.8z" fill="'+PXA+'" stroke="'+PXA+'"/>'),
+ audio:PXS('<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" fill="#fff"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a7.5 7.5 0 0 1 0 11" stroke="'+PXA+'"/>'),
+ mic:PXS('<rect x="9" y="3.5" width="6" height="10" rx="3" fill="#fff"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5v3M9 20.5h6" stroke="'+PXA+'"/>'),
+ chcol:PXS('<rect x="4" y="11" width="4" height="9" fill="#4472c4" stroke="none"/><rect x="10" y="5" width="4" height="15" fill="#ed7d31" stroke="none"/><rect x="16" y="13" width="4" height="7" fill="#4472c4" stroke="none"/>'),
+ chbar:PXS('<rect x="4" y="4" width="10" height="4" fill="#4472c4" stroke="none"/><rect x="4" y="10" width="16" height="4" fill="#ed7d31" stroke="none"/><rect x="4" y="16" width="7" height="4" fill="#4472c4" stroke="none"/>'),
+ chline:PXS('<polyline points="3.5,17 8,10 13,13 20.5,5" stroke="#4472c4" stroke-width="2"/><polyline points="3.5,20 8,16 13,18 20.5,12" stroke="#ed7d31" stroke-width="2"/>'),
+ chpie:PXS('<circle cx="12" cy="12" r="8.5" fill="#ed7d31" stroke="none"/><path d="M12 12V3.5A8.5 8.5 0 0 1 20.5 12z" fill="#4472c4" stroke="none"/>'),
+ ink:PXS('<path d="M5 19l1-4 10-10 3 3-10 10z" fill="#fff"/><path d="M14 7l3 3"/>'),
+ globe:PXS(PXGLOBE),
+ /* --- Animasi / Transisi / Desain --- */
+ left:PXS('<path d="M14.5 6l-6 6 6 6"/>'),
+ right:PXS('<path d="M9.5 6l6 6-6 6"/>'),
+ gear:PXS('<circle cx="12" cy="12" r="3" fill="#fff"/><circle cx="12" cy="12" r="6.3" fill="none"/><path d="M12 3.5v2.7M12 17.8v2.7M3.5 12h2.7M17.8 12h2.7M6 6l1.9 1.9M16.1 16.1L18 18M6 18l1.9-1.9M16.1 7.9L18 6" stroke-width="2"/>'),
+ aadd:PXS('<path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8z" fill="'+PXGL+'" stroke="'+PXG+'"/><path d="M18 14v7M14.5 17.5h7" stroke="'+PXA+'"/>'),
+ anpane:PXS('<rect x="4" y="4" width="16" height="16" fill="#fff"/><path d="M10 8.5h7M10 12h7M10 15.5h7"/><circle cx="7" cy="8.5" r="1" fill="'+PXG+'" stroke="none"/><circle cx="7" cy="12" r="1" fill="'+PXG+'" stroke="none"/><circle cx="7" cy="15.5" r="1" fill="'+PXG+'" stroke="none"/>'),
+ anpaint:PXS('<rect x="3.5" y="3.5" width="11" height="4.5" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M14.5 5.8h2.7v4.7H10V13"/><rect x="8" y="13" width="3.6" height="6.5" rx="1.2" fill="#fff"/><path d="M19 12.5l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="'+PXGL+'" stroke="'+PXG+'" stroke-width=".7"/>'),
+ up:PXS('<path d="M12 19V6M7 11l5-5 5 5" stroke="'+PXG+'"/>'),
+ down:PXS('<path d="M12 5v13M7 13l5 5 5-5" stroke="'+PXG+'"/>'),
+ trprev:PXS('<rect x="3.5" y="4.5" width="17" height="12" fill="#fff"/><path d="M10 7.5l5 3-5 3z" fill="'+PXA+'" stroke="'+PXA+'"/><path d="M8 20h8"/>'),
+ applyall:PXS('<rect x="3.5" y="9.5" width="11" height="9" fill="#fff"/><rect x="9.5" y="4.5" width="11" height="9" fill="'+PXAL+'" stroke="'+PXA+'"/><path d="M12 9.5l2 2 3.5-3.5" stroke="'+PXG+'"/>'),
+ bgfmt:PXS('<rect x="3.5" y="4" width="17" height="12" fill="#fff"/><path d="M3.5 12l4.5-4 4 3.5 3-2.5 5.5 4" stroke="#9db7dd"/><path d="M14.5 17l3-3 3 3-3 3.2z" fill="#ffd966" stroke="#8a6d00"/><path d="M20.5 20.5l.1.1" stroke="'+PXA+'" stroke-width="2.2"/>'),
+ /* --- Slide Show --- */
+ ss_start:PXS(PXSTAGE+'<circle cx="17" cy="16.5" r="5" fill="'+PXG+'" stroke="'+PXG+'"/><path d="M15.4 14l4 2.5-4 2.5z" fill="#fff" stroke="none"/>'),
+ ss_cur:PXS(PXSTAGE+'<circle cx="12" cy="9.5" r="3.4" fill="'+PXO+'" stroke="none"/><path d="M12 9.5V6.1a3.4 3.4 0 0 1 3.4 3.4z" fill="'+PXB+'" stroke="none"/>'),
+ ss_online:PXS(PXSTAGE+'<circle cx="17" cy="16.5" r="5" fill="#3b8be0" stroke="#1f5fa8"/><path d="M12 16.5h10M17 11.5v10M14.7 12.8q2.3 3.7 0 7.4M19.3 12.8q-2.3 3.7 0 7.4" stroke="#fff" stroke-width=".8"/>'),
+ ss_cust:PXS(PXSTAGE+'<rect x="13" y="12" width="8" height="9.5" fill="#fff" stroke="'+PXB+'"/><path d="M14.8 15h4.4M14.8 17.3h4.4M14.8 19.6h4.4" stroke="'+PXB+'"/>'),
+ ss_setup:PXS('<rect x="4.5" y="3" width="12" height="16" fill="#fff"/><path d="M7 7h7M7 10h7M7 13h4" stroke="#9a9a9a"/><circle cx="16.5" cy="16.5" r="4.3" fill="#e8e8e8"/><circle cx="16.5" cy="16.5" r="1.6" fill="#fff"/><path d="M16.5 10.8v1.6M16.5 20.6v1.6M10.8 16.5h1.6M20.6 16.5h1.6" stroke-width="1.8"/>'),
+ ss_hide:PXS('<rect x="3.5" y="5" width="17" height="12" fill="#fff"/><circle cx="12" cy="11" r="3.2" fill="'+PXO+'" stroke="none"/><path d="M12 11V7.8a3.2 3.2 0 0 1 3.2 3.2z" fill="'+PXB+'" stroke="none"/><path d="M3 20.5L21 2.5" stroke="#444" stroke-width="1.8"/>'),
+ ss_reh:PXS('<rect x="3.5" y="4" width="14" height="11" fill="#fff"/><path d="M3.5 7.5h14"/><circle cx="16.5" cy="16.5" r="5" fill="#fff" stroke="#44546a"/><path d="M16.5 13.5v3l2.2 1.4" stroke="#44546a"/>'),
+ ss_rec:PXS('<rect x="3.5" y="4" width="14" height="11" fill="#fff"/><path d="M3.5 7.5h14"/><circle cx="9" cy="13" r="4.2" fill="#e53935" stroke="#a31515"/><circle cx="17" cy="16.5" r="4.5" fill="#fff" stroke="#44546a"/><path d="M17 13.8v2.9l2 1.2" stroke="#44546a"/>'),
+ rec:PXS('<circle cx="12" cy="12" r="6.5" fill="#e53935" stroke="#a31515"/>'),
+ stop:PXS('<rect x="6" y="6" width="12" height="12" fill="#fff" stroke="#444"/>'),
+ play:PXS('<path d="M8 5.5l11 6.5-11 6.5z" fill="'+PXA+'" stroke="'+PXA+'"/>'),
+ mouse:PXS('<rect x="6.5" y="3.5" width="11" height="17" rx="5.5" fill="#fff"/><path d="M12 3.5v7M6.5 10.5h11"/>'),
+ withp:PXS('<circle cx="12" cy="12" r="8" fill="#fff"/><path d="M12 4a8 8 0 0 0 0 16z" fill="'+PXG+'" stroke="none"/>'),
+ after:PXS('<circle cx="12" cy="12" r="8.5" fill="#fff"/><path d="M12 7v5l3 2"/>'),
+ /* --- Tinjau --- */
+ rv_spell:PXS(PXT(9,11,8.5,'ABC')+'<path d="M5.5 16.5l4 4 10-10" stroke="'+PXB+'" stroke-width="2.2"/>'),
+ rv_res:PXS('<path d="M4 4.5h8v12H4z" fill="#fff"/><path d="M6.5 8h3M6.5 11h3"/><circle cx="15" cy="14" r="4" fill="#fff"/><path d="M18 17l3 3.5" stroke-width="2"/>'),
+ rv_thes:PXS('<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13" fill="#fff"/>'),
+ transl:PXS('<rect x="3.5" y="4" width="11" height="11" rx="1" fill="#fff"/><rect x="9.5" y="9" width="11" height="11" rx="1" fill="#fff" stroke="'+PXB+'"/>'+PXT(9,12.5,8,'A')+PXT(15,17.5,7,'文',PXB)),
+ rv_lang:PXS('<rect x="3.5" y="4" width="11" height="11" rx="1" fill="#fff"/>'+PXT(9,12.5,9,'A')+'<circle cx="16.5" cy="16" r="5" fill="#fff" stroke="'+PXB+'"/><path d="M11.5 16h10M16.5 11v10M14.5 12.5q2 3.5 0 7M18.5 12.5q-2 3.5 0 7" stroke="'+PXB+'" stroke-width=".8"/>'),
+ cmp:PXS('<rect x="3.5" y="4" width="8" height="11" fill="#fff"/><rect x="12.5" y="9" width="8" height="11" fill="#fff"/><path d="M13 6h6M17 4l2 2-2 2" stroke="'+PXA+'"/>'),
+ accept:PXS('<circle cx="12" cy="12" r="8.5" fill="#e2f0d9" stroke="'+PXG+'"/><path d="M8 12.3l2.8 2.8 5.4-5.6" stroke="'+PXG+'" stroke-width="2"/>'),
+ reject:PXS('<circle cx="12" cy="12" r="8.5" fill="#f9d3da" stroke="'+PXR+'"/><path d="M9 9l6 6M15 9l-6 6" stroke="'+PXR+'" stroke-width="2"/>'),
+ endrv:PXS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 12.5l3 3 5-6" stroke="'+PXG+'" stroke-width="2"/>'),
+ list:PXS('<path d="M4 6.5h16M4 12h16M4 17.5h16"/>'),
+ /* --- Tampilan --- */
+ v_normal:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><path d="M9 4v16"/><rect x="5" y="6.5" width="2.5" height="2" stroke="'+PXA+'"/><rect x="5" y="11" width="2.5" height="2" stroke="'+PXA+'"/><rect x="11" y="6.5" width="7.5" height="5" fill="'+PXAL+'" stroke="'+PXA+'"/><path d="M11 14.5h7.5M11 17h5" stroke="#9a9a9a"/>'),
+ v_outline:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><path d="M6.5 8h11M6.5 17.5h6" stroke="'+PXA+'"/><path d="M9 11.5h8.5M9 14.5h8.5"/>'),
+ v_sorter:PXS('<rect x="3.5" y="4" width="7.5" height="6" fill="#fff"/><rect x="13" y="4" width="7.5" height="6" fill="'+PXAL+'" stroke="'+PXA+'"/><rect x="3.5" y="13" width="7.5" height="6" fill="#fff"/><rect x="13" y="13" width="7.5" height="6" fill="#fff"/>'),
+ v_notes:PXS('<rect x="5.5" y="3" width="13" height="18" fill="#fff"/><rect x="8" y="5.5" width="8" height="5.5" fill="'+PXAL+'" stroke="'+PXA+'"/><path d="M8 14h8M8 16.5h8M8 19h5" stroke="#9a9a9a"/>'),
+ v_read:PXS('<path d="M3 5.5l9 1.5 9-1.5v13l-9 1.5-9-1.5z" fill="#fff"/><path d="M12 7v13"/><path d="M5.5 9l4.5.8M5.5 12l4.5.8M18.5 9l-4.5.8M18.5 12l-4.5.8" stroke="'+PXA+'"/>'),
+ v_sm:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><rect x="6" y="6.5" width="12" height="3.5" stroke="'+PXA+'" stroke-dasharray="2 1.4"/><rect x="6" y="12" width="12" height="5.5" stroke="'+PXA+'" stroke-dasharray="2 1.4"/>'),
+ v_hm:PXS('<rect x="5.5" y="3" width="13" height="18" fill="#fff"/><rect x="8" y="5.5" width="3.5" height="3.5" stroke="'+PXA+'" stroke-dasharray="1.6 1.2"/><rect x="12.5" y="5.5" width="3.5" height="3.5" stroke="'+PXA+'" stroke-dasharray="1.6 1.2"/><rect x="8" y="11" width="3.5" height="3.5" stroke="'+PXA+'" stroke-dasharray="1.6 1.2"/><rect x="12.5" y="11" width="3.5" height="3.5" stroke="'+PXA+'" stroke-dasharray="1.6 1.2"/><path d="M8 17.5h8" stroke="#9a9a9a"/>'),
+ v_nm:PXS('<rect x="5.5" y="3" width="13" height="18" fill="#fff"/><rect x="8" y="5.5" width="8" height="5.5" stroke="'+PXA+'" stroke-dasharray="2 1.4"/><path d="M8 14h8M8 16.5h8M8 19h5" stroke="'+PXA+'" stroke-dasharray="2 1.4"/>'),
+ v_notesb:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><rect x="5.5" y="6" width="13" height="7"/><rect x="5.5" y="15" width="13" height="3.5" fill="'+PXBL+'" stroke="'+PXB+'"/>'),
+ zoom:PXS(PXMAG+'<path d="M7.3 10h5.4M10 7.3v5.4" stroke="'+PXA+'"/>'),
+ fit:PXS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><path d="M7 9.5V8h1.5M17 9.5V8h-1.5M7 14.5V16h1.5M17 14.5V16h-1.5" stroke="'+PXA+'" stroke-width="1.6"/>'),
+ neww:PXS('<rect x="3.5" y="5" width="12" height="10" fill="#fff"/><rect x="8.5" y="9" width="12" height="10" fill="#fff"/><path d="M8.5 12h12" stroke="'+PXA+'"/>'),
+ arrwin:PXS(PXGRID(3.5,3.5,17,17,2,2)+'<path d="M3.5 7.5h8.5M12 3.5v4M12 11.5h8.5" stroke="'+PXA+'"/>'),
+ cascade:PXS('<rect x="3.5" y="3.5" width="12" height="9" fill="#fff"/><rect x="6.5" y="7.5" width="12" height="9" fill="#fff"/><rect x="9" y="11.5" width="11.5" height="9" fill="#fff" stroke="'+PXA+'"/>'),
+ split:PXS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><path d="M12 4v16M3.5 12h17" stroke="'+PXA+'"/>'),
+ sw:PXS('<rect x="3.5" y="5" width="12" height="10" fill="#fff"/><rect x="8.5" y="9" width="12" height="10" fill="#fff"/><path d="M11 14h7M16 12l2 2-2 2" stroke="'+PXA+'"/>'),
+ macro:PXS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M10 9l6 3-6 3z" fill="'+PXA+'" stroke="'+PXA+'"/>'),
+ /* --- QAT, menu Berkas --- */
+ save:PXS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6" stroke="'+PXA+'"/>'),
+ undo:PXS('<path d="M9 6L4.5 10.5 9 15"/><path d="M4.5 10.5H15a5 5 0 0 1 0 10h-3"/>'),
+ redo:PXS('<path d="M15 6l4.5 4.5L15 15"/><path d="M19.5 10.5H9a5 5 0 0 0 0 10h3"/>'),
+ qplay:PXS('<path d="M8 5.5l11 6.5-11 6.5z" fill="#fff"/>'),
+ print:PXS('<rect x="6.5" y="3.5" width="11" height="5" fill="#fff"/><rect x="3.5" y="8.5" width="17" height="8" rx="1" fill="#fff"/><rect x="6.5" y="14" width="11" height="6.5" fill="#fff" stroke="'+PXA+'"/>'),
+ mnew:PXS('<rect x="4.5" y="3" width="15" height="18" rx="1.5"/><path d="M12 9v6M9 12h6"/>'),
+ mopen:PXS('<path d="M3.5 7h6l2 2h9v10h-17z"/>'),
+ msave:PXS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6"/>'),
+ mprint:PXS('<rect x="6.5" y="3.5" width="11" height="5"/><rect x="3.5" y="8.5" width="17" height="8" rx="1"/><rect x="6.5" y="14" width="11" height="6.5"/>'),
+ mback:PXS('<path d="M20 12H5M10 6l-6 6 6 6"/>'),
+ /* --- Bilah status (putih di atas latar aksen; tanpa isian) --- */
+ sb_notes:PXS('<rect x="3.5" y="4" width="17" height="10"/><path d="M5 17.5h14M5 20.5h9"/>'),
+ sb_cm:PXS('<path d="M4 4.5h16v11H11l-4.5 4v-4H4z"/>'),
+ sb_normal:PXS('<rect x="3.5" y="4.5" width="17" height="15"/><path d="M9 4.5v15"/>'),
+ sb_sorter:PXS('<rect x="3.5" y="4.5" width="7" height="6"/><rect x="13.5" y="4.5" width="7" height="6"/><rect x="3.5" y="13.5" width="7" height="6"/><rect x="13.5" y="13.5" width="7" height="6"/>'),
+ sb_show:PXS('<path d="M8 5.5l11 6.5-11 6.5z"/>'),
+ sb_fit:PXS('<rect x="3.5" y="5" width="17" height="14"/><path d="M7 9.5V8h1.5M17 9.5V8h-1.5M7 14.5V16h1.5M17 14.5V16h-1.5"/>')
+};
 const B=(ic,tip,a,m)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m?`<span>${tip}</span>`:''}</button>`;
 const BM=(ic,tip,m)=>`<button class="b rw" title="${tip}" data-m="${m}"><em>${ic}</em><span>${tip} ▾</span></button>`;
 const S=(n,o,w,tip,r)=>`<span class="ddw"><select data-s="${n}" title="${tip||''}"${r?' data-r':''}>${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select><button class="b dd vl" data-dd="${n}" title="${tip||''}" style="width:${w}px"><span class="v"></span><i class="car">▾</i></button></span>`;
@@ -428,54 +596,46 @@ const plainHTML=(o,h)=>{const L=lines(h).map(x=>x.trim()).filter(Boolean);if(!L.
 const TXR=['body','sub','text'];
 
 const RIB_HOME=
- G('Papan klip',`<div class="sp1"><button class="b big" data-a="paste" title="Tempel (Ctrl+V)"><em>📋</em></button><button class="b sm" data-m="paste">Tempel ▾</button></div>`+
-   `<div class="rows">${B('✂','Potong','cut','rw')}${B('⎘','Salin','copy','rw')}${B('🖌','Kuas Format','painter','rw')}</div>`)+
- G('Slide',`<div class="sp1"><button class="b big" data-a="newslide" title="Slide Baru (Ctrl+M)"><em>🗎</em></button><button class="b sm" data-m="newslide">Slide Baru ▾</button></div>`+
-   `<div class="rows">${BM('▦','Tata Letak','layout')}${B('↺','Atur Ulang','reset','rw')}${BM('☰','Bagian','section')}</div>`)+
+ G('Papan klip',`<div class="sp1"><button class="b big" data-a="paste" title="Tempel (Ctrl+V)"><em>${PX.paste}</em></button><button class="b sm" data-m="paste">Tempel ▾</button></div>`+
+   `<div class="rows">${B(PX.cut,'Potong','cut','rw')}${B(PX.copy,'Salin','copy','rw')}${B(PX.painter,'Kuas Format','painter','rw')}</div>`)+
+ G('Slide',`<div class="sp1"><button class="b big" data-a="newslide" title="Slide Baru (Ctrl+M)"><em>${PX.newslide}</em></button><button class="b sm" data-m="newslide">Slide Baru ▾</button></div>`+
+   `<div class="rows">${BM(PX.layout,'Tata Letak','layout')}${B(PX.reset,'Atur Ulang','reset','rw')}${BM(PX.section,'Bagian','section')}</div>`)+
  G('Font',R(
-   S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B('A⁺','Perbesar font','grow')+B('A⁻','Perkecil font','shrink')+B('🧽','Hapus semua format','removeFormat'),
-   B('<b>B</b>','Tebal (Ctrl+B)','bold')+B('<i>I</i>','Miring (Ctrl+I)','italic')+B('<u>U</u>','Garis bawah (Ctrl+U)','underline')+B('<span style="text-shadow:1px 1px 1px #888">S</span>','Bayangan teks','tshadow')+B('<s>abc</s>','Coret','strikeThrough')+
+   S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B(PX.grow,'Perbesar font','grow')+B(PX.shrink,'Perkecil font','shrink')+B(PX.rmfmt,'Hapus semua format','removeFormat'),
+   B(PX.bold,'Tebal (Ctrl+B)','bold')+B(PX.italic,'Miring (Ctrl+I)','italic')+B(PX.underline,'Garis bawah (Ctrl+U)','underline')+B(PX.shadow,'Bayangan teks','tshadow')+B(PX.strike,'Coret','strikeThrough')+
    S('spc',[['','AV'],['-1','Rapat'],['0','Normal'],['1','Longgar'],['3','Sangat longgar']],52,'Jarak karakter',1)+
    S('case',[['','Aa'],['upper','HURUF BESAR'],['lower','huruf kecil'],['title','Kapital Tiap Kata'],['sent','Kapital kalimat']],50,'Ubah huruf besar/kecil',1)+
    C('color','#ff0000','Warna font','<b>A</b>')))+
  G('Paragraf',R(
-   B('•≡','Poin','insertUnorderedList')+B('1≡','Penomoran','insertOrderedList')+B('⇤','Kurangi indentasi','outdent')+B('⇥','Tambah indentasi','indent')+
+   B(PX.bullets,'Poin','insertUnorderedList')+B(PX.numbered,'Penomoran','insertOrderedList')+B(PX.outd,'Kurangi indentasi','outdent')+B(PX.ind,'Tambah indentasi','indent')+
    S('lh',[['','↕ Spasi'],['1','1,0'],['1.15','1,15'],['1.5','1,5'],['2','2,0'],['3','3,0']],74,'Spasi baris',1),
    S('dir',[['','Arah Teks'],['h','Horizontal'],['v90','Putar 90°'],['v270','Putar 270°'],['st','Bertumpuk']],92,'Arah teks',1)+
    B(AL('L'),'Rata kiri (Ctrl+L)','justifyLeft')+B(AL('C'),'Tengah (Ctrl+E)','justifyCenter')+B(AL('R'),'Rata kanan (Ctrl+R)','justifyRight')+B(AL('J'),'Rata kiri-kanan (Ctrl+J)','justifyFull')+
    S('cols',[['1','1 Kol'],['2','2 Kol'],['3','3 Kol']],58,'Kolom'),
    S('anchor',[['','Ratakan Teks'],['t','Atas'],['m','Tengah'],['b','Bawah']],112,'Ratakan teks')+
-   `<button class="b" data-m="smart" title="Konversi ke SmartArt"><em>⬚</em><span>Konversi ke SmartArt ▾</span></button>`))+
+   `<button class="b" data-m="smart" title="Konversi ke SmartArt"><em>${PX.smart}</em><span>Konversi ke SmartArt ▾</span></button>`))+
  G('Gambar',`<div class="shg">${SHAPES.map(([id,n])=>`<button class="b" data-a="shape:${id}" title="${n}">${shapeIcon(id)}</button>`).join('')}</div>`+
-   `<button class="b big" data-m="arrange" title="Susun"><em>⧉</em><span>Susun ▾</span></button><button class="b big" data-m="qstyle" title="Gaya Cepat"><em>◧</em><span>Gaya Cepat ▾</span></button>`+
-   R(`${CL('sfill','#5b9bd5','Isian Bentuk','🪣')}<button class="b" data-a="nofill" title="Tanpa isian">∅</button>`,
-     `${CL('sline','#41719c','Kerangka','▢')}${S('sw',[['0.5','½'],['1','1'],['2.25','2¼'],['3','3'],['4.5','4½'],['6','6']],46,'Tebal garis')}${S('dash',[['','—'],['8 5','- -'],['2 4','···']],42,'Jenis garis')}`,
+   `<button class="b big" data-m="arrange" title="Susun"><em>${PX.arrange}</em><span>Susun ▾</span></button><button class="b big" data-m="qstyle" title="Gaya Cepat"><em>${PX.qstyle}</em><span>Gaya Cepat ▾</span></button>`+
+   R(`${CL('sfill','#5b9bd5','Isian Bentuk',PX.fill)}<button class="b" data-a="nofill" title="Tanpa isian">${PX.nofill}</button>`,
+     `${CL('sline','#41719c','Kerangka',PX.outline)}${S('sw',[['0.5','½'],['1','1'],['2.25','2¼'],['3','3'],['4.5','4½'],['6','6']],46,'Tebal garis')}${S('dash',[['','—'],['8 5','- -'],['2 4','···']],42,'Jenis garis')}`,
      S('sfx',[['','Efek Bentuk ▾'],['shadow','Bayangan'],['refl','Pantulan'],['glow','Cahaya'],['soft','Tepi Halus'],['bevel','Timbul'],['none','Hapus efek']],112,'Efek bentuk',1)))+
- G('Penyuntingan',`<div class="rows">${B('🔍','Cari','find','rw')}${B('ab','Ganti','replace','rw')}${BM('⬚','Pilih','pilih')}</div>`);
+ G('Penyuntingan',`<div class="rows">${B(PX.find,'Cari','find','rw')}${B(PX.replace,'Ganti','replace','rw')}${BM(PX.pick,'Pilih','pilih')}</div>`);
 
 /* ---- tab SISIPKAN ---- */
 const IB=(ic,tip,a,need,lab)=>`<button class="b big" title="${tip}" data-a="${a}"${need?` data-need="${need}"`:''}><em>${ic}</em><span>${lab||tip}</span></button>`;
 const IM=(ic,tip,m,lab)=>`<button class="b big" title="${tip}" data-m="${m}"><em>${ic}</em><span>${lab||tip} ▾</span></button>`;
 const SPLIT=(ic,tip,a,m,lab)=>`<div class="sp1"><button class="b big" title="${tip}" data-a="${a}"><em>${ic}</em></button><button class="b sm" data-m="${m}">${lab} ▾</button></div>`;
-const ICO={
-  table:'<svg width="28" height="26" viewBox="0 0 28 26"><rect x="2" y="3" width="24" height="20" fill="#fff" stroke="#4a5f8a"/><rect x="2" y="3" width="24" height="6" fill="#4a73b5"/><path d="M2 9.5h24M2 16h24M10 3v20M18 3v20" stroke="#4a5f8a"/></svg>',
-  chart:'<svg width="28" height="26" viewBox="0 0 28 26"><rect x="3" y="12" width="6" height="12" fill="#5b9bd5"/><rect x="11" y="5" width="6" height="19" fill="#ed7d31"/><rect x="19" y="9" width="6" height="15" fill="#a5a5a5"/><path d="M2 24.5h25" stroke="#555"/></svg>',
-  smart:'<svg width="28" height="26" viewBox="0 0 28 26"><rect x="2" y="3" width="11" height="7" fill="#4a9a6a" stroke="#2c6e47"/><rect x="15" y="3" width="11" height="7" fill="#5b9bd5" stroke="#41719c"/><rect x="2" y="14" width="24" height="8" fill="#9fc3e6" stroke="#41719c"/></svg>',
-  apps:'<svg width="28" height="26" viewBox="0 0 28 26"><polygon points="14,2 24,8 24,19 14,25 4,19 4,8" fill="#0a64c8"/><polygon points="14,2 24,8 14,13 4,8" fill="#3b8be0"/></svg>',
-  hdr:'<svg width="28" height="26" viewBox="0 0 28 26"><rect x="4" y="2" width="20" height="22" fill="#fff" stroke="#777"/><rect x="4" y="2" width="20" height="5" fill="#f1c9a8" stroke="#777"/><path d="M7 11h14M7 14h14M7 17h14" stroke="#aaa"/></svg>',
-  wa:'<svg width="28" height="26" viewBox="0 0 28 26"><text x="14" y="22" font-size="26" font-weight="700" font-style="italic" text-anchor="middle" fill="#2b579a" font-family="Georgia,serif">A</text></svg>'
-};
 const RIB_INSERT=
- G('Slide',SPLIT('🗎','Slide Baru (Ctrl+M)','newslide','newslide','Slide Baru'))+
- G('Tabel',IM(ICO.table,'Tabel','table'))+
- G('Gambar',IB('🖼','Gambar dari berkas','pic',0,'Gambar')+IB('🌐','Gambar online (dari URL)','onlinepic',0,'Gambar<br>Online')+IM('📷','Cuplikan layar','screenshot','Cuplikan<br>Layar')+IM('🗂','Album foto','album','Album<br>Foto'))+
- G('Ilustrasi',IM('◇','Bentuk','shapes')+IM(ICO.smart,'SmartArt','smartins')+IM(ICO.chart,'Bagan','chartm'))+
- G('Aplikasi',IM(ICO.apps,'Aplikasi untuk Office','apps','Aplikasi<br>untuk Office'))+
- G('Tautan',IB('🔗','Hyperlink (Ctrl+K)','hlink','link','Hyperlink')+IB('★','Tindakan','action','obj','Tindakan'))+
- G('Komentar',IB('💬','Komentar','comment',0,'Komentar'))+
- G('Teks',SPLIT('<span style="font-family:Georgia;border:1px solid #4a5f8a;padding:0 5px;font-size:20px">A</span>','Kotak Teks','shape:tb','textbox','Kotak<br>Teks')+IB(ICO.hdr,'Header &amp; Footer','hf',0,'Header<br>&amp; Footer')+IM(ICO.wa,'WordArt','wordart')+IB('📅','Tanggal &amp; Waktu','datetime',0,'Tanggal<br>&amp; Waktu')+IB('#','Nomor Slide','slidenum',0,'Nomor<br>Slide')+IB('▣','Objek (gambar, teks, CSV)','object',0,'Objek'))+
- G('Simbol',IM('<span style="color:#2b579a;font-family:Cambria,serif">π</span>','Persamaan','eqm')+IB('Ω','Simbol','symbol','text','Simbol'))+
- G('Media',IM('🎞','Video','video')+IM('🔊','Audio','audio'));
+ G('Slide',SPLIT(PX.newslide,'Slide Baru (Ctrl+M)','newslide','newslide','Slide Baru'))+
+ G('Tabel',IM(PX.table,'Tabel','table'))+
+ G('Gambar',IB(PX.pic,'Gambar dari berkas','pic',0,'Gambar')+IB(PX.picon,'Gambar online (dari URL)','onlinepic',0,'Gambar<br>Online')+IM(PX.shot,'Cuplikan layar','screenshot','Cuplikan<br>Layar')+IM(PX.album,'Album foto','album','Album<br>Foto'))+
+ G('Ilustrasi',IM(PX.shapes,'Bentuk','shapes')+IM(PX.smart,'SmartArt','smartins')+IM(PX.chart,'Bagan','chartm'))+
+ G('Aplikasi',IM(PX.store,'Aplikasi untuk Office','apps','Aplikasi<br>untuk Office'))+
+ G('Tautan',IB(PX.link,'Hyperlink (Ctrl+K)','hlink','link','Hyperlink')+IB(PX.action,'Tindakan','action','obj','Tindakan'))+
+ G('Komentar',IB(PX.cmnew,'Komentar','comment',0,'Komentar'))+
+ G('Teks',SPLIT(PX.textbox,'Kotak Teks','shape:tb','textbox','Kotak<br>Teks')+IB(PX.hdr,'Header &amp; Footer','hf',0,'Header<br>&amp; Footer')+IM(PX.wordart,'WordArt','wordart')+IB(PX.dt,'Tanggal &amp; Waktu','datetime',0,'Tanggal<br>&amp; Waktu')+IB(PX.slnum,'Nomor Slide','slidenum',0,'Nomor<br>Slide')+IB(PX.obj,'Objek (gambar, teks, CSV)','object',0,'Objek'))+
+ G('Simbol',IM(PX.eq,'Persamaan','eqm')+IB(PX.sym,'Simbol','symbol','text','Simbol'))+
+ G('Media',IM(PX.video,'Video','video')+IM(PX.audio,'Audio','audio'));
 
 /* ---- tab ANIMASI ---- */
 const AEFF=[['none','Tidak Ada'],['appear','Muncul'],['fade','Pudar'],['fly','Terbang Masuk'],['float','Melayang Masuk'],['split','Belah'],['wipe','Sapu'],['shape','Bentuk'],['wheel','Roda'],['bars','Batang Acak'],['grow','Membesar & Putar']];
@@ -522,14 +682,14 @@ const aIcon=t=>{const M={appear:'<path d="M3 3l4 4M31 3l-4 4M3 29l4-4M31 29l-4-4
   wheel:'<path d="M17 16V6M17 16l9 5" stroke="#fff" stroke-width="2"/>',bars:'<path d="M5 12h24M5 17h24M5 22h24" stroke="#fff" stroke-width="1.2"/>',grow:'<path d="M24 24l7 7M31 24v7h-7" stroke="#3d7a3d" stroke-width="1.6" fill="none"/>'};
   return `<svg width="34" height="32" viewBox="0 0 34 32"><path d="M17 2l4.2 8.6 9.3 1.3-6.8 6.6 1.7 9.3L17 23.3l-8.4 4.5 1.7-9.3-6.8-6.6 9.3-1.3z" fill="${t==='none'?'#d0d0d0':'#5ba85b'}" stroke="${t==='none'?'#aaa':'#3d7a3d'}" stroke-width=".8"/>${M[t]||''}</svg>`;};
 const RIB_ANIM=
- G('Pratinjau',IB('★','Pratinjau animasi','anprev',0,'Pratinjau'))+
+ G('Pratinjau',IB(PX.trprev,'Pratinjau animasi','anprev',0,'Pratinjau'))+
  G('Animasi',`<div class="tgal trg">${AEFF.map(([id,n])=>`<button class="trb anb2" data-an="${id}" data-a="anset:${id}" title="${n}" disabled>${aIcon(id)}<span>${n}</span></button>`).join('')}</div>`+
-   `<div class="rows"><button class="b" data-a="anscroll:-1" title="Sebelumnya">◀</button><button class="b" data-a="anscroll:1" title="Berikutnya">▶</button></div>`+
-   `<button class="b big aneff" data-m="aneff" disabled title="Opsi Efek"><em>⚙</em><span>Opsi Efek ▾</span></button>`)+
- G('Animasi Lanjutan',`<button class="b big" data-m="anadd" title="Tambah Animasi"><em>✦</em><span>Tambah<br>Animasi ▾</span></button><div class="rows">${B('▤','Panel Animasi','anpane','rw')}${B('🖌','Pelukis Animasi','anpaint','rw')}</div>`)+
+   `<div class="rows"><button class="b" data-a="anscroll:-1" title="Sebelumnya">${PX.left}</button><button class="b" data-a="anscroll:1" title="Berikutnya">${PX.right}</button></div>`+
+   `<button class="b big aneff" data-m="aneff" disabled title="Opsi Efek"><em>${PX.gear}</em><span>Opsi Efek ▾</span></button>`)+
+ G('Animasi Lanjutan',`<button class="b big" data-m="anadd" title="Tambah Animasi"><em>${PX.aadd}</em><span>Tambah<br>Animasi ▾</span></button><div class="rows">${B(PX.anpane,'Panel Animasi','anpane','rw')}${B(PX.anpaint,'Pelukis Animasi','anpaint','rw')}</div>`)+
  G('Pengaturan Waktu',`<div class="rows tmw"><div class="row">Mulai: ${S('anstart',[['click','Saat Klik'],['with','Bersama Sebelumnya'],['after','Setelah Sebelumnya']],150,'Mulai')}</div>`+
    `<div class="row">Durasi: <input type="number" data-s="andur" step="0.25" min="0.1" max="60" value="0.5"> dtk</div><div class="row">Tunda: <input type="number" data-s="andelay" step="0.25" min="0" max="60" value="0"> dtk</div></div>`+
-   `<div class="rows tmw"><div class="row"><b>Urutkan Ulang Animasi</b></div>${B('▲','Pindah Lebih Awal','anup','rw')}${B('▼','Pindah Lebih Lambat','andown','rw')}</div>`);
+   `<div class="rows tmw"><div class="row"><b>Urutkan Ulang Animasi</b></div>${B(PX.up,'Pindah Lebih Awal','anup','rw')}${B(PX.down,'Pindah Lebih Lambat','andown','rw')}</div>`);
 
 /* ---- tab TRANSISI ---- */
 const TRS=[['none','Tidak Ada'],['cut','Potong'],['fade','Pudar'],['push','Dorong'],['wipe','Sapu'],['split','Belah'],['reveal','Ungkap'],['bars','Batang Acak'],['shape','Bentuk'],['uncover','Singkap'],['cover','Tutupi'],['flash','Kilat'],['fall','Jatuh'],['zoom','Zoom']];
@@ -586,13 +746,13 @@ function runTr(box,oldEl,newEl,tr,done){
   return fin;
 }
 const RIB_TRANS=
- G('Pratinjau',IB('▶','Pratinjau','trprev',0,'Pratinjau'))+
+ G('Pratinjau',IB(PX.trprev,'Pratinjau','trprev',0,'Pratinjau'))+
  G('Transisi ke Slide Ini',`<div class="tgal trg">${TRS.map(([id,n])=>`<button class="trb" data-tr="${id}" data-a="trset:${id}" title="${n}">${trIcon(id)}<span>${n}</span></button>`).join('')}</div>`+
-   `<div class="rows"><button class="b" data-a="trscroll:-1" title="Sebelumnya">◀</button><button class="b" data-a="trscroll:1" title="Berikutnya">▶</button><button class="b" data-m="trmenu" title="Semua transisi">▾</button></div>`+
-   `<button class="b big treff" title="Opsi Efek" data-m="treff"><em>⚙</em><span>Opsi Efek ▾</span></button>`)+
+   `<div class="rows"><button class="b" data-a="trscroll:-1" title="Sebelumnya">${PX.left}</button><button class="b" data-a="trscroll:1" title="Berikutnya">${PX.right}</button><button class="b" data-m="trmenu" title="Semua transisi">▾</button></div>`+
+   `<button class="b big treff" title="Opsi Efek" data-m="treff"><em>${PX.gear}</em><span>Opsi Efek ▾</span></button>`)+
  G('Pengaturan Waktu',`<div class="rows tmw"><div class="row">Suara: ${S('trsnd',[['','Tanpa Suara'],['click','Klik'],['chime','Denting'],['whoosh','Whoosh'],['pop','Pop']],112,'Suara')}</div>`+
    `<div class="row">Durasi: <input type="number" data-s="trdur" step="0.25" min="0.25" max="60" value="1" title="Durasi (detik)"> dtk</div>`+
-   `<div class="row"><button class="b" data-a="trall" title="Terapkan transisi ke semua slide">⧉ Terapkan ke Semua</button></div></div>`+
+   `<div class="row"><button class="b" data-a="trall" title="Terapkan transisi ke semua slide">${PX.applyall}<span>Terapkan ke Semua</span></button></div></div>`+
    `<div class="rows tmw"><div class="row"><b>Maju Slide</b></div><div class="row">${CKM('Opsi Maju Slide',[['s','trclk','Saat Klik Mouse',1],['s','traft','Setelah (detik di bawah)']],130)}</div>`+
    `<div class="row">Setelah: <input type="number" data-s="traftv" step="1" min="0" value="0" title="Detik"> dtk</div></div>`);
 
@@ -622,25 +782,12 @@ function tThumb(t,v){const c=pal(t,v);
   return `<span class="tb" style="background:${c.bg}">${d}<b style="color:${c.title};font-family:'${t.hf}',sans-serif">Aa</b><span class="sws">${t.acc.map(x=>`<i style="background:${x}"></i>`).join('')}</span></span>`;}
 const RIB_DESIGN=
  G('Tema',`<div class="tgal">${THEMES.map((t,i)=>`<button class="tt" data-t="${i}" data-a="theme:${i}" title="${t.n}">${tThumb(t,0)}</button>`).join('')}</div>`+
-   `<div class="rows"><button class="b" data-a="tscroll:-1" title="Sebelumnya">◀</button><button class="b" data-a="tscroll:1" title="Berikutnya">▶</button><button class="b" data-m="themes" title="Semua tema">▾</button></div>`)+
+   `<div class="rows"><button class="b" data-a="tscroll:-1" title="Sebelumnya">${PX.left}</button><button class="b" data-a="tscroll:1" title="Berikutnya">${PX.right}</button><button class="b" data-m="themes" title="Semua tema">▾</button></div>`)+
  G('Varian','<div class="vgal"></div>')+
- G('Sesuaikan',IB('🎨','Format Latar Belakang','bgfmt',0,'Format<br>Latar Belakang'));
+ G('Sesuaikan',IB(PX.bgfmt,'Format Latar Belakang','bgfmt',0,'Format<br>Latar Belakang'));
 
 /* ---- tab SLIDE SHOW ---- */
-const SHI=(()=>{
-  const bd='<rect x="5" y="2.5" width="24" height="16" fill="#fff" stroke="#6b6b6b"/><path d="M5 5.5h24" stroke="#6b6b6b"/><path d="M17 18.5v5M17 23.5l-6 7M17 23.5l6 7" stroke="#6b6b6b" fill="none" stroke-width="1.4"/>';
-  const S=x=>`<svg width="34" height="32" viewBox="0 0 34 32">${x}</svg>`;
-  return{
-    start:S(bd+'<circle cx="24" cy="21" r="7.5" fill="#4caf50" stroke="#2e7d32"/><path d="M21.5 17.5l6 3.5-6 3.5z" fill="#fff"/>'),
-    cur:S(bd+'<circle cx="17" cy="11" r="4.6" fill="#ed7d31"/><path d="M17 11V6.4a4.6 4.6 0 0 1 4.6 4.6z" fill="#5b9bd5"/>'),
-    online:S(bd+'<circle cx="24" cy="21" r="7.5" fill="#3b8be0" stroke="#1f5fa8"/><path d="M16.5 21h15M24 13.5v15M20 15.5q4 5.5 0 11M28 15.5q-4 5.5 0 11" stroke="#fff" fill="none" stroke-width=".9"/>'),
-    cust:S(bd+'<rect x="19" y="14" width="12" height="15" fill="#fff" stroke="#4a73b5"/><path d="M21.5 18h7M21.5 21.5h7M21.5 25h7" stroke="#4a73b5" stroke-width="1.5"/>'),
-    setup:S('<rect x="6" y="3" width="17" height="22" fill="#fff" stroke="#6b6b6b"/><path d="M9 8h11M9 12h11M9 16h8" stroke="#9a9a9a"/><circle cx="12" cy="20" r="2.5" fill="#ed7d31"/><circle cx="23" cy="21" r="6.5" fill="#e8e8e8" stroke="#6b6b6b"/><circle cx="23" cy="21" r="2.4" fill="#fff" stroke="#6b6b6b"/><path d="M23 13.5v3M23 25.5v3M15.5 21h3M27.5 21h3" stroke="#6b6b6b" stroke-width="2"/>'),
-    hide:S('<rect x="5" y="5" width="24" height="18" fill="#fff" stroke="#6b6b6b"/><circle cx="17" cy="14" r="4.6" fill="#ed7d31"/><path d="M17 14V9.4a4.6 4.6 0 0 1 4.6 4.6z" fill="#5b9bd5"/><path d="M3 27L31 1" stroke="#444" stroke-width="2.2"/>'),
-    reh:S('<rect x="3" y="3" width="24" height="18" fill="#fff" stroke="#6b6b6b"/><path d="M3 6.5h24" stroke="#6b6b6b"/><circle cx="23" cy="21" r="8" fill="#fff" stroke="#44546a" stroke-width="1.6"/><path d="M23 15.5V21l4 2.5" stroke="#44546a" stroke-width="1.6" fill="none"/>'),
-    rec:S('<rect x="3" y="3" width="24" height="18" fill="#fff" stroke="#6b6b6b"/><path d="M3 6.5h24" stroke="#6b6b6b"/><circle cx="12" cy="17" r="7" fill="#e53935" stroke="#a31515"/><circle cx="24" cy="21" r="7" fill="#fff" stroke="#44546a" stroke-width="1.5"/><path d="M24 16.5V21l3.4 2" stroke="#44546a" stroke-width="1.5" fill="none"/>')
-  };
-})();
+const SHI={start:PX.ss_start,cur:PX.ss_cur,online:PX.ss_online,cust:PX.ss_cust,setup:PX.ss_setup,hide:PX.ss_hide,reh:PX.ss_reh,rec:PX.ss_rec};
 const SB=(ic,tip,a,lab)=>`<button class="b big" title="${tip}" data-a="${a}"><em>${ic}</em><span>${lab||tip}</span></button>`;
 const SM=(ic,tip,m,lab)=>`<button class="b big" title="${tip}" data-m="${m}"><em>${ic}</em><span>${lab||tip} ▾</span></button>`;
 const RIB_SHOW=
@@ -651,37 +798,18 @@ const RIB_SHOW=
    `<div class="rows tmw"><div class="row">${CKM('Opsi Slide Show',[['s','shnarr','Putar Narasi',1],['s','shtim','Gunakan Pengaturan Waktu',1],['s','shmed','Tampilkan Kontrol Media',1]],150)}</div></div>`)+
  G('Monitor',`<div class="rows tmw"><div class="row">Monitor: ${S('shmon',[['auto','Otomatis'],['main','Monitor Utama']],130,'Pilih monitor untuk slide show')}</div><div class="row">${CKM('Opsi Monitor',[['s','shpv','Gunakan Tampilan Presenter']],150)}</div></div>`);
 
-const RV_IC={
- spell:'<span style="display:block;font-size:9px;line-height:9px;font-weight:700;color:#444">ABC</span><span style="color:#2b6cb0;font-size:20px;line-height:18px">✔</span>',
- res:'<span style="color:#555">🔍</span>',thes:'<span style="color:#888">📖</span>',
- trans:'<span style="color:#2b6cb0;font-weight:600;font-size:19px">文A</span>',lang:'<span style="color:#2b6cb0;font-weight:600;font-size:19px">A字</span>',
- newc:'<span style="color:#d4a300">💬</span>',del:'<span style="color:#777">✕</span>',prev:'◀',next:'▶',show:'🗨',
- cmp:'<span style="color:#444">⇄</span>',acc:'<span style="color:#2e8b57">✔</span>',rej:'<span style="color:#b22222">✖</span>',end:'<span style="color:#2e8b57">☑</span>'};
+const RV_IC={spell:PX.rv_spell,res:PX.rv_res,thes:PX.rv_thes,trans:PX.transl,lang:PX.rv_lang,newc:PX.cmnew,del:PX.cmdel,prev:PX.cmprev,next:PX.cmnext,show:PX.cmshow,
+ cmp:PX.cmp,acc:PX.accept,rej:PX.reject,end:PX.endrv};
 const RB=(ic,lab,a,rv,menu,tip)=>`<button class="b big" title="${(tip||lab).replace(/<br>/g," ")}" ${menu?'data-m':'data-a'}="${a}"${rv?` data-rv="${rv}" disabled`:''}><em>${ic}</em><span>${lab}${menu?' ▾':''}</span></button>`;
-const RS=(ic,lab,a,rv)=>`<button class="b rw" title="${lab}" data-a="${a}"${rv?` data-rv="${rv}" disabled`:''}><em style="font-size:13px">${ic}</em><span>${lab}</span></button>`;
+const RS=(ic,lab,a,rv)=>`<button class="b rw" title="${lab}" data-a="${a}"${rv?` data-rv="${rv}" disabled`:''}><em>${ic}</em><span>${lab}</span></button>`;
 const RIB_REVIEW=
  G('Pemeriksaan',RB(RV_IC.spell,'Ejaan','rvspell')+RB(RV_IC.res,'Riset','rvres')+`<button class="b big" title="Tesaurus (pilih kata terlebih dahulu)" data-a="rvthes" data-need="text" disabled><em>${RV_IC.thes}</em><span>Tesaurus</span></button>`)+
  G('Bahasa',RB(RV_IC.trans,'Terjemahkan','rvtrans','',1)+RB(RV_IC.lang,'Bahasa','rvlang','',1))+
  G('Komentar',RB(RV_IC.newc,'Komentar<br>Baru','comment')+RB(RV_IC.del,'Hapus','rvdel','cm',1)+RB(RV_IC.prev,'Sebelumnya','rvcprev','cm')+RB(RV_IC.next,'Berikutnya','rvcnext','cm')+RB(RV_IC.show,'Tampilkan<br>Komentar','rvshow','',1))+
  G('Bandingkan',RB(RV_IC.cmp,'Bandingkan','rvcmp')+RB(RV_IC.acc,'Terima','rvacc','cmpn',1)+RB(RV_IC.rej,'Tolak','rvrej','cmpn',1)+
-   `<div class="rows">${RS('◀','Sebelumnya','rvprev','cmpn')}${RS('▶','Berikutnya','rvnext','cmpn')}${RS('☰','Panel Peninjauan','rvrpane','')}</div>`+RB(RV_IC.end,'Akhiri<br>Peninjauan','rvend','cmp'));
+   `<div class="rows">${RS(PX.left,'Sebelumnya','rvprev','cmpn')}${RS(PX.right,'Berikutnya','rvnext','cmpn')}${RS(PX.list,'Panel Peninjauan','rvrpane','')}</div>`+RB(RV_IC.end,'Akhiri<br>Peninjauan','rvend','cmp'));
 
-const VW=(inner)=>`<svg width="30" height="24" viewBox="0 0 30 24" fill="none" stroke="#555" stroke-width="1.2">${inner}</svg>`;
-const VWI={
- normal:VW('<rect x="1.5" y="2.5" width="27" height="19" fill="#fff"/><rect x="4" y="5" width="6" height="14" stroke="#2b6cb0"/><rect x="12" y="5" width="14" height="9" stroke="#2b6cb0"/><path d="M12 17h14" stroke="#999"/>'),
- outline:VW('<rect x="1.5" y="2.5" width="27" height="19" fill="#fff"/><path d="M5 7h20M9 11h16M9 15h16M5 19h12" stroke="#2b6cb0"/>'),
- sorter:VW('<rect x="2.5" y="3.5" width="11" height="7" fill="#fff"/><rect x="16.5" y="3.5" width="11" height="7" fill="#fff"/><rect x="2.5" y="13.5" width="11" height="7" fill="#fff"/><rect x="16.5" y="13.5" width="11" height="7" fill="#fff"/>'),
- notes:VW('<rect x="6.5" y="1.5" width="17" height="21" fill="#fff"/><rect x="9" y="4" width="12" height="7" stroke="#2b6cb0"/><path d="M9 14h12M9 17h12M9 20h8" stroke="#999"/>'),
- read:VW('<path d="M3 5l12 2 12-2v15l-12 2-12-2z" fill="#fff"/><path d="M15 7v15" stroke="#555"/><path d="M6 10l6 1M6 13l6 1M18 11l6-1M18 14l6-1" stroke="#2b6cb0"/>'),
- sm:VW('<rect x="3.5" y="2.5" width="23" height="19" fill="#fff"/><rect x="6" y="5" width="18" height="4" stroke-dasharray="2 1" stroke="#2b6cb0"/><rect x="6" y="11" width="18" height="8" stroke-dasharray="2 1" stroke="#2b6cb0"/>'),
- hm:VW('<rect x="5.5" y="1.5" width="19" height="21" fill="#fff"/><rect x="8" y="4" width="6" height="5" stroke="#2b6cb0" stroke-dasharray="2 1"/><rect x="16" y="4" width="6" height="5" stroke="#2b6cb0" stroke-dasharray="2 1"/><rect x="8" y="12" width="6" height="5" stroke="#2b6cb0" stroke-dasharray="2 1"/><rect x="16" y="12" width="6" height="5" stroke="#2b6cb0" stroke-dasharray="2 1"/>'),
- nm:VW('<rect x="5.5" y="1.5" width="19" height="21" fill="#fff"/><rect x="8" y="4" width="14" height="7" stroke="#2b6cb0" stroke-dasharray="2 1"/><path d="M8 14h14M8 17h14M8 20h9" stroke="#2b6cb0" stroke-dasharray="2 1"/>'),
- notesb:VW('<rect x="3.5" y="2.5" width="23" height="19" fill="#fff"/><rect x="6" y="14" width="18" height="5" stroke="#2b6cb0" fill="#cfe2f3"/>'),
- zoom:'<span style="font-size:22px">🔍</span>',
- fit:VW('<rect x="3.5" y="3.5" width="23" height="17" fill="#fff"/><path d="M8 8l4 0M8 8l0 4M22 8l-4 0M22 8l0 4M8 16l4 0M8 16l0-4M22 16l-4 0M22 16l0-4" stroke="#2b6cb0"/>'),
- neww:VW('<rect x="2.5" y="3.5" width="16" height="12" fill="#fff"/><rect x="10.5" y="9.5" width="16" height="12" fill="#fff"/><path d="M10.5 12h16" stroke="#2b6cb0"/>'),
- sw:VW('<rect x="2.5" y="3.5" width="12" height="9" fill="#fff"/><rect x="15.5" y="3.5" width="12" height="9" fill="#fff"/><rect x="9.5" y="12.5" width="12" height="9" fill="#fff"/>'),
- mac:VW('<rect x="3.5" y="2.5" width="23" height="19" fill="#fff"/><path d="M3.5 7h23" stroke="#555"/><path d="M8 11h6M8 14h10M8 17h7" stroke="#e08a00"/>')};
+const VWI={normal:PX.v_normal,outline:PX.v_outline,sorter:PX.v_sorter,notes:PX.v_notes,read:PX.v_read,sm:PX.v_sm,hm:PX.v_hm,nm:PX.v_nm,notesb:PX.v_notesb,zoom:PX.zoom,fit:PX.fit,neww:PX.neww,sw:PX.sw,mac:PX.macro};
 const SWT=(c)=>`<svg width="22" height="16" viewBox="0 0 22 16">${c}</svg>`;
 const VWC={color:SWT('<rect x="1" y="1" width="20" height="4.6" fill="#d9534f"/><rect x="1" y="5.7" width="20" height="4.6" fill="#5b9bd5"/><rect x="1" y="10.4" width="20" height="4.6" fill="#70ad47"/>'),
  gray:SWT('<rect x="1" y="1" width="20" height="4.6" fill="#ddd"/><rect x="1" y="5.7" width="20" height="4.6" fill="#999"/><rect x="1" y="10.4" width="20" height="4.6" fill="#555"/>'),
@@ -696,7 +824,7 @@ const RIB_VIEW=
  G('Tampilkan<button class="gl" data-a="vwgrid" title="Pengaturan Kisi dan Panduan">⌟</button>',`<div class="rows tmw"><div class="row">${CKM('Tampilkan',[['vc','ruler','Penggaris'],['vc','grid','Garis Kisi'],['vc','guide','Panduan']],110)}</div></div>`+VB(VWI.notesb,'Catatan','notes','notespane'))+
  G('Zoom',VB(VWI.zoom,'Zoom','vwzoom')+VB(VWI.fit,'Sesuaikan ke<br>Jendela','fit'))+
  G('Warna/Skala Abu-abu',`<div class="rows">${VRW(VWC.color,'Warna','vwcolor:color','c-color')}${VRW(VWC.gray,'Skala Abu-abu','vwcolor:gray','c-gray')}${VRW(VWC.bw,'Hitam Putih','vwcolor:bw','c-bw')}</div>`)+
- G('Jendela',VB(VWI.neww,'Jendela<br>Baru','vwnew')+`<div class="rows">${VRW('▤','Susun Semua','vwarr','',' data-vwd="win" disabled')}${VRW('❐','Cascade','vwcas','',' data-vwd="win" disabled')}${VRW('⇔','Pindahkan Pemisah','vwsplit','')}</div>`+VBM(VWI.sw,'Beralih<br>Jendela','vwwin'))+
+ G('Jendela',VB(VWI.neww,'Jendela<br>Baru','vwnew')+`<div class="rows">${VRW(PX.arrwin,'Susun Semua','vwarr','',' data-vwd="win" disabled')}${VRW(PX.cascade,'Cascade','vwcas','',' data-vwd="win" disabled')}${VRW(PX.split,'Pindahkan Pemisah','vwsplit','')}</div>`+VBM(VWI.sw,'Beralih<br>Jendela','vwwin'))+
  G('Makro',VBM(VWI.mac,'Makro','vwmac'));
 
 function mount(root,opts={}){
@@ -705,7 +833,7 @@ function mount(root,opts={}){
   let ss={type:'full',loop:0,playNarr:1,noAnim:0,pen:'#ff0000',range:'all',from:1,to:0,custom:'',useTimings:1,mediaCtrl:1,monitor:'auto',presenter:0},customShows=[],cidn=1,scrList=[],scrTried=false;
   const panes=TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${t[0]==='home'?RIB_HOME:t[0]==='insert'?RIB_INSERT:t[0]==='design'?RIB_DESIGN:t[0]==='trans'?RIB_TRANS:t[0]==='anim'?RIB_ANIM:t[0]==='show'?RIB_SHOW:t[0]==='review'?RIB_REVIEW:t[0]==='view'?RIB_VIEW:`<div class="soon">Menu ${t[1]} akan ditambahkan pada tahap berikutnya.</div>`}</div>`).join('');
   root.innerHTML=`<div class="pp">
-    <div class="qat"><div class="l"><span class="w">P</span><button data-a="save" title="Simpan (Ctrl+S)">💾</button><button data-a="undo" title="Urungkan (Ctrl+Z)">↶</button><button data-a="redo" title="Ulangi (Ctrl+Y)">↷</button><button data-a="showfirst" title="Mulai dari awal">▶</button></div><span class="fn"></span></div>
+    <div class="qat"><div class="l"><span class="w">P</span><button data-a="save" title="Simpan (Ctrl+S)">${PX.save}</button><button data-a="undo" title="Urungkan (Ctrl+Z)">${PX.undo}</button><button data-a="redo" title="Ulangi (Ctrl+Y)">${PX.redo}</button><button data-a="showfirst" title="Mulai dari awal">${PX.qplay}</button></div><span class="fn"></span></div>
     <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div>
     ${panes}
     <div class="main"><div class="thumbs" tabindex="0"></div>
@@ -717,11 +845,11 @@ function mount(root,opts={}){
     <div class="find" hidden><span>Cari:</span><input type="text" class="f1"><span>Ganti:</span><input type="text" class="f2">
       <div class="fb"><button data-a="fnext">Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti semua</button><button data-a="fclose">Tutup</button></div></div>
     <div class="status"><div class="s"><span class="sn"><span class="snw">SLIDE </span>1<span class="snw"> DARI </span><span class="snx">/</span>1</span><span>BAHASA INDONESIA</span></div>
-      <div class="s"><button data-a="notes" class="on" title="Catatan">☰<span class="bt"> CATATAN</span></button><button data-a="comments" title="Komentar">💬<span class="bt"> KOMENTAR</span></button>
-      <button data-a="vnormal" class="on vb" title="Normal">▭</button><button data-a="vsorter" class="vb" title="Penyortir Slide">▦</button><button data-a="show" title="Slide Show">▶</button>
-      <span><button data-a="zoomd:-10">−</button><input type="range" min="10" max="200" value="80" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">80%</span> <button data-a="fit" title="Sesuaikan ke jendela">⛶</button></span></div></div>
+      <div class="s"><button data-a="notes" class="on" title="Catatan">${PX.sb_notes}<span class="bt"> CATATAN</span></button><button data-a="comments" title="Komentar">${PX.sb_cm}<span class="bt"> KOMENTAR</span></button>
+      <button data-a="vnormal" class="on vb" title="Normal">${PX.sb_normal}</button><button data-a="vsorter" class="vb" title="Penyortir Slide">${PX.sb_sorter}</button><button data-a="show" title="Slide Show">${PX.sb_show}</button>
+      <span><button data-a="zoomd:-10">−</button><input type="range" min="10" max="200" value="80" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">80%</span> <button data-a="fit" title="Sesuaikan ke jendela">${PX.sb_fit}</button></span></div></div>
     <input type="file" class="fin" accept=".pptx" hidden>
-    <div class="menu" hidden><button data-a="new">📄  Presentasi kosong baru</button><button data-a="open">📂  Buka…</button><button data-a="save">💾  Simpan sebagai .pptx</button><button data-a="print">🖨  Cetak / simpan PDF</button><hr><button data-a="home">⬅  Kembali ke menu utama</button></div>
+    <div class="menu" hidden><button data-a="new">${PX.mnew}<span>Presentasi kosong baru</span></button><button data-a="open">${PX.mopen}<span>Buka…</span></button><button data-a="save">${PX.msave}<span>Simpan sebagai .pptx</span></button><button data-a="print">${PX.mprint}<span>Cetak / simpan PDF</span></button><hr><button data-a="home">${PX.mback}<span>Kembali ke menu utama</span></button></div>
   </div>`;
 
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
@@ -848,7 +976,7 @@ function mount(root,opts={}){
     pp.appendChild(m);const rr=pp.getBoundingClientRect();m.style.left=Math.max(0,Math.min(x-rr.left,rr.width-m.offsetWidth-4))+'px';m.style.top=Math.max(0,Math.min(y-rr.top,rr.height-m.offsetHeight-4))+'px';
   }
   const MENUS={
-    paste:()=>[['Tempel','paste','📋'],['Tempel Teks Saja','pastetext','🗒']],
+    paste:()=>[['Tempel','paste',PX.paste],['Tempel Teks Saja','pastetext',PX.pastet]],
     newslide:()=>[LAY.map(([id,n])=>[n,'newslide:'+id,layIcon(id)]),'grid'],
     layout:()=>[LAY.map(([id,n])=>[n,'layout:'+id,layIcon(id)]),'grid'],
     section:()=>[['Tambah Bagian','section:add'],['Ganti Nama Bagian','section:ren'],['Hapus Bagian','section:rm'],['Hapus Semua Bagian','section:rmall']],
@@ -1256,7 +1384,7 @@ function mount(root,opts={}){
   function tablePicker(btn){
     closePop();const m=document.createElement('div');m.className='pm tbg';let g='';
     for(let i=0;i<80;i++)g+=`<i data-r="${Math.floor(i/10)+1}" data-c="${i%10+1}"></i>`;
-    m.innerHTML=`<div class="lb">Sisipkan Tabel</div><div class="gr">${g}</div><hr><button data-tb="dlg">▦  Sisipkan Tabel…</button>`;
+    m.innerHTML=`<div class="lb">Sisipkan Tabel</div><div class="gr">${g}</div><hr><button data-tb="dlg">${PX.table}<span>Sisipkan Tabel…</span></button>`;
     pp.appendChild(m);const rr=pp.getBoundingClientRect(),br=btn.getBoundingClientRect();
     m.style.left=Math.max(0,Math.min(br.left-rr.left,rr.width-m.offsetWidth-4))+'px';m.style.top=Math.max(0,Math.min(br.bottom-rr.top,rr.height-m.offsetHeight-4))+'px';
     const cells=[...m.querySelectorAll('i')],lb=m.querySelector('.lb');
@@ -1473,15 +1601,15 @@ function mount(root,opts={}){
   Object.assign(MENUS,{
     shapes:()=>[SHAPES.map(([id,n])=>[n,'shape:'+id,shapeIcon(id)]),'sg'],
     smartins:()=>[['Daftar Blok Dasar','sm:blocks'],['Proses Dasar','sm:process'],['Daftar Vertikal','sm:list']],
-    chartm:()=>Object.keys(CHARTS).map(k=>['Bagan '+CHARTS[k],'chart:'+k,{col:'▥',bar:'▤',line:'📈',pie:'◔'}[k]]),
-    screenshot:()=>[['Tangkap layar / jendela / tab…','screen','🖥']],
-    album:()=>[['Album Foto Baru…','album','🖼']],
+    chartm:()=>Object.keys(CHARTS).map(k=>['Bagan '+CHARTS[k],'chart:'+k,{col:PX.chcol,bar:PX.chbar,line:PX.chline,pie:PX.chpie}[k]]),
+    screenshot:()=>[['Tangkap layar / jendela / tab…','screen',PX.shot]],
+    album:()=>[['Album Foto Baru…','album',PX.album]],
     apps:()=>[['Toko Office','apps'],['Aplikasi Saya','apps']],
     textbox:()=>[['Kotak Teks Horizontal','shape:tb'],['Kotak Teks Vertikal','vtb']],
     wordart:()=>[WA.map((c,i)=>['Gaya WordArt '+(i+1),'wa:'+i,`<b style="${c}">A</b>`]),'wa'],
-    eqm:()=>[...EQ.map((e,i)=>[e[0],'eq:'+i,'π']),'-',['Persamaan Baru','eq:-1','✎']],
-    video:()=>[['Video dari Berkas…','video:file','🎞'],['Video Online (URL)…','video:url','🌐']],
-    audio:()=>[['Audio dari Berkas…','audio:file','🔊'],[recorder?'Hentikan Rekaman':'Rekam Audio…','audio:rec','🎙']]
+    eqm:()=>[...EQ.map((e,i)=>[e[0],'eq:'+i,PX.eq]),'-',['Persamaan Baru','eq:-1',PX.ink]],
+    video:()=>[['Video dari Berkas…','video:file',PX.video],['Video Online (URL)…','video:url',PX.globe]],
+    audio:()=>[['Audio dari Berkas…','audio:file',PX.audio],[recorder?'Hentikan Rekaman':'Rekam Audio…','audio:rec',PX.mic]]
   });
 
   /* ===== tab DESAIN ===== */
@@ -1565,7 +1693,7 @@ function mount(root,opts={}){
   function animBadges(){anList(S0()).forEach((o,i)=>stg.insertAdjacentHTML('beforeend',`<div class="anb" style="left:${Math.max(0,o.x-30)}px;top:${o.y}px">${i+1}</div>`));}
   function renderPane(){
     const pn=$('.apane');if(!pn||pn.hidden)return;
-    const L=anList(S0()),ic={click:'🖱',with:'◐',after:'◔'};
+    const L=anList(S0()),ic={click:PX.mouse,with:PX.withp,after:PX.after};
     $('.apl').innerHTML=L.length?L.map((o,i)=>{const a=getAn(o),n=(AEFF.find(e=>e[0]===a.t)||[,''])[1];
       return `<div class="ai${sel.includes(o.id)?' on':''}" data-a="anpick:${o.id}" title="${esc(n+(a.x?' (keluar)':''))}"><i>${i+1}</i><span>${ic[a.start]}</span><b>${esc(objName(o))}</b><em>${a.x?'⇥':'★'}</em></div>`;}).join('')
       :'<div class="am">Belum ada animasi. Pilih objek pada slide, lalu pilih sebuah efek.</div>';
@@ -1745,9 +1873,9 @@ function mount(root,opts={}){
     shmon:v=>{ss.monitor=v;}
   });
   Object.assign(MENUS,{
-    online:()=>[['Unduh .pptx untuk dibagikan','save','💾'],['Cetak / simpan sebagai PDF','print','🖨']],
-    cshow:()=>[...customShows.map((c,k)=>[c.name,'cshowplay:'+k,'▶']),...(customShows.length?['-']:[]),['Slide Show Kustom…','cshowmgr']],
-    rec:()=>[['Mulai Merekam dari Awal…','recfrom:0','⏺'],['Mulai Merekam dari Slide Saat Ini…','recfrom:cur','⏺'],'-',
+    online:()=>[['Unduh .pptx untuk dibagikan','save',PX.save],['Cetak / simpan sebagai PDF','print',PX.print]],
+    cshow:()=>[...customShows.map((c,k)=>[c.name,'cshowplay:'+k,PX.play]),...(customShows.length?['-']:[]),['Slide Show Kustom…','cshowmgr']],
+    rec:()=>[['Mulai Merekam dari Awal…','recfrom:0',PX.rec],['Mulai Merekam dari Slide Saat Ini…','recfrom:cur',PX.rec],'-',
       ['Hapus Waktu pada Slide Saat Ini','recclr:time:cur'],['Hapus Waktu pada Semua Slide','recclr:time:all'],['Hapus Narasi pada Slide Saat Ini','recclr:narr:cur'],['Hapus Narasi pada Semua Slide','recclr:narr:all']]
   });
   root.addEventListener('keydown',e=>{
@@ -2080,12 +2208,12 @@ function mount(root,opts={}){
   }
 
   Object.assign(MENUS,{
-    rvtrans:()=>[['Terjemahkan Teks yang Dipilih','rvtr:sel','🌐'],['Terjemahkan Slide Ini','rvtr:slide','🌐'],['Terjemahkan Seluruh Presentasi','rvtr:all','🌐']],
+    rvtrans:()=>[['Terjemahkan Teks yang Dipilih','rvtr:sel',PX.transl],['Terjemahkan Slide Ini','rvtr:slide',PX.transl],['Terjemahkan Seluruh Presentasi','rvtr:all',PX.transl]],
     rvlang:()=>LANGS.map(l=>[(rvL===l[0]?'✓ ':'\u2003')+l[1],'rvsetlang:'+l[0]]),
-    rvdel:()=>[['Hapus','rvdel:one','✕'],['Hapus Semua Komentar pada Slide Ini','rvdel:slide'],['Hapus Semua Komentar dalam Presentasi','rvdel:all']],
+    rvdel:()=>[['Hapus','rvdel:one',PX.cmdel],['Hapus Semua Komentar pada Slide Ini','rvdel:slide'],['Hapus Semua Komentar dalam Presentasi','rvdel:all']],
     rvshow:()=>[[(rvSh?'✓ ':'\u2003')+'Tampilkan Markup','rvmarkup'],['\u2003Panel Komentar','rvcpane']],
-    rvacc:()=>[['Terima Perubahan Ini','rvacc:one','✔'],['Terima Semua Perubahan pada Slide Ini','rvacc:slide'],['Terima Semua Perubahan','rvacc:all']],
-    rvrej:()=>[['Tolak Perubahan Ini','rvrej:one','✖'],['Tolak Semua Perubahan pada Slide Ini','rvrej:slide'],['Tolak Semua Perubahan','rvrej:all']]
+    rvacc:()=>[['Terima Perubahan Ini','rvacc:one',PX.accept],['Terima Semua Perubahan pada Slide Ini','rvacc:slide'],['Terima Semua Perubahan','rvacc:all']],
+    rvrej:()=>[['Tolak Perubahan Ini','rvrej:one',PX.reject],['Tolak Semua Perubahan pada Slide Ini','rvrej:slide'],['Tolak Semua Perubahan','rvrej:all']]
   });
   Object.assign(acts,{
     rvspell:rvSpellDlg,rvres:rvResearch,rvthes:rvThes,
@@ -2279,7 +2407,7 @@ function mount(root,opts={}){
       if(d){vwMacros.splice(+d.dataset.del,1);vwSave();bg.remove();vwMacroDlg();}});
   }
   MENUS.vwwin=()=>{updView();return [['✓ '+name+' (jendela ini)','vwsw:me'],...vwWins.map((w,i)=>{let t='Jendela '+(i+2);try{t=w.document.title||t;}catch(e){}return ['\u2003'+t,'vwsw:'+i];})];};
-  MENUS.vwmac=()=>[['Lihat Makro…','vwmacros','▤'],vwRec?['⏹ Hentikan Perekaman ('+vwRec.steps.length+' langkah)','vwrecstop']:['⏺ Rekam Makro…','vwrecstart']];
+  MENUS.vwmac=()=>[['Lihat Makro…','vwmacros',PX.macro],vwRec?['Hentikan Perekaman ('+vwRec.steps.length+' langkah)','vwrecstop',PX.stop]:['Rekam Makro…','vwrecstart',PX.rec]];
 
   Object.assign(acts,{
     vwoutline(){vwEnter('outline');},vwnotes(){vwEnter('notes');},

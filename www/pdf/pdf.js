@@ -832,6 +832,10 @@ const CSS=`
 .pd .menu{position:absolute;z-index:10;top:52px;left:0;bottom:24px;width:260px;background:var(--acc);color:#fff;padding:8px 0}
 .pd .menu button{display:block;width:100%;background:none;border:0;color:#fff;text-align:left;padding:12px 24px;cursor:pointer;font-size:14px}
 .pd .menu button:hover{background:rgba(255,255,255,.18)}
+.pd .xi{display:block;width:20px;height:20px;flex:none}
+.pd .qat .xi{width:16px;height:16px;margin:auto}
+.pd .menu>button{display:flex;align-items:center;gap:12px}.pd .menu>button .xi{width:20px;height:20px}
+@media (pointer:coarse){.pd .qat .xi{width:18px;height:18px}}
 .pd .menu hr{border:0;border-top:1px solid rgba(255,255,255,.3);margin:6px 0}
 .pd .menu{overflow:auto}
 .pd .menu .ofl .lbl{font-size:11px;opacity:.75;padding:4px 24px;text-transform:uppercase;letter-spacing:.04em}
@@ -928,8 +932,19 @@ function mount(root,opts={}){
   const isRd=a=>a.type==='hl'&&a.kind==='rd';
   const textCache=new Map(),ZL=[10,25,50,75,100,125,150,200,300,400,500];
 
+const XS=b=>'<svg class="xi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'+b+'</svg>';
+const XI={
+ save:XS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6" stroke="#b7282e"/>'),
+ undo:XS('<path d="M9 6L4.5 10.5 9 15"/><path d="M4.5 10.5H15a5 5 0 0 1 0 10h-3"/>'),
+ redo:XS('<path d="M15 6l4.5 4.5L15 15"/><path d="M19.5 10.5H9a5 5 0 0 0 0 10h3"/>'),
+ mnew:XS('<rect x="4.5" y="3" width="15" height="18" rx="1.5"/><path d="M12 9v6M9 12h6"/>'),
+ mopen:XS('<path d="M3.5 7h6l2 2h9v10h-17z"/>'),
+ msave:XS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6"/>'),
+ mprint:XS('<rect x="6.5" y="3.5" width="11" height="5"/><rect x="3.5" y="8.5" width="17" height="8" rx="1"/><rect x="6.5" y="14" width="11" height="6.5"/>'),
+ mback:XS('<path d="M20 12H5M10 6l-6 6 6 6"/>')
+};
   root.innerHTML=`<div class="pd" tabindex="-1">
-    <div class="qat"><div class="l"><span class="w">A</span><button data-a="save" title="Simpan (Ctrl+S)">💾</button><button data-a="undo" title="Urungkan (Ctrl+Z)">↶</button><button data-a="redo" title="Ulangi (Ctrl+Y)">↷</button></div><span class="fn"></span></div>
+    <div class="qat"><div class="l"><span class="w">A</span><button data-a="save" title="Simpan (Ctrl+S)">${XI.save}</button><button data-a="undo" title="Urungkan (Ctrl+Z)">${XI.undo}</button><button data-a="redo" title="Ulangi (Ctrl+Y)">${XI.redo}</button></div><span class="fn"></span></div>
     <div class="tabs"><button class="tab file" data-a="menu">File</button><button class="tab on" data-tab="home">Home</button><button class="tab" data-tab="convert">Convert</button><button class="tab" data-tab="review">Review</button><button class="tab" data-tab="layout">Page Layout</button><button class="tab" data-tab="protect">Protect</button><button class="tab ctx" data-tab="props" hidden>Properties</button><button class="tab ctx" data-tab="align" hidden>Alignment</button><button class="tab ctx" data-tab="format" hidden>Format</button></div>
     <div class="rib">${MODES}<div class="ribbon" data-pane="home">${RIB.home}</div><div class="ribbon" data-pane="convert" hidden>${RIB.convert}</div><div class="ribbon" data-pane="review" hidden>${RIB.review}</div><div class="ribbon" data-pane="layout" hidden>${RIB.layout}</div><div class="ribbon" data-pane="protect" hidden>${RIB.protect}</div><div class="ribbon" data-pane="props" hidden>${RIB.props}</div><div class="ribbon" data-pane="align" hidden>${RIB.align}</div><div class="ribbon" data-pane="format" hidden>${RIB.format}</div></div>
     <div class="desk t-select" tabindex="-1"><div class="pgs"></div></div>
@@ -937,9 +952,9 @@ function mount(root,opts={}){
     <div class="status"><div class="s"><span><button data-a="first" title="Halaman pertama">|◀</button><button data-a="prev" title="Sebelumnya">◀</button> <input type="number" class="pi" min="1" value="1"> <span class="of">OF 1</span> <button data-a="next" title="Berikutnya">▶</button><button data-a="last" title="Halaman terakhir">▶|</button></span></div>
       <div class="s"><span><button data-a="zout">−</button><input type="range" min="10" max="400" value="100" class="zs"><button data-a="zin">+</button> <span class="zv">100%</span></span></div></div>
     <div class="menu" hidden>
-      <button data-a="blank">📄  PDF kosong baru</button><button data-a="open">📂  Buka…</button>
-      <button data-a="save">💾  Simpan sebagai .pdf</button><button data-a="print">🖨  Cetak</button>
-      <hr><button data-a="home">⬅  Kembali ke menu utama</button><div class="ofl"></div></div>
+      <button data-a="blank">${XI.mnew}<span>New blank PDF</span></button><button data-a="open">${XI.mopen}<span>Open…</span></button>
+      <button data-a="save">${XI.msave}<span>Save as .pdf</span></button><button data-a="print">${XI.mprint}<span>Print</span></button>
+      <hr><button data-a="home">${XI.mback}<span>Back to main menu</span></button><div class="ofl"></div></div>
   </div>`;
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
   const pd=$('.pd'),desk=$('.desk'),pgs=$('.pgs'),menu=$('.menu'),fd=$('.find'),fqIn=$('.fq');
@@ -1731,9 +1746,9 @@ function mount(root,opts={}){
   }
   function renderList(){
     const el=$('.ofl');if(!el)return;
-    el.innerHTML=D.list.length?'<hr><div class="lbl">Berkas terbuka</div>'+D.list.map(d=>{
+    el.innerHTML=D.list.length?'<hr><div class="lbl">Open files</div>'+D.list.map(d=>{
       const on=d.id===D.active,nm=on?name:d.name,dt=on?dirty:d.dirty;
-      return`<div class="of${on?' on':''}"><button class="ofn" data-a="sw" data-v="${d.id}" title="${esc(nm)}">${esc(nm)}${dt?' •':''}</button><button class="ofx" data-a="cl" data-v="${d.id}" title="Tutup berkas ini" aria-label="Tutup ${esc(nm)}">×</button></div>`;
+      return`<div class="of${on?' on':''}"><button class="ofn" data-a="sw" data-v="${d.id}" title="${esc(nm)}">${esc(nm)}${dt?' •':''}</button><button class="ofx" data-a="cl" data-v="${d.id}" title="Close this file" aria-label="Close ${esc(nm)}">×</button></div>`;
     }).join(''):'';
   }
   async function closeDoc(id){
