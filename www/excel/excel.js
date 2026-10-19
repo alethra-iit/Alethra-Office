@@ -902,9 +902,13 @@ const CSS=`
 .xl .find .fo{grid-column:1/3;display:flex;gap:10px;font-size:11px;flex-wrap:wrap}
 .xl .find .fb{grid-column:1/3;display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
 .xl .find button{height:24px;border:1px solid #aaa;background:#f3f3f3;cursor:pointer;padding:0 8px}
-.xl .ob{pointer-events:auto;cursor:move;z-index:2}
+.xl .ob{pointer-events:auto;cursor:move;z-index:2;touch-action:none;-webkit-user-select:none;user-select:none}
 .xl .ob.sel{outline:2px solid var(--g)}
-.xl .ob .orz{position:absolute;right:-5px;bottom:-5px;width:9px;height:9px;background:#fff;border:1px solid var(--g);cursor:nwse-resize}
+.xl .ob .orz{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;background:#fff;border:2px solid var(--g);border-radius:50%;box-sizing:border-box;touch-action:none;z-index:3}
+.xl .ob .orz[data-orz=nw]{left:0;top:0;cursor:nwse-resize}.xl .ob .orz[data-orz=n]{left:50%;top:0;cursor:ns-resize}.xl .ob .orz[data-orz=ne]{left:100%;top:0;cursor:nesw-resize}
+.xl .ob .orz[data-orz=w]{left:0;top:50%;cursor:ew-resize}.xl .ob .orz[data-orz=e]{left:100%;top:50%;cursor:ew-resize}
+.xl .ob .orz[data-orz=sw]{left:0;top:100%;cursor:nesw-resize}.xl .ob .orz[data-orz=s]{left:50%;top:100%;cursor:ns-resize}.xl .ob .orz[data-orz=se]{left:100%;top:100%;cursor:nwse-resize}
+@media (pointer:coarse){.xl .ob .orz{width:22px;height:22px;margin:-11px 0 0 -11px}}
 .xl .ob svg{display:block;pointer-events:none}
 .xl .ob img{display:block;width:100%;height:100%;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .xl .ob .tx{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--df,Calibri),Carlito,sans-serif;overflow:hidden;padding:4px;white-space:pre-wrap;pointer-events:none;box-sizing:border-box}
@@ -2175,7 +2179,15 @@ function mount(root,opts={}){
     const W=vp.clientWidth,H=vp.clientHeight;
     if(drag.kind==='obj'){
       const dx=(ev.clientX-drag.x0)/Z,dy=(ev.clientY-drag.y0)/Z;if(Math.abs(dx)+Math.abs(dy)>2)drag.moved=true;
-      const o=drag.o;if(drag.mode==='mv'){for(const q of drag.group){q.o.x=Math.max(0,q.ox+dx);q.o.y=Math.max(0,q.oy+dy);}}else{o.w=Math.max(24,drag.ow+dx);o.h=Math.max(16,drag.oh+dy);if(isLock(o)){const k=Math.max(o.w/drag.ow,o.h/drag.oh);o.w=Math.max(24,drag.ow*k);o.h=o.w*drag.oh/drag.ow;}}
+      const o=drag.o;if(drag.mode==='mv'){for(const q of drag.group){q.o.x=Math.max(0,q.ox+dx);q.o.y=Math.max(0,q.oy+dy);}}else{
+        const hd=drag.hd||'se',L=hd.includes('w'),R=hd.includes('e'),T=hd.includes('n'),B=hd.includes('s'),MW=24,MH=16;
+        let w=drag.ow+(R?dx:L?-dx:0),h=drag.oh+(B?dy:T?-dy:0);
+        w=Math.max(MW,w);h=Math.max(MH,h);
+        if(isLock(o)&&(L||R)&&(T||B)){ /* sudut: pertahankan rasio seperti di Word */
+          const r=drag.ow/drag.oh,k=Math.max(w/drag.ow,h/drag.oh);w=Math.max(MW,drag.ow*k);h=w/r;if(h<MH){h=MH;w=h*r;}}
+        o.w=w;o.h=h;
+        if(L)o.x=Math.max(0,drag.ox+drag.ow-w);if(T)o.y=Math.max(0,drag.oy+drag.oh-h);
+      }
       schedule();return;}
     if(drag.kind==='cell'){
       let {r,c}=h;moveToDrag(r,c);
@@ -2206,7 +2218,7 @@ function mount(root,opts={}){
     if(e.target.dataset&&e.target.dataset.fill){
       e.preventDefault();const g=expandMerge(rg());drag={kind:'fill',src:g,tgt:null};vp.setPointerCapture(e.pointerId);startDragLoop();return;}
     const h=hit(e);
-    if(e.pointerType!=='mouse'&&e.button===0){return;} /* sentuhan: ditangani oleh click */
+    if(e.pointerType!=='mouse'&&e.button===0&&!(e.target.closest&&e.target.closest('[data-o]'))){return;} /* sentuhan di sel: ditangani oleh click */
     if(e.button===2){const g=expandMerge(rg());if(!(h.r>=g.r1&&h.r<=g.r2&&h.c>=g.c1&&h.c<=g.c2))select(h.r,h.c);return;}
     const ob=e.target.closest&&e.target.closest('[data-o]');
     if(ob){
@@ -2216,7 +2228,7 @@ function mount(root,opts={}){
         if(cur.prot&&!cur.prot.o.objects){selSet=new Set([o.id]);selObj=o.id;sync();return;}
         if(e.shiftKey){if(selSet.has(o.id)){selSet.delete(o.id);selObj=[...selSet].pop()||null;sync();return;}selSet.add(o.id);selObj=o.id;}
         else if(!selSet.has(o.id)){selSet=new Set([o.id]);selObj=o.id;}else selObj=o.id;
-        drag={kind:'obj',o,mode:e.target.dataset.orz?'rz':'mv',x0:e.clientX,y0:e.clientY,ox:o.x,oy:o.y,ow:o.w,oh:o.h,group:cur.objs.filter(q=>selSet.has(q.id)).map(q=>({o:q,ox:q.x,oy:q.y})),snap:snapshot(),moved:false};
+        drag={kind:'obj',o,mode:e.target.dataset.orz?'rz':'mv',hd:e.target.dataset.orz||'',x0:e.clientX,y0:e.clientY,ox:o.x,oy:o.y,ow:o.w,oh:o.h,group:cur.objs.filter(q=>selSet.has(q.id)).map(q=>({o:q,ox:q.x,oy:q.y})),snap:snapshot(),moved:false};
         vp.setPointerCapture(e.pointerId);startDragLoop();lastEv=e;sync();return;}
     }
     if(e.ctrlKey||e.metaKey){const lc=cellAt(cur,h.r,h.c);if(lc&&lc.st&&lc.st.link){e.preventDefault();openLink(lc.st.link);return;}}
@@ -3434,7 +3446,7 @@ function mount(root,opts={}){
     else if(o.type==='shape')inner=shapeSvg(o,w,h)+txHtml(o);
     else inner=txHtml(o);
     const tf=o.rot||o.fx||o.fy?`transform:rotate(${o.rot||0}deg) scale(${o.fx?-1:1},${o.fy?-1:1});`:'';
-    return `<div class="ob${sel?' sel':''}" data-o="${o.id}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${tf}${o.shadow?'filter:drop-shadow(3px 4px 4px rgba(0,0,0,.45));':''}">${inner}${sel&&selSet.size===1?'<i class="orz" data-orz="1"></i>':''}</div>`;
+    return `<div class="ob${sel?' sel':''}" data-o="${o.id}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${tf}${o.shadow?'filter:drop-shadow(3px 4px 4px rgba(0,0,0,.45));':''}">${inner}${sel&&selSet.size===1?['nw','n','ne','w','e','sw','s','se'].map(h=>`<i class="orz" data-orz="${h}"></i>`).join(''):''}</div>`;
   }
   function sparkSvg(sp,w,h){
     const g=sp.src,v=[];

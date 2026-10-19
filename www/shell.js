@@ -36,7 +36,6 @@ const LS = {
 const svg = (body, vb) => `<svg viewBox="${vb || '0 0 24 24'}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 const S1 = 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
 const IC = {
-  logo: svg('<path d="M12 1.5 22 6 12 10.5 2 6z" fill="#4277c9"/><path d="M2 7.4 12 11.9 22 7.4V9.6L12 14.1 2 9.6z" fill="#3aa66b"/><path d="M2 11 12 15.5 22 11V13.2L12 17.7 2 13.2z" fill="#e5694a"/><path d="M2 14.6 12 19.1 22 14.6V16.8L12 21.3 2 16.8z" fill="#c4262e"/>'),
   home: svg('<path d="M12 3.2 2.8 11.4h2.6V20h5.1v-5.6h3V20h5.1v-8.6h2.6z" fill="currentColor"/>'),
   word: svg('<rect x="9.5" y="3.5" width="11" height="17" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 8.5h5M13 12h5M13 15.5h5" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="7" width="10" height="10" rx="1.4" fill="currentColor"/><text x="7.5" y="14.6" font-size="7.6" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">W</text>'),
   excel: svg('<rect x="9.5" y="3.5" width="11" height="17" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 8.5h5M13 12h5M13 15.5h5" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="7" width="10" height="10" rx="1.4" fill="currentColor"/><text x="7.5" y="14.6" font-size="7.6" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">X</text>'),
@@ -138,14 +137,13 @@ function renderHeader(){
     return;
   }
   const left = S.tab === 'home'
-    ? `<div class="logo">${IC.logo}</div>`
+    ? `<button class="ib lg" data-a="about" aria-label="Tentang">${IC.appicon}</button>`
     : `<div class="hl" style="--c:${FM[S.tab].c}">` +
         `<button class="pill fill" data-a="new">${IC.plus}<span>Baru</span></button>` +
         `<button class="pill" data-a="open">${IC.folder}<span>Buka</span></button></div>`;
   hdr.innerHTML = left + '<div class="sp"></div>' +
     `<button class="ib" data-a="search" aria-label="Cari">${IC.search}</button>` +
-    `<button class="ib" data-a="sort" aria-label="Urutkan">${IC.sort}</button>` +
-    `<button class="ib" data-a="about" aria-label="Tentang">${IC.appicon}</button>`;
+    `<button class="ib" data-a="sort" aria-label="Urutkan">${IC.sort}</button>`;
 }
 
 function renderSubtabs(){

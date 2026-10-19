@@ -20,7 +20,8 @@ svg{display:block}
 #hdr{flex:none;display:flex;align-items:center;gap:2px;min-height:calc(var(--sat) + 64px);
   padding:var(--sat) 10px 0 18px;border-bottom:1px solid var(--line)}
 #hdr .sp{flex:1}
-.logo{width:36px;height:36px;margin-right:6px}
+.ib.lg{margin-left:-6px;margin-right:6px}
+.ib.lg svg{width:34px;height:34px}
 .hl{display:flex;gap:8px;align-items:center}
 .ib{flex:none;width:44px;height:44px;border:0;background:none;color:var(--ib);display:grid;place-items:center;border-radius:50%}
 .ib:active{background:var(--line)}
