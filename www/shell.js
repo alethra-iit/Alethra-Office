@@ -415,7 +415,11 @@ async function start(id, file){
   try { await loadModule(id); }
   catch(e){ return toast(e.message); }
   S.inEditor = true; shell.hidden = true; app.hidden = false; app.innerHTML = '';
-  window.Apps[id].mount(app, { file, onHome:goHome });
+  /* Tiap editor dipasang di wadah baru. Editor memasang listener di elemen root-nya;
+     bila root dipakai ulang (#app), listener menumpuk tiap kali dokumen dibuka dan satu ketukan
+     diproses berkali-kali (ribbon terbuka lalu langsung menutup, tombol catatan terbalik dua kali). */
+  const host = document.createElement('div'); host.style.height = '100%'; app.appendChild(host);
+  window.Apps[id].mount(host, { file, onHome:goHome });
   history.replaceState(null, '', '#' + id);
 }
 

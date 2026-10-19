@@ -1304,7 +1304,7 @@ function mount(root,opts={}){
     frall:replaceAll,
     selall(){if(hasRange()){lastTx.focus();const r=document.createRange();r.selectNodeContents(lastTx);const s=getSelection();s.removeAllRanges();s.addRange(r);}else{sel=objs().map(o=>o.id);decorate();stg.focus();}},
     selnone(){sel=[];lastR=null;getSelection().removeAllRanges();decorate();},
-    notes(e){const b=$('[data-a=notes]');notes.hidden=!notes.hidden;b.classList.toggle('on',!notes.hidden);if(view==='normal')fit();},
+    notes(e){notes.hidden=!notes.hidden;$$('[data-a=notes]').forEach(b=>b.classList.toggle('on',!notes.hidden));if(view==='normal')fit();},
     comments(){toast('Komentar akan tersedia di menu TINJAU');},
     vnormal(){view='normal';$('.thumbs').hidden=false;$('.ws').hidden=false;sorter.hidden=true;$$('.vb').forEach(b=>b.classList.toggle('on',b.dataset.a==='vnormal'));draw();fit();},
     vsorter(){commit();view='sorter';$('.thumbs').hidden=true;$('.ws').hidden=true;sorter.hidden=false;$$('.vb').forEach(b=>b.classList.toggle('on',b.dataset.a==='vsorter'));thumbs();},
