@@ -25,12 +25,14 @@ const CSS=`
 .pp [hidden]{display:none!important}
 .pp em{font-style:normal}
 .pp .tx,.pp .notes,.pp input[type=text],.pp input[type=number]{user-select:text;-webkit-user-select:text}
-.pp .qat{height:26px;display:flex;align-items:center;justify-content:center;position:relative;font-size:13px}
-.pp .qat .l{position:absolute;left:6px;display:flex;gap:2px;align-items:center}
-.pp .qat .w{background:var(--acc);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:6px}
-.pp .qat button{background:none;border:0;cursor:pointer;width:24px;height:22px;color:#555}
+.pp .qat{height:26px;display:flex;align-items:center;justify-content:flex-start;position:relative;padding:0 4px 0 6px;font-size:13px}
+.pp .qat .l{position:static;flex:none;display:flex;gap:0;align-items:center}
+.pp .qat .fn{flex:1;min-width:0;max-width:none;margin:0 8px 0 4px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;text-overflow:clip;text-align:center;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch;cursor:grab}
+.pp .qat .fn::-webkit-scrollbar{display:none}
+.pp .qat .w{background:var(--acc);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:2px}
+.pp .qat button{background:none;border:0;cursor:pointer;width:22px;height:22px;color:#555}
 .pp .qat button:hover{background:#e1e1e1}
-.pp .qat .fn{max-width:calc(100% - 240px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .pp .tabs{display:flex;height:26px;border-bottom:1px solid var(--ln);background:#fff;overflow-x:auto;scrollbar-width:none}
 .pp .tabs::-webkit-scrollbar{display:none}
 .pp .tab{flex:none;white-space:nowrap;background:none;border:1px solid transparent;border-bottom:0;padding:0 14px;cursor:pointer;height:26px;font-size:12px}
@@ -130,7 +132,7 @@ const CSS=`
 .pp .sv{position:relative;overflow:hidden;background:#fff}
 .pp.rc .ribbon{display:none}
 @media (pointer:coarse){
- .pp .qat{height:36px}.pp .qat button{width:34px;height:32px;font-size:16px}
+ .pp .qat{height:36px}.pp .qat button{width:28px;height:32px;font-size:16px}
  .pp .tabs{height:36px}.pp .tab{height:36px;padding:0 16px;font-size:13px}.pp .tab.on{height:37px}
  .pp .ribbon{height:148px}.pp .row{height:36px}.pp .b{min-width:34px;height:34px}.pp .b.rw{height:34px}
  .pp select{height:34px;font-size:16px}.pp .clr{height:34px;width:36px}.pp .clr.lb{width:120px}

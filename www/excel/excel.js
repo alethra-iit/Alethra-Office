@@ -735,10 +735,12 @@ const CSS=`
 .xl button,.xl select,.xl input,.xl textarea{font:inherit;color:inherit}
 .xl [hidden]{display:none!important}
 .xl em{font-style:normal}
-.xl .qat{height:26px;display:flex;align-items:center;justify-content:center;position:relative;font-size:13px;flex:none}
-.xl .qat .l{position:absolute;left:6px;display:flex;gap:2px;align-items:center}
-.xl .qat .w{background:var(--g);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:6px}
-.xl .qat button{background:none;border:0;cursor:pointer;width:24px;height:22px;color:#555}
+.xl .qat{height:26px;display:flex;align-items:center;justify-content:flex-start;position:relative;padding:0 4px 0 6px;font-size:13px;flex:none}
+.xl .qat .l{position:static;flex:none;display:flex;gap:0;align-items:center}
+.xl .qat .fn{flex:1;min-width:0;max-width:none;margin:0 8px 0 4px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;text-overflow:clip;text-align:center;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch;cursor:grab}
+.xl .qat .fn::-webkit-scrollbar{display:none}
+.xl .qat .w{background:var(--g);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:2px}
+.xl .qat button{background:none;border:0;cursor:pointer;width:22px;height:22px;color:#555}
 .xl .qat button:hover{background:#e1e1e1}
 .xl .qat button:disabled{opacity:.35;cursor:default;background:none}
 .xl .tabs{display:flex;height:26px;border-bottom:1px solid var(--ln);background:#fff;overflow-x:auto;scrollbar-width:none;flex:none}
@@ -929,7 +931,7 @@ const CSS=`
 .xl .rgn .ob{pointer-events:auto}
 .xl.rc .ribbon{display:none}
 @media (pointer:coarse){
- .xl .qat{height:36px}.xl .qat button{width:34px;height:32px;font-size:16px}
+ .xl .qat{height:36px}.xl .qat button{width:28px;height:32px;font-size:16px}
  .xl .tabs{height:36px}.xl .tab{height:36px;padding:0 16px;font-size:13px}.xl .tab.on{height:37px}
  .xl .ribbon{height:112px}.xl .row{height:34px}.xl .b{min-width:34px;height:34px}.xl .b.rw{height:30px}.xl .b.big{height:84px}
  .xl select{height:34px;font-size:16px}.xl .fbar{height:36px}.xl .nb,.xl .fx{height:30px;font-size:16px}
@@ -937,7 +939,7 @@ const CSS=`
  .xl .menu{top:72px;bottom:30px}.xl .menu button{padding:16px 24px}
 }
 @media (max-width:700px){
- .xl .qat .fn{max-width:calc(100% - 150px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
  .xl .menu{width:min(260px,86vw)}
  .xl .stbar .s{gap:10px}.xl .stbar .sum{display:none}.xl .stbar input{width:70px}
  .xl .find{left:8px;right:8px;top:auto;bottom:70px;grid-template-columns:auto 1fr}

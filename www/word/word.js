@@ -18,33 +18,47 @@ const CSS=`
 .wd button,.wd select,.wd input{font:inherit;color:inherit}
 .wd [hidden]{display:none!important}
 .wd em{font-style:normal}
-.wd .qat{height:26px;display:flex;align-items:center;justify-content:center;position:relative;font-size:13px}
-.wd .qat .l{position:absolute;left:6px;display:flex;gap:2px;align-items:center}
-.wd .qat .w{background:var(--blue);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:6px}
-.wd .qat button{background:none;border:0;cursor:pointer;width:24px;height:22px;color:#555}
+.wd .qat{height:26px;display:flex;align-items:center;justify-content:flex-start;position:relative;padding:0 4px 0 6px;font-size:13px}
+.wd .qat .l{position:static;flex:none;display:flex;gap:0;align-items:center}
+.wd .qat .fn{flex:1;min-width:0;max-width:none;margin:0 8px 0 4px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;text-overflow:clip;text-align:center;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch;cursor:grab}
+.wd .qat .fn::-webkit-scrollbar{display:none}
+.wd .qat .w{background:var(--blue);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:2px}
+.wd .qat button{background:none;border:0;cursor:pointer;width:22px;height:22px;color:#555}
 .wd .qat button:hover{background:#e1e1e1}
 .wd .tabs{display:flex;height:26px;border-bottom:1px solid var(--ln);background:#fff}
 .wd .tab{background:none;border:1px solid transparent;border-bottom:0;padding:0 14px;cursor:pointer;height:26px;font-size:12px}
 .wd .tab:hover{color:var(--blue)}
-.wd .tab.on{border-color:var(--ln);background:#fff;color:var(--blue);height:27px}
+.wd .tab.on{border-color:var(--ln);background:#fff;color:var(--blue);height:26px}
 .wd .tab.file{background:var(--blue);color:#fff;padding:0 22px;margin-right:6px;border:0}
-.wd .ribbon{height:92px;background:#fff;border-bottom:1px solid var(--ln);display:flex;padding:3px 4px;overflow-x:auto;white-space:nowrap;flex:none}
+.wd .ribbon{height:88px;background:#fff;border-bottom:1px solid var(--ln);display:flex;padding:3px 4px 2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;white-space:nowrap;flex:none}
 .wd .grp{display:flex;flex-direction:column;border-right:1px solid #e3e3e3;padding:0 6px}
-.wd .gb{flex:1;display:flex;gap:4px;align-items:flex-start}
-.wd .gn{text-align:center;font-size:11px;color:#666;height:16px}
-.wd .rows{display:flex;flex-direction:column;gap:4px}
+.wd .gb{flex:none;height:64px;margin-bottom:3px;display:flex;gap:4px;align-items:center}
+.wd .gn{text-align:center;font-size:11px;color:#666;height:15px;line-height:15px}
+.wd .rows{display:flex;flex-direction:column;gap:2px}
 .wd .row{display:flex;gap:2px;align-items:center;height:26px}
 .wd .b{min-width:24px;height:24px;border:1px solid transparent;background:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 4px;cursor:pointer}
 .wd .b:hover{background:#e6e6e6;border-color:#cfcfcf}
 .wd .b.on{background:#cde6f7;border-color:#92c0e0}
 .wd .b.big{flex-direction:column;height:62px;min-width:48px;gap:3px;font-size:11px}
 .wd .b.big em{font-size:24px;line-height:1.1}
-.wd .b.rw{height:22px;width:100%;justify-content:flex-start}
+.wd .b.rw{height:20px;width:auto;min-width:26px;justify-content:center}
 .wd select{height:23px;border:1px solid #ababab;background:#fff}
-.wd .clr{position:relative;width:26px;height:24px;display:grid;place-items:center;cursor:pointer}
+.wd .clr{position:relative;min-width:32px;height:24px;display:inline-flex;gap:1px;align-items:center;justify-content:center;padding:0 2px;cursor:pointer}
 .wd .clr:hover{background:#e6e6e6}
 .wd .clr span{padding:0 3px;line-height:1.1}
-.wd .clr input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.wd .clr input{position:absolute;left:0;bottom:0;width:0;height:0;opacity:0;pointer-events:none;border:0;padding:0}
+.wd .ddw{display:inline-flex}
+.wd .dd{gap:1px;padding:0 3px}
+.wd .dd em{display:grid;place-items:center}.wd .ic{display:block}
+.wd .dd.vl{justify-content:space-between;padding:0 6px;border-color:#ababab;background:#fff;height:23px}
+.wd .dd.vl .v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wd .dd .ar,.wd .clr .ar{font-style:normal;font-size:8px;color:#666}
+.wd .nl small{color:#777;font-size:10px}.wd .nl input{width:46px}.wd .ri{display:grid;place-items:center;width:24px;color:#444}
+.wd .wpop{position:absolute;z-index:40;background:#fff;border:1px solid #bbb;box-shadow:0 2px 8px rgba(0,0,0,.28);padding:2px 0;min-width:140px;overflow-y:auto;font-size:12px}
+.wd .wpop .mi{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 12px;cursor:pointer;white-space:nowrap}
+.wd .wpop .mi:hover{background:#e6eefb}.wd .wpop .mi.cur{background:#dce8f7;font-weight:600}.wd .wpop .mi b{margin-left:auto;color:var(--blue)}
+.wd .wpop .pal{padding:6px}.wd .wpop .pr{display:flex;gap:3px;margin-bottom:3px}
+.wd .wpop .sw{width:20px;height:20px;border:1px solid #bbb;padding:0;cursor:pointer}.wd .wpop .sw:hover{outline:2px solid var(--blue);outline-offset:1px}
 .wd .gal{display:flex;gap:2px;width:600px;height:64px;border:1px solid var(--ln);padding:2px;overflow:hidden}
 .wd .sty{flex:none;width:86px;height:58px;background:none;border:1px solid transparent;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;overflow:hidden}
 .wd .sty:hover{border-color:#f5c35d;background:#fdf1c9}
@@ -79,17 +93,17 @@ const CSS=`
 .wd .tabs{overflow-x:auto;scrollbar-width:none}.wd .tabs::-webkit-scrollbar{display:none}
 .wd .tab{flex:none;white-space:nowrap}
 .wd .ribbon{-webkit-overflow-scrolling:touch}
-.wd .qat .fn{max-width:calc(100% - 240px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .wd.rc .ribbon{display:none}
 .wd .dg{min-width:min(340px,92vw)}.wd .db input,.wd .db select{max-width:100%}
 .wd .toast{max-width:calc(100% - 32px)}
 @media (pointer:coarse){
- .wd .qat{height:36px}.wd .qat button{width:34px;height:32px;font-size:16px}
- .wd .tabs{height:36px}.wd .tab{height:36px;padding:0 16px;font-size:13px}.wd .tab.on{height:37px}
- .wd .ribbon{height:112px}
- .wd .row{height:36px}.wd .b{min-width:34px;height:34px}.wd .b.rw{height:26px}.wd .rows{gap:4px}
+ .wd .qat{height:36px}.wd .qat button{width:28px;height:32px;font-size:16px}
+ .wd .tabs{height:36px}.wd .tab{height:36px;padding:0 16px;font-size:13px}.wd .tab.on{height:36px}
+ .wd .ribbon{height:106px}.wd .gb{height:80px}.wd .gn{height:16px;line-height:16px}
+ .wd .row{height:36px}.wd .b{min-width:34px;height:34px}.wd .b.rw{height:24px;min-width:34px}.wd .rows{gap:3px}
  .wd .b.big{height:78px;min-width:56px}
- .wd select{height:34px;font-size:16px}.wd .clr{width:36px;height:34px}
+ .wd select{height:34px;font-size:16px}.wd .clr{min-width:40px;height:34px}.wd .dd.vl{height:34px}.wd .wpop .mi{padding:11px 18px 11px 14px;font-size:15px}.wd .wpop .sw{width:28px;height:28px}
  .wd .gal{height:84px}.wd .sty{height:78px}
  .wd .status{height:30px}.wd .status button{width:28px;height:28px;font-size:16px}
  .wd .menu{top:72px;bottom:30px}.wd .menu button{padding:16px 24px}
@@ -100,7 +114,7 @@ const CSS=`
  .wd .rbar{display:none}
 }
 @media (max-width:700px){
- .wd .qat .fn{max-width:calc(100% - 150px)}
+
  .wd .menu{width:min(260px,86vw)}
  .wd .status .s{gap:10px}.wd .status{font-size:10px;white-space:nowrap}.wd .status .s{white-space:nowrap;flex:none}.wd .status .s:first-child>span:nth-child(n+2){display:none}.wd .zr{width:56px!important;vertical-align:middle}.wd .status button{width:26px}.wd .status .zv{display:inline-block;min-width:28px;text-align:right}
  .wd .find{left:8px;right:8px;top:auto;bottom:40px;grid-template-columns:auto 1fr}
@@ -181,14 +195,49 @@ const STY=[['Normal','p',''],['Tanpa Spasi','p','s-nosp'],['Judul 1','h1',''],['
 const TABS=[['home','BERANDA'],['insert','SISIPKAN'],['design','DESAIN'],['layout','TATA LETAK'],['ref','REFERENSI'],['review','TINJAU'],['view','TAMPILAN']];
 
 const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const B=(ic,tip,a,m)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m?`<span>${tip}</span>`:''}</button>`;
-const S=(n,o,w,tip,r)=>`<select data-s="${n}" title="${tip||''}" style="width:${w}px"${r?' data-r':''}>${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select>`;
-const C=(n,v,t,ic)=>`<label class="clr" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"></label>`;
+const ICS=b=>`<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${b}</svg>`;
+const ICT=(t,fs)=>`<text x="12" y="16.5" font-size="${fs||13}" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif">${t}</text>`;
+const ICPG='<rect x="4.5" y="3" width="15" height="18" rx="1.5"/>';
+const DDI={
+ case:ICS(ICT('Aa')),
+ lh:ICS('<path d="M7 5v14M4 8l3-3 3 3M4 16l3 3 3-3M14 7h7M14 12h7M14 17h7"/>'),
+ sym:ICS(ICT('Ω',15)),
+ hdrs:ICS(ICPG+'<path d="M4.5 8h15M8 5.6h8"/>'),
+ ftrs:ICS(ICPG+'<path d="M4.5 16h15M8 18.4h8"/>'),
+ pnum:ICS(ICPG+'<path d="M8.5 8h7M8.5 11h5"/><text x="12" y="19" font-size="5.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif">#</text>'),
+ thm:ICS('<path d="M12 3a9 9 0 1 0 0 18c1.6 0 2.1-1.1 1.5-2.1-.6-1 0-2 1.4-2H17a4 4 0 0 0 4-4c0-5-4-9.9-9-9.9z"/><circle cx="7.6" cy="11.2" r="1" fill="currentColor"/><circle cx="10.5" cy="7.2" r="1" fill="currentColor"/><circle cx="15" cy="7.6" r="1" fill="currentColor"/>'),
+ hcol:ICS('<rect x="3" y="3" width="8" height="8" rx="1.5" fill="#4472c4" stroke="none"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="#ed7d31" stroke="none"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="#70ad47" stroke="none"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="#ffc000" stroke="none"/>'),
+ fpair:ICS('<text x="2" y="18" font-size="16" font-weight="700" fill="currentColor" stroke="none" font-family="Georgia,serif">A</text><text x="13" y="18" font-size="12" fill="currentColor" stroke="none" font-family="Arial,sans-serif">a</text>'),
+ pspace:ICS('<path d="M5 4h14M5 20h14M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/>'),
+ fx:ICS('<path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8zM18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/>'),
+ wmk:ICS(ICPG+'<text x="12" y="14" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif" transform="rotate(-35 12 12)">ABC</text>'),
+ bsty:ICS('<rect x="3.5" y="3.5" width="17" height="17"/><rect x="7.5" y="7.5" width="9" height="9" stroke-dasharray="2 1.6"/>'),
+ bw:ICS('<path d="M4 6h16" stroke-width="1"/><path d="M4 11.5h16" stroke-width="2.2"/><path d="M4 18h16" stroke-width="3.8"/>'),
+ margin:ICS(ICPG+'<rect x="7.5" y="6.5" width="9" height="11" stroke-dasharray="2 1.6"/>'),
+ orient:ICS('<rect x="3" y="4" width="8" height="12" rx="1"/><rect x="12" y="10" width="9" height="6" rx="1"/>'),
+ pgsize:ICS('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>'),
+ cols:ICS(ICPG+'<path d="M12 6v12M7.5 8.5h2.5M7.5 11.5h2.5M7.5 14.5h2.5M14 8.5h2.5M14 11.5h2.5M14 14.5h2.5"/>'),
+ dir:ICS('<path d="M10 4a4 4 0 0 0 0 8V4M14 4v8M10 4h8"/><path d="M5 17h13M15 14l3 3-3 3"/>'),
+ brk:ICS('<path d="M5 3h14v7H5zM5 14h14v7H5z"/><path d="M2 12h2M8 12h2M14 12h2M20 12h2"/>'),
+ ln:ICS('<path d="M4 6h2M4 12h2M4 18h2M9 6h11M9 12h11M9 18h11"/>'),
+ hyph:ICS(ICT('a-b',11)),
+ pos:ICS('<rect x="3" y="3" width="18" height="18" rx="1.5"/><rect x="5.5" y="5.5" width="7" height="6" fill="currentColor" stroke="none"/><path d="M14.5 7h4M14.5 10h4M5.5 14.5h13M5.5 17.5h13"/>'),
+ wrap:ICS('<rect x="4" y="8" width="7" height="7" fill="currentColor" stroke="none"/><path d="M4 4.5h16M4 19.5h16M13.5 8.5h6.5M13.5 11.5h6.5M13.5 14.5h6.5"/>'),
+ algn:ICS('<path d="M4 3v18"/><rect x="7" y="6" width="12" height="4"/><rect x="7" y="14" width="7" height="4"/>'),
+ rot:ICS('<path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/>'),
+ addtxt:ICS('<path d="M4 6h10M4 12h10M4 18h6M18 9v8M14 13h8"/>')
+};
+const VALDD=new Set(['font','size','cstyle']);
+const WPAL=[['#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff'],['#980000','#ff0000','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff'],['#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc'],['#dd7e6b','#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd'],['#a61c00','#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3c78d8','#3d85c6','#674ea7','#a64d79']];
+const B=(ic,tip,a,m)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m==='big'?`<span>${tip}</span>`:''}</button>`;
+const S=(n,o,w,tip,r)=>{const op=o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join(''),v=VALDD.has(n);
+  return `<span class="ddw"><select data-s="${n}" title="${tip||''}"${r?' data-r':''} hidden>${op}</select><button class="b dd${v?' vl':''}" data-dd="${n}" title="${tip||''}"${v?` style="width:${w}px"`:''}>${v?'<span class="v"></span>':`<em>${DDI[n]||''}</em>`}<i class="ar">▾</i></button></span>`;};
+const C=(n,v,t,ic)=>`<span class="clr" data-cp="${n}" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"><i class="ar">▾</i></span>`;
 const G=(n,h)=>`<div class="grp"><div class="gb">${h}</div><div class="gn">${n}</div></div>`;
 const R2=(a,b)=>`<div class="rows"><div class="row">${a}</div><div class="row">${b}</div></div>`;
 const AL=t=>{const w=[14,9,14,9],x=i=>t==='L'||t==='J'?0:t==='C'?(14-w[i])/2:14-w[i];if(t==='J')w.fill(14);return `<svg width="16" height="14">${w.map((v,i)=>`<rect x="${1+x(i)}" y="${1+i*3.5}" width="${v}" height="1.6" fill="#444"/>`).join('')}</svg>`;};
 
-const N=(n,v,t,st,l)=>`<label class="nl" title="${t}">${l}<input type="number" data-s="${n}" value="${v}" step="${st}"></label>`;
+const N=(n,v,t,st,l)=>`<label class="nl" title="${t}">${l}<input type="number" data-s="${n}" value="${v}" step="${st}"><small>${(t.match(/\((\w+)\)/)||[])[1]||''}</small></label>`;
 const RIB={
 home:
  G('Papan klip',B('📋','Tempel','paste','big')+`<div class="rows">${B('✂','Potong','cut','rw')}${B('⎘','Salin','copy','rw')}${B('🖌','Kuas Format','painter','rw')}</div>`)+
@@ -202,7 +251,7 @@ home:
   B(AL('L'),'Rata kiri (Ctrl+L)','justifyLeft')+B(AL('C'),'Tengah (Ctrl+E)','justifyCenter')+B(AL('R'),'Rata kanan (Ctrl+R)','justifyRight')+B(AL('J'),'Rata kiri-kanan (Ctrl+J)','justifyFull')+
   S('lh',[['','↕ Spasi'],['1','1,0'],['1.15','1,15'],['1.5','1,5'],['2','2,0'],['3','3,0']],64,'Spasi baris',1)+C('shade','#d9d9d9','Pengarsiran paragraf','▧')))+
  G('Gaya',`<div class="gal">${STY.map((s,i)=>`<button class="sty" data-a="style:${i}"><span class="${s[2]||(s[1]==='h1'?'g1':s[1]==='h2'?'g2':'')}">AaBbCcDd</span><small>${s[0]}</small></button>`).join('')}</div>`)+
- G('Penyuntingan',`<div class="rows">${B('🔍','Cari','find','rw')}${B('ab','Ganti','replace','rw')}${B('⬚','Pilih semua','selectAll','rw')}</div>`),
+ G('Penyuntingan',`<div class="rows">${B('🔍','Cari','find','rw')}${B(ICS('<path d="M4 7h11M12 4l3 3-3 3M20 17H9M12 14l-3 3 3 3"/>'),'Ganti','replace','rw')}${B('⬚','Pilih semua','selectAll','rw')}</div>`),
 insert:
  G('Halaman',B('⤓','Pemisah halaman','pagebreak','big'))+G('Tabel',B('▦','Tabel','table','big'))+
  G('Ilustrasi',B('🖼','Gambar','image','big'))+G('Tautan',B('🔗','Tautan','link','big'))+
@@ -224,17 +273,17 @@ layout:
  G('Penataan halaman',R2(
   S('margin',[['normal','Margin: Normal'],['narrow','Margin: Sempit'],['moderate','Margin: Sedang'],['wide','Margin: Lebar']],120,'Margin')+S('orient',[['p','Tegak'],['l','Mendatar']],80,'Orientasi')+S('pgsize',[['a4','A4'],['letter','Letter'],['legal','Legal']],70,'Ukuran kertas')+S('cols',[['1','1 Kolom'],['2','2 Kolom'],['3','3 Kolom']],90,'Kolom'),
   S('dir',[['ltr','Arah: Kiri-Kanan'],['rtl','Arah: Kanan-Kiri']],120,'Arah teks')+S('brk',[['','Pemisah…'],['p','Halaman'],['c','Kolom']],90,'Pemisah',1)+S('ln',[['','Nomor baris: Tidak'],['1','Nomor baris: Kontinu']],130,'Nomor baris')+S('hyph',[['','Tanpa tanda hubung'],['1','Hubung otomatis']],120,'Pemenggalan kata')))+
- G('Paragraf',R2(N('indl',0,'Indentasi kiri (cm)','0.5','Kiri (cm)')+N('indr',0,'Indentasi kanan (cm)','0.5','Kanan (cm)'),N('spb',0,'Spasi sebelum (pt)','6','Sebelum (pt)')+N('spa',8,'Spasi sesudah (pt)','6','Sesudah (pt)')))+
+ G('Paragraf',R2(N('indl',0,'Indentasi kiri (cm)','0.5',ICS('<path d="M4 4h16M10 9h10M10 14h10M4 19h16M4 9l4 2.5L4 14z"/>'))+N('indr',0,'Indentasi kanan (cm)','0.5',ICS('<path d="M4 4h16M4 9h10M4 14h10M4 19h16M20 9l-4 2.5 4 2.5z"/>')),N('spb',0,'Spasi sebelum (pt)','6',ICS('<path d="M5 4h14M12 20V8M8.5 11.5L12 8l3.5 3.5"/>'))+N('spa',8,'Spasi sesudah (pt)','6',ICS('<path d="M5 20h14M12 4v12M8.5 12.5L12 16l3.5-3.5"/>'))))+
  G('Susun (pilih gambar/tabel)',R2(
   S('pos',[['','Posisi'],['i','Sebaris'],['l','Kiri (membungkus)'],['c','Tengah'],['r','Kanan (membungkus)']],118,'Posisi objek',1)+S('wrap',[['','Bungkus Teks'],['in','Sebaris dengan teks'],['sq','Persegi'],['tb','Atas dan bawah']],118,'Bungkus teks',1)+B('▲','Majukan','fwd')+B('▼','Mundurkan','bwd'),
-  B('☰ Panel Seleksi','Panel Seleksi','selpane')+S('algn',[['','Rata'],['l','Kiri'],['c','Tengah'],['r','Kanan']],70,'Ratakan objek / paragraf',1)+S('rot',[['','Putar'],['cw','Kanan 90°'],['ccw','Kiri 90°'],['fh','Balik horizontal'],['fv','Balik vertikal']],90,'Putar objek',1))),
+  B('☰','Panel Seleksi','selpane')+S('algn',[['','Rata'],['l','Kiri'],['c','Tengah'],['r','Kanan']],70,'Ratakan objek / paragraf',1)+S('rot',[['','Putar'],['cw','Kanan 90°'],['ccw','Kiri 90°'],['fh','Balik horizontal'],['fv','Balik vertikal']],90,'Putar objek',1))),
 ref:
  G('Daftar isi',B('📑','Daftar isi','toc','big')+`<div class="rows">${S('addtxt',[['','Tambah Teks'],['h1','Level 1'],['h2','Level 2'],['h3','Level 3'],['p','Tidak ditampilkan']],96,'Tambah Teks',1)}${B('⟳','Perbarui Tabel','tocup','rw')}</div>`)+
- G('Catatan kaki',B('ab¹','Sisipkan catatan kaki','footnote','big')+`<div class="rows">${B('ⅰ Sisipkan Catatan Akhir','Sisipkan catatan akhir','endnote','rw')}${B('↓ Catatan Kaki Berikutnya','Catatan kaki berikutnya','nextfn','rw')}${B('👁 Tampilkan Catatan','Tampilkan catatan','shownotes','rw')}</div>`)+
- G('Kutipan & Daftar Pustaka',B('❝','Sisipkan kutipan','cite','big')+`<div class="rows">${B('📚 Kelola Sumber','Kelola sumber','sources','rw')}<div class="row"><span>Gaya:</span>${S('cstyle',['APA','MLA','Chicago','IEEE'],76,'Gaya sitasi')}</div>${B('📖 Daftar Pustaka','Daftar pustaka','bib','rw')}</div>`)+
- G('Keterangan',B('🏷','Sisipkan keterangan','caption','big')+`<div class="rows">${B('▤ Sisipkan Tabel Gambar','Sisipkan tabel gambar','tof','rw')}${B('⟳ Perbarui Tabel','Perbarui tabel','capup','rw')}${B('⌗ Referensi Silang','Referensi silang','xref','rw')}</div>`)+
- G('Indeks',B('✚','Tandai entri','markxe','big')+`<div class="rows">${B('☷ Sisipkan Indeks','Sisipkan indeks','idx','rw')}${B('⟳ Perbarui Indeks','Perbarui indeks','idxup','rw')}</div>`)+
- G('Daftar kutipan hukum',B('⚖','Tandai kutipan','markta','big')+`<div class="rows">${B('☷ Sisipkan Daftar Kutipan','Sisipkan daftar kutipan','toa','rw')}${B('⟳ Perbarui Tabel','Perbarui tabel','toaup','rw')}</div>`),
+ G('Catatan kaki',B('ab¹','Sisipkan catatan kaki','footnote','big')+`<div class="rows">${B('ⅰ','Sisipkan catatan akhir','endnote','rw')}${B('↓','Catatan kaki berikutnya','nextfn','rw')}${B('👁','Tampilkan catatan','shownotes','rw')}</div>`)+
+ G('Kutipan & Daftar Pustaka',B('❝','Sisipkan kutipan','cite','big')+`<div class="rows">${B('📚','Kelola sumber','sources','rw')}<div class="row"><em class="ri" title="Gaya sitasi">${ICS('<path d="M7 7h4v4c0 3-1.5 5-4 6M15 7h4v4c0 3-1.5 5-4 6"/>')}</em>${S('cstyle',['APA','MLA','Chicago','IEEE'],70,'Gaya sitasi')}</div>${B('📖','Daftar pustaka','bib','rw')}</div>`)+
+ G('Keterangan',B('🏷','Sisipkan keterangan','caption','big')+`<div class="rows">${B('▤','Sisipkan tabel gambar','tof','rw')}${B('⟳','Perbarui tabel','capup','rw')}${B('⌗','Referensi silang','xref','rw')}</div>`)+
+ G('Indeks',B('✚','Tandai entri','markxe','big')+`<div class="rows">${B('☷','Sisipkan indeks','idx','rw')}${B('⟳','Perbarui indeks','idxup','rw')}</div>`)+
+ G('Daftar kutipan hukum',B('⚖','Tandai kutipan','markta','big')+`<div class="rows">${B('☷','Sisipkan daftar kutipan','toa','rw')}${B('⟳','Perbarui tabel','toaup','rw')}</div>`),
 
 review:
  G('Pemeriksaan',B('✔','Ejaan','spell','big')+B('123','Hitung kata','wordcount','big'))+G('Mode',B('📖','Mode baca','read','big')),
@@ -300,8 +349,8 @@ function mount(root,opts={}){
   function refresh(){
     STATE.forEach(c=>{const b=root.querySelector(`[data-a="${c}"]`);if(b)b.classList.toggle('on',document.queryCommandState(c));});
     const f=(document.queryCommandValue('fontName')||'').replace(/["']/g,'');
-    if(FONTS.includes(f))$('[data-s=font]').value=f;
-    const sz=curSize();if(SIZES.includes(sz))$('[data-s=size]').value=sz;
+    if(FONTS.includes(f)){$('[data-s=font]').value=f;ddSync('font');}
+    const sz=curSize();if(SIZES.includes(sz)){$('[data-s=size]').value=sz;ddSync('size');}
     syncNums();
   }
   function stats(){
@@ -479,7 +528,7 @@ const THM={'':['Calibri Light','Calibri','#2f5496',1.08],ion:['Trebuchet MS','Ve
 const PSP={'':[8,1.08],none:[0,1],compact:[4,1],tight:[6,1.15],open:[10,1.3],relaxed:[8,1.5],double:[8,2]};
 const TAC=['Kasus','Undang-Undang','Peraturan','Lainnya'],CAPL=['Gambar','Tabel','Persamaan'];
 let selObj=null,cstyle=store.get('cs','APA');const src=store.get('src',[]);
-const setSel=(n,v)=>{const s=$(`[data-s=${n}]`);if(s){s.value=v;if(s.selectedIndex<0)s.selectedIndex=0;}};
+const setSel=(n,v)=>{const s=$(`[data-s=${n}]`);if(s){s.value=v;if(s.selectedIndex<0)s.selectedIndex=0;ddSync(n);}};
 const roman=n=>{let r='';for(const[v,s]of[[10,'x'],[9,'ix'],[5,'v'],[4,'iv'],[1,'i']])while(n>=v){r+=s;n-=v;}return r;};
 const tid=e=>{if(!e.id)e.id=(e.classList.contains('cap')?'cap':'h')+Math.random().toString(36).slice(2,8);return e.id;};
 const pageOf=el=>{const r=el.getBoundingClientRect(),p=page.getBoundingClientRect(),k=page.offsetHeight?p.height/page.offsetHeight:1;return Math.max(1,Math.floor((r.top-p.top)/k/(dims()[1]+(cfg.cols>1?0:PG_GAP)))+1);};
@@ -579,22 +628,18 @@ function nextfn(){
 }
 function shownotes(){const b=page.querySelector('.fns')||page.querySelector('.ens');b?b.scrollIntoView({block:'center'}):toast('Belum ada catatan');}
 function caption(){
-  dlg('Sisipkan Keterangan',`<label>Label <select class="cl">${CAPL.map(l=>`<option>${l}</option>`).join('')}</select></label><label>Teks <input class="ct" style="width:240px"></label>`,d=>{
-    const l=d.querySelector('.cl').value,t=d.querySelector('.ct').value;
-    const h=`<p class="cap" data-l="${l}" style="font-size:9pt;color:#44546a;font-style:italic"><b>${l}</b>${t?': '+esc(t):''}</p>`;
+  pickMenu(CAPL.map(l=>({l,v:l})),o=>{const l=o.v;
+    const h=`<p class="cap" data-l="${l}" style="font-size:9pt;color:#44546a;font-style:italic"><b>${l}</b></p>`;
     if(selObj)(selObj.closest('p')||selObj).insertAdjacentHTML('afterend',h);else exec('insertHTML',h);
-    renum();
-  });
+    renum();});
 }
 function tof(){
-  dlg('Sisipkan Tabel Gambar',`<label>Label <select class="cl">${CAPL.map(l=>`<option>${l}</option>`).join('')}</select></label>`,d=>{
-    const l=d.querySelector('.cl').value;renum();exec('insertHTML',`<div class="tof" data-l="${l}">${tofHTML(l)}</div><p><br></p>`);
-  });
+  pickMenu(CAPL.map(l=>({l,v:l})),o=>{const l=o.v;renum();exec('insertHTML',`<div class="tof" data-l="${l}">${tofHTML(l)}</div><p><br></p>`);});
 }
 function xref(){
   const items=[...page.querySelectorAll('h1,h2,h3,p.cap')];if(!items.length)return toast('Belum ada judul atau keterangan');renum();
-  dlg('Referensi Silang',`<select class="xs" size="8" style="width:320px">${items.map((e,i)=>`<option value="${i}">${e.classList.contains('cap')?esc(e.textContent):'Judul: '+esc(e.textContent)}</option>`).join('')}</select>`,d=>{
-    const e=items[d.querySelector('.xs').value];if(!e)return false;
+  pickMenu(items.map((e,i)=>({l:(e.classList.contains('cap')?e.textContent:'Judul: '+e.textContent).slice(0,60),v:i})),o=>{
+    const e=items[o.v];if(!e)return;
     exec('insertHTML',`<a class="xr" href="#${tid(e)}" data-t="${tid(e)}">${esc(e.classList.contains('cap')?e.querySelector('b').textContent:e.textContent)}</a>&nbsp;`);
   });
 }
@@ -606,10 +651,7 @@ function markxe(){
 function idx(){exec('insertHTML',`<div class="idx">${idxHTML()}</div><p><br></p>`);}
 function markta(){
   focus();const t=getSelection().toString().trim();if(!t)return toast('Pilih teks kutipan yang akan ditandai');
-  const d=dlg('Tandai Kutipan',`<label>Kutipan <input class="c" style="width:260px"></label><label>Kategori <select class="k">${TAC.map(k=>`<option>${k}</option>`).join('')}</select></label>`,d=>{
-    exec('insertHTML',`<span class="ta" data-ta="${attr(d.querySelector('.c').value||t)}" data-cat="${d.querySelector('.k').value}">${esc(t)}</span>`);
-  });
-  d.querySelector('.c').value=t;
+  pickMenu(TAC.map(k=>({l:k,v:k})),o=>exec('insertHTML',`<span class="ta" data-ta="${attr(t)}" data-cat="${o.v}">${esc(t)}</span>`));
 }
 function toa(){exec('insertHTML',`<div class="toa">${toaHTML()}</div><p><br></p>`);}
 
@@ -633,9 +675,9 @@ function sources(){
 }
 function cite(){
   if(!src.length){toast('Tambahkan sumber terlebih dahulu');return sources();}
-  dlg('Sisipkan Kutipan',`<select class="ss" size="6">${src.map((s,i)=>`<option value="${i}"${i?'':' selected'}>${esc(A(s))} (${esc(s.year||'t.t.')}) — ${esc(s.title||'')}</option>`).join('')}</select>`,d=>{
-    const i=+d.querySelector('.ss').value,s=src[i];if(!s)return false;
-    exec('insertHTML',`<span class="cite" data-src="${s.id}">${fmtCite(s,i)}</span>&nbsp;`);
+  pickMenu([...src.map((x,i)=>({l:(A(x)+' ('+(x.year||'t.t.')+') — '+(x.title||'')).slice(0,70),v:i})),{l:'＋ Kelola sumber…',v:-1}],o=>{
+    if(o.v<0)return sources();const x=src[o.v];if(!x)return;
+    exec('insertHTML',`<span class="cite" data-src="${x.id}">${fmtCite(x,o.v)}</span>&nbsp;`);
   });
 }
 function bib(){
@@ -716,7 +758,43 @@ function bib(){
   };
 
   /* event */
-  root.addEventListener('mousedown',e=>{if(e.target.closest('.b,.sty,.tab,.status button'))e.preventDefault();});
+  /* ===== dropdown langsung di ribbon (pengganti popup <select> / pemilih warna bawaan) ===== */
+  let wp=null,curAnchor=null;
+  const closeWP=()=>{if(wp){wp.remove();wp=null;}};
+  const ddSync=n=>{const sl=$(`[data-s=${n}]`),v=root.querySelector(`.dd[data-dd=${n}] .v`);if(sl&&v){const o=sl.options[sl.selectedIndex];v.textContent=o?o.text:'';}};
+  function openWP(anchor,html,onPick){
+    if(wp&&wp._o===anchor){closeWP();return;}
+    closeWP();
+    const host=$('.wd'),el=document.createElement('div');el.className='wpop';el.innerHTML=html;el._o=anchor;host.appendChild(el);
+    const hr=host.getBoundingClientRect(),ar=anchor.getBoundingClientRect(),w=el.offsetWidth;
+    let L=ar.left-hr.left;const T=ar.bottom-hr.top+1;
+    if(L+w>hr.width-4)L=Math.max(4,hr.width-w-4);
+    el.style.left=L+'px';el.style.top=T+'px';el.style.maxHeight=Math.max(120,hr.height-T-6)+'px';
+    el.addEventListener('click',onPick);wp=el;
+  }
+  function pickMenu(items,cb){
+    const a=curAnchor;if(!a)return;
+    openWP(a,items.map((o,i)=>`<div class="mi" data-i="${i}"><span>${esc(o.l)}</span></div>`).join(''),e=>{const m=e.target.closest('.mi');if(!m)return;closeWP();cb(items[+m.dataset.i]);});
+  }
+  function openDD(btn){
+    const n=btn.dataset.dd,sl=$(`[data-s=${n}]`);if(!sl)return;
+    const rs=sl.hasAttribute('data-r'),cur=sl.selectedIndex,isF=n==='font';
+    const html=[...sl.options].map((o,i)=>rs&&i===0?'':`<div class="mi${!rs&&i===cur?' cur':''}" data-i="${i}"${isF?` style="font-family:'${o.text}'"`:''}><span>${esc(o.text)}</span>${!rs&&i===cur?'<b>✓</b>':''}</div>`).join('');
+    openWP(btn,html,e=>{const m=e.target.closest('.mi');if(!m)return;
+      sl.selectedIndex=+m.dataset.i;closeWP();sl.dispatchEvent(new Event('change',{bubbles:true}));ddSync(n);});
+  }
+  function openCP(el){
+    const inp=el.querySelector('input');
+    const html=`<div class="pal">${WPAL.map(r=>`<div class="pr">${r.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('')}</div>`).join('')}<div class="mi" data-m="1"><span>🎨 Warna lainnya…</span></div></div>`;
+    openWP(el,html,e=>{const b=e.target.closest('[data-c],[data-m]');if(!b)return;closeWP();
+      if(b.dataset.c){inp.value=b.dataset.c;inp.dispatchEvent(new Event('input',{bubbles:true}));}else inp.click();});
+  }
+  root.addEventListener('click',e=>{const d=e.target.closest('.dd'),c=e.target.closest('.clr');if(d)openDD(d);else if(c&&!e.target.closest('input'))openCP(c);});
+  const wpDown=e=>{if(!root.isConnected){document.removeEventListener('pointerdown',wpDown,true);return;}
+    if(!wp||wp.contains(e.target)||(wp._o&&wp._o.contains(e.target)))return;closeWP();};
+  document.addEventListener('pointerdown',wpDown,true);
+  $$('.ribbon').forEach(r=>r.addEventListener('scroll',closeWP,{passive:true}));
+  root.addEventListener('mousedown',e=>{if(e.target.closest('.b,.sty,.tab,.status button,.clr,.wpop'))e.preventDefault();});
   root.addEventListener('click',e=>{
     const t=e.target.closest('[data-a],[data-tab]');if(!t)return;
     if(t.dataset.tab){
@@ -724,7 +802,7 @@ function bib(){
       if(small&&t.classList.contains('on')&&!wd.classList.contains('rc')){wd.classList.add('rc');t.classList.remove('on');return;}  /* ketuk tab aktif = ciutkan pita */
       wd.classList.remove('rc');
       $$('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t.dataset.tab);return;}
-    const[k,v]=t.dataset.a.split(':');
+    const[k,v]=t.dataset.a.split(':');curAnchor=t;
     if(CMDS.has(k))exec(k);else if(acts[k])acts[k](v);
     if(k!=='menu')menu.hidden=true;
   });
@@ -750,7 +828,7 @@ function bib(){
   f1.addEventListener('keydown',e=>{if(e.key==='Enter')findNext();});
 
   document.execCommand('styleWithCSS',false,true);
-  $('[data-s=font]').value='Calibri';$('[data-s=size]').value=11;
+  $('[data-s=font]').value='Calibri';$('[data-s=size]').value=11;$$('.dd.vl').forEach(b=>ddSync(b.dataset.dd));
   if(matchMedia('(max-width:700px),(max-height:500px)').matches){$('.wd').classList.add('rc');$$('.tab[data-tab]').forEach(x=>x.classList.remove('on'));}
   setName(opts.file?opts.file.name:'Dokumen1.docx');
   setContent('');apply();

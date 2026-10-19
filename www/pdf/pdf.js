@@ -729,13 +729,15 @@ const CSS=`
 .pd *{box-sizing:border-box}
 .pd button,.pd select,.pd input{font:inherit;color:inherit}
 .pd [hidden]{display:none!important}
-.pd .qat{height:26px;display:flex;align-items:center;justify-content:center;position:relative;font-size:13px;flex:none}
-.pd .qat .l{position:absolute;left:6px;display:flex;gap:2px;align-items:center}
-.pd .qat .w{background:var(--acc);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:6px}
-.pd .qat button{background:none;border:0;cursor:pointer;width:24px;height:22px;color:#555}
+.pd .qat{height:26px;display:flex;align-items:center;justify-content:flex-start;position:relative;padding:0 4px 0 6px;font-size:13px;flex:none}
+.pd .qat .l{position:static;flex:none;display:flex;gap:0;align-items:center}
+.pd .qat .fn{flex:1;min-width:0;max-width:none;margin:0 8px 0 4px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;text-overflow:clip;text-align:center;scrollbar-width:none;touch-action:pan-x;-webkit-overflow-scrolling:touch;cursor:grab}
+.pd .qat .fn::-webkit-scrollbar{display:none}
+.pd .qat .w{background:var(--acc);color:#fff;font-weight:700;width:18px;height:16px;display:grid;place-items:center;font-size:11px;margin-right:2px}
+.pd .qat button{background:none;border:0;cursor:pointer;width:22px;height:22px;color:#555}
 .pd .qat button:hover{background:#e1e1e1}
 .pd .qat button:disabled{opacity:.35;cursor:default;background:none}
-.pd .qat .fn{max-width:calc(100% - 240px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .pd .tabs{display:flex;height:26px;border-bottom:1px solid var(--ln);background:#fff;overflow-x:auto;scrollbar-width:none;flex:none}
 .pd .tabs::-webkit-scrollbar{display:none}
 .pd .tab{background:none;border:1px solid transparent;border-bottom:0;padding:0 14px;cursor:pointer;height:26px;font-size:12px;flex:none;white-space:nowrap}
@@ -850,7 +852,7 @@ const CSS=`
 .pd .dbt button{height:26px;border:1px solid #aaa;background:#f3f3f3;cursor:pointer;padding:0 14px}
 .pd .dbt .ok{background:var(--acc);border-color:var(--acc);color:#fff}
 @media (pointer:coarse){
- .pd .qat{height:36px}.pd .qat button{width:34px;height:32px;font-size:16px}
+ .pd .qat{height:36px}.pd .qat button{width:28px;height:32px;font-size:16px}
  .pd .tabs{height:36px}.pd .tab{height:36px;padding:0 16px;font-size:13px}.pd .tab.on{height:37px}
  .pd .rib{height:112px}.pd .b.rw{height:30px}.pd .b.big{height:84px;min-width:56px}
  .pd .status{height:30px}.pd .status button{min-width:30px;height:28px;font-size:16px}
@@ -859,7 +861,7 @@ const CSS=`
 }
 @media (max-width:700px),(max-height:500px){.pd.rc .rib{display:none}}
 @media (max-width:700px){
- .pd .qat .fn{max-width:calc(100% - 150px)}
+
  .pd .menu{width:min(260px,86vw)}
  .pd .status{padding:0 4px;font-size:10px}.pd .status .s{gap:2px;white-space:nowrap;flex:none}
  .pd .status button{min-width:26px;padding:0 2px}.pd .status input[type=number]{width:34px}
