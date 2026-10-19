@@ -950,10 +950,205 @@ const CSS=`
  .xl .nb{width:64px}
 }
 @media print{body *{visibility:hidden}#xl-print,#xl-print *{visibility:visible}#xl-print{position:absolute;left:0;top:0}}
+.xl .xi{display:block;width:20px;height:20px;flex:none}
+.xl .b.big .xi{width:28px;height:28px}
+.xl .b.big em{justify-content:center}
+.xl .b.rw .xi,.xl .b.sm .xi{width:16px;height:16px}
+.xl .qat .xi{width:16px;height:16px;margin:auto}
+.xl .menu button{display:flex;align-items:center;gap:12px}.xl .menu .xi{width:20px;height:20px}
+.xl .stbar .xi{width:15px;height:15px;margin:auto}
+.xl .b.dis,.xl .b:disabled .xi{opacity:.9}
+@media (pointer:coarse){.xl .b.big .xi{width:32px;height:32px}.xl .b.rw .xi{width:18px;height:18px}.xl .qat .xi{width:18px;height:18px}}
 `;
 
 /* ---------- pita ---------- */
 const TABS=[['home','BERANDA'],['insert','SISIPKAN'],['layout','TATA LETAK HALAMAN'],['formulas','RUMUS'],['data','DATA'],['review','TINJAU'],['view','TAMPILAN']];
+/* ===== Ikon SVG gaya Excel 2013 (garis abu-abu + aksen hijau Excel) ===== */
+const XG='#217346',XB='#2f5496',XO='#ed7d31',XY='#ffc000',XR='#c0392b',XGL='#c6e0b4',XBL='#bcd0ec';
+const XS=b=>`<svg class="xi" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${b}</svg>`;
+const XT=(x,y,fs,t,f,o)=>`<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" fill="${f||'currentColor'}" stroke="none" font-family="${o&&o.ff||'Arial,sans-serif'}"${o&&o.i?' font-style="italic"':''}${o&&o.n?'':' font-weight="700"'}>${t}</text>`;
+const XC=(c,b)=>`<g stroke="${c}">${b}</g>`;
+const XGRID=(x,y,w,h,c,r,hf)=>{let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff"/>`;if(hf)s+=`<rect x="${x}" y="${y}" width="${w}" height="${h/r}" fill="${hf}" stroke="none"/>`;
+  for(let i=1;i<r;i++)s+=`<path d="M${x} ${y+h*i/r}h${w}"/>`;for(let i=1;i<c;i++)s+=`<path d="M${x+w*i/c} ${y}v${h}"/>`;return s+`<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;};
+const XPG='<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/>';
+const XMAG='<circle cx="10" cy="10" r="5.8"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/>';
+const XGLOBE=XC(XB,'<circle cx="12" cy="12" r="8.5" fill="#fff"/><path d="M3.5 12h17M12 3.5c-3.2 3.2-3.2 13.8 0 17M12 3.5c3.2 3.2 3.2 13.8 0 17"/>');
+const XFUN='<path d="M4 5h16l-6 7.5V19l-4 2v-8.5z" fill="#dbe6f6"/>';
+const XBUB=(a)=>`<path d="M4 4.5h16v11H11l-4.5 4v-4H4z" fill="#fff2cc" stroke="#bf9000"/>${a||''}`;
+const XLOCK='<rect x="6" y="11" width="12" height="9" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3" stroke="#8a6d00"/>';
+const XCALC=XC(XG,'<rect x="5.5" y="3" width="13" height="18" rx="1.5" fill="#fff"/><rect x="8" y="5.5" width="8" height="3.5" fill="#c6e0b4"/><path d="M8.5 13h1M12 13h1M15.5 13h.5M8.5 16h1M12 16h1M15.5 16h.5M8.5 19h1M12 19h1M15.5 19h.5" stroke-width="1.8"/>');
+const XCHART=b=>XS('<path d="M3.5 3.5v17h17" /><rect x="6.5" y="12" width="3" height="8" fill="#4472c4" stroke="none"/><rect x="11" y="7" width="3" height="13" fill="#ed7d31" stroke="none"/><rect x="15.5" y="10" width="3" height="10" fill="#4472c4" stroke="none"/>'+(b||''));
+const XSTAR='<path d="M18 13.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill="#ffc000" stroke="#a67c00" stroke-width=".8"/>';
+const XMON='<rect x="3.5" y="5" width="17" height="11" rx="1" fill="#fff"/><path d="M8 20h8M12 16v4"/>';
+const XI={
+ paste:XS('<rect x="4.5" y="5" width="11" height="14.5" rx="1.2"/><rect x="7.5" y="3" width="5" height="3.6" rx=".8" fill="#fff"/>'+XC(XG,XGRID(10.5,9.5,9.5,11.5,2,3))),
+ cut:XS('<circle cx="7" cy="17.5" r="2.6"/><circle cx="17" cy="17.5" r="2.6"/><path d="M8.7 15.4L16 3.5M15.3 15.4L8 3.5"/>'),
+ copy:XS('<rect x="8.5" y="8.5" width="11.5" height="12" rx="1" fill="#fff"/><path d="M15.5 8.5v-4a1 1 0 0 0-1-1h-9.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h3.5"/>'),
+ painter:XS('<rect x="4" y="3.5" width="12" height="5" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M16 6h3.2v5.5H11V14"/><rect x="9" y="14" width="4" height="7" rx="1.2" fill="#fff"/>'),
+ grow:XS('<path d="M3 19L8.5 5l5.5 14M5 14.5h7"/><path d="M18 11V4M15.2 6.8L18 4l2.8 2.8" stroke="'+XG+'"/>'),
+ shrink:XS('<path d="M3 19L8 7l5 12M4.8 15h6.4"/><path d="M18 4v7M15.2 8.2L18 11l2.8-2.8" stroke="'+XG+'"/>'),
+ bold:XS(XT(12,18,18,'B')),
+ italic:XS(XT(12,18,18,'I',null,{i:1,ff:'Georgia,serif',n:1})),
+ underline:XS(XT(12,16.5,16,'U')+'<path d="M6 21h12"/>'),
+ orient:XS('<g transform="rotate(-40 12 12)">'+XT(12,15,11,'ab')+'</g><path d="M5 20l5-1" stroke="'+XG+'"/>'),
+ wrap:XS('<path d="M4 5h16M4 10h10a3.5 3.5 0 0 1 0 7H9M4 20h5"/><path d="M11.5 14.5L9 17l2.5 2.5" stroke="'+XG+'"/>'),
+ outd:XS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M8 9.2L4.2 12 8 14.8z" fill="'+XG+'" stroke="'+XG+'"/>'),
+ ind:XS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M4 9.2L7.8 12 4 14.8z" fill="'+XG+'" stroke="'+XG+'"/>'),
+ merge:XS('<rect x="3.5" y="6" width="17" height="12" fill="#fff"/>'+XC(XG,'<path d="M8 12h8M10 10l-2 2 2 2M14 10l2 2-2 2"/>')),
+ acct:XS('<rect x="3.5" y="7" width="17" height="10" rx="1" fill="#e2f0d9"/><circle cx="12" cy="12" r="2.6" stroke="'+XG+'"/><path d="M6.5 10v4M17.5 10v4" stroke="'+XG+'"/>'),
+ pct:XS(XT(12,17,15,'%')),
+ comma:XS(XT(12,16.5,10.5,',000')),
+ cf:XS(XGRID(3.5,3.5,17,17,3,3)+'<rect x="3.5" y="3.5" width="5.7" height="5.7" fill="#f4b6b6" stroke="none"/><rect x="9.2" y="9.2" width="5.7" height="5.7" fill="#ffe699" stroke="none"/><rect x="14.8" y="14.8" width="5.7" height="5.7" fill="#a9d18e" stroke="none"/><rect x="3.5" y="3.5" width="17" height="17"/>'),
+ tbl:XS(XC(XG,XGRID(3.5,4,17,16,3,4,'#8fc29f'))),
+ cins:XS(XGRID(3.5,4.5,13,13,2,3)+'<circle cx="17.5" cy="17.5" r="4" fill="'+XG+'" stroke="'+XG+'"/><path d="M17.5 15.5v4M15.5 17.5h4" stroke="#fff"/>'),
+ cdel:XS(XGRID(3.5,4.5,13,13,2,3)+'<circle cx="17.5" cy="17.5" r="4" fill="'+XR+'" stroke="'+XR+'"/><path d="M15.5 17.5h4" stroke="#fff"/>'),
+ cfmt:XS(XGRID(3.5,4.5,13,13,2,3)+'<path d="M12 18l6.5-6.5 3 3L15 21z" fill="#ffd966" stroke="#8a6d00"/>'),
+ sum:XS(XT(12,19,20,'Σ')),
+ filld:XS('<rect x="5" y="3.5" width="14" height="6" fill="#fff"/>'+XC(XG,'<path d="M12 11v9M8.5 16.5L12 20l3.5-3.5"/>')),
+ clr:XS('<path d="M13.5 20.5h7M14 20.5l-3.5-3.5a1.4 1.4 0 0 1 0-2l5.5-5.5a1.4 1.4 0 0 1 2 0l3 3a1.4 1.4 0 0 1 0 2l-5.2 5.3" stroke="#c0455e" fill="#f9d3da"/><path d="M3 20.5h6"/>'),
+ sort:XS(XT(7,10.5,9,'A')+XT(7,20.5,9,'Z')+XC(XG,'<path d="M17 4v16M14 17l3 3 3-3"/>')),
+ find:XS(XMAG+'<path d="M3.5 4h5" stroke="'+XG+'"/>'),
+ pivot:XS(XGRID(3.5,4,17,16,3,4,XBL)+'<rect x="3.5" y="4" width="5.7" height="16" fill="#bcd0ec" fill-opacity=".7" stroke="none"/><rect x="3.5" y="4" width="17" height="16"/>'),
+ pivotrec:XS(XGRID(3.5,4,13,12,3,3,XBL)+XSTAR),
+ table:XS(XC(XG,XGRID(3.5,4,17,16,3,4,'#8fc29f'))),
+ pic:XS('<rect x="3.5" y="4.5" width="17" height="15" rx="1" fill="#fff"/><circle cx="9" cy="9.5" r="1.8" fill="#f2b01e" stroke="none"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="#2b8a3e"/>'),
+ picon:XS(XGLOBE+'<rect x="12" y="13" width="9" height="7" fill="#fff"/><path d="M12.5 19l2.5-3 2 2 1.5-1.5 2 2.5" stroke="#2b8a3e"/>'),
+ shapes:XS('<circle cx="9" cy="9" r="5" fill="#dbe6f6" stroke="'+XB+'"/><rect x="11.5" y="11.5" width="8.5" height="8.5" fill="#fbe0cc" stroke="'+XO+'"/>'),
+ smart:XS('<rect x="9" y="3.5" width="6" height="5" fill="#dbe6f6" stroke="'+XB+'"/><rect x="3.5" y="15.5" width="6" height="5" fill="#dbe6f6" stroke="'+XB+'"/><rect x="14.5" y="15.5" width="6" height="5" fill="#dbe6f6" stroke="'+XB+'"/><path d="M12 8.5v3.5M6.5 15.5V12h11v3.5"/>'),
+ shot:XS(XMON+'<rect x="7" y="8" width="7" height="5" stroke-dasharray="1.6 1.4" stroke="'+XG+'"/>'),
+ store:XS('<path d="M5 8h14l-1 12H6z" fill="#fff"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M9.5 13h5" stroke="'+XG+'"/>'),
+ chrec:XCHART(XSTAR),
+ pchart:XCHART('<rect x="14" y="3" width="7" height="6" fill="#dbe6f6" stroke="'+XB+'"/>'),
+ pview:XCHART('<circle cx="17" cy="6.5" r="3" stroke="'+XO+'" fill="#fff"/>'),
+ spark:XS('<rect x="3.5" y="6" width="17" height="12" fill="#fff"/><polyline points="5.5,15 9,10 12,13 15,8 18.5,11" stroke="'+XB+'" stroke-width="1.8"/>'),
+ sparkc:XS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><rect x="6" y="12" width="2.6" height="5" fill="'+XB+'" stroke="none"/><rect x="10.7" y="8" width="2.6" height="9" fill="'+XB+'" stroke="none"/><rect x="15.4" y="10" width="2.6" height="7" fill="'+XB+'" stroke="none"/>'),
+ sparkw:XS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><path d="M3.5 12h17" stroke="#999"/><rect x="6" y="7" width="3" height="5" fill="'+XB+'" stroke="none"/><rect x="10.5" y="12" width="3" height="5" fill="'+XR+'" stroke="none"/><rect x="15" y="7" width="3" height="5" fill="'+XB+'" stroke="none"/>'),
+ slicer:XS('<rect x="4.5" y="3.5" width="12" height="17" fill="#fff"/><rect x="6.5" y="6" width="8" height="3.2" fill="#bcd0ec" stroke="'+XB+'"/><rect x="6.5" y="11" width="8" height="3.2" fill="#bcd0ec" stroke="'+XB+'"/><rect x="6.5" y="16" width="8" height="2.6"/><path d="M19 7l-2.5 3.5v5l2 1.2v-6.2z" fill="#dbe6f6" stroke="'+XB+'"/>'),
+ timeline:XS('<rect x="3.5" y="6" width="17" height="12" fill="#fff"/><rect x="8" y="9" width="8" height="6" fill="#c6e0b4" stroke="'+XG+'"/><path d="M6 12h2M16 12h2"/>'),
+ link:XS('<path d="M10 14a3.5 3.5 0 0 0 5 0l3.5-3.5a3.5 3.5 0 0 0-5-5L12 7" stroke="'+XB+'"/><path d="M14 10a3.5 3.5 0 0 0-5 0L5.5 13.5a3.5 3.5 0 0 0 5 5L12 17" stroke="'+XB+'"/>'),
+ textbox:XS('<rect x="3.5" y="4.5" width="17" height="15" fill="#fff"/>'+XT(12,16,12,'A')+'<path d="M3.5 4.5h2M18.5 4.5h2M3.5 19.5h2M18.5 19.5h2" stroke="'+XG+'" stroke-width="2.2"/>'),
+ hdr:XS(XPG+'<path d="M4.5 8.5h15" stroke="'+XG+'"/><path d="M8 12.5h8M8 15.5h8"/>'),
+ wordart:XS('<text x="12" y="19" font-size="20" font-weight="700" text-anchor="middle" fill="#bcd0ec" stroke="'+XB+'" stroke-width=".9" font-family="Georgia,serif" font-style="italic">A</text>'),
+ sig:XS('<path d="M4 19h16"/><path d="M5 14c2-6 3-7 4-4s1.5 3 3 0 2-2 3 0 1.5 1 3-1" stroke="'+XB+'"/><path d="M5 21.5h5"/>'),
+ obj:XS('<rect x="4" y="5" width="16" height="14" fill="#fff"/><rect x="7" y="8" width="6" height="5" fill="#bcd0ec" stroke="'+XB+'"/><circle cx="16" cy="14.5" r="2.5" fill="#fbe0cc" stroke="'+XO+'"/>'),
+ eq:XS(XT(12,18,19,'π')),
+ sym:XS(XT(12,18,19,'Ω')),
+ themes:XS(XT(9,17,13,'Aa')+'<rect x="15" y="4" width="4.5" height="4.5" fill="#4472c4" stroke="none"/><rect x="15" y="9.5" width="4.5" height="4.5" fill="#ed7d31" stroke="none"/><rect x="15" y="15" width="4.5" height="4.5" fill="#70ad47" stroke="none"/>'),
+ tcol:XS('<rect x="3" y="3" width="8" height="8" rx="1.5" fill="#4472c4" stroke="none"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="#ed7d31" stroke="none"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="#70ad47" stroke="none"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="#ffc000" stroke="none"/>'),
+ tfont:XS(XT(8,18,17,'A',null,{ff:'Georgia,serif'})+XT(17,18,12,'a',null,{n:1})),
+ effects:XS('<path d="M10 3l1.8 5.2L17 10l-5.2 1.8L10 17l-1.8-5.2L3 10l5.2-1.8zM18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z" stroke="'+XG+'"/>'),
+ margin:XS(XPG+'<rect x="7.5" y="6" width="9" height="12" stroke="'+XG+'" stroke-dasharray="2 1.6"/>'),
+ orient2:XS('<rect x="3" y="4" width="8" height="12" rx="1" fill="#fff"/><rect x="12" y="10" width="9" height="6" rx="1" fill="#fff" stroke="'+XG+'"/>'),
+ psize:XS(XPG+XC(XG,'<path d="M12 7.5v9M9.5 10L12 7.5l2.5 2.5M9.5 14l2.5 2.5 2.5-2.5"/>')),
+ parea:XS(XPG+'<rect x="8" y="7" width="8" height="9" fill="#c6e0b4" stroke="'+XG+'" stroke-dasharray="2 1.4"/>'),
+ breaks:XS('<path d="M6 3h12v7H6zM6 14h12v7H6z" fill="#fff"/><path d="M2.5 12h3M9 12h2M13 12h2M18.5 12h3" stroke="'+XG+'"/>'),
+ bg:XS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><path d="M3.5 12h17M12 4v16" stroke="#9db7dd"/><circle cx="8" cy="8" r="1.6" fill="#f2b01e" stroke="none"/><path d="M12 20l4-4 4 4" stroke="#2b8a3e"/>'),
+ ptitle:XS(XGRID(3.5,4,17,16,3,4)+'<rect x="3.5" y="4" width="17" height="4" fill="#c6e0b4" fill-opacity=".9" stroke="none"/><rect x="3.5" y="4" width="17" height="16"/>'),
+ grid:XS(XC('#6b8fc9',XGRID(3.5,4,17,16,3,4))),
+ heads:XS(XGRID(3.5,4,17,16,4,4)+'<rect x="3.5" y="4" width="17" height="4" fill="#d9d9d9" stroke="none"/><rect x="3.5" y="4" width="4.25" height="16" fill="#d9d9d9" stroke="none"/><rect x="3.5" y="4" width="17" height="16"/><path d="M3.5 8h17M7.75 4v16"/>'),
+ fwd:XS('<rect x="3.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="9.5" y="3.5" width="11" height="11" fill="#c6e0b4" stroke="'+XG+'"/>'),
+ bwd:XS('<rect x="9.5" y="3.5" width="11" height="11" fill="#fff"/><rect x="3.5" y="9.5" width="11" height="11" fill="#c6e0b4" stroke="'+XG+'"/>'),
+ selp:XS('<rect x="3.5" y="4" width="11" height="8" fill="#fff"/><rect x="9.5" y="11" width="11" height="8" fill="#c6e0b4" stroke="'+XG+'"/>'),
+ align:XS('<path d="M4 3v18"/><rect x="7" y="6" width="12" height="4" fill="#fff"/><rect x="7" y="14" width="7" height="4" fill="#fff"/>'),
+ group:XS('<rect x="3.5" y="3.5" width="10" height="10" fill="#fff" stroke-dasharray="2 1.6"/><rect x="10.5" y="10.5" width="10" height="10" fill="#fff" stroke-dasharray="2 1.6"/>'),
+ rot:XS('<rect x="7" y="8" width="10" height="8" fill="#fff"/><path d="M20 12a8 8 0 1 0-3 6.2" stroke="'+XG+'"/><path d="M20 4v5h-5" stroke="'+XG+'"/>'),
+ fx:XS(XT(12,17,15,'fx',null,{i:1,ff:'Georgia,serif',n:1})),
+ recent:XS('<circle cx="12" cy="12" r="8.5" fill="#fff"/><path d="M12 7v5l3 2"/>'),
+ fin:XS('<circle cx="12" cy="12" r="8.5" fill="#fff"/>'+XT(12,16.5,12,'$')),
+ logic:XS(XT(12,19,20,'?')),
+ txt:XS(XT(12,18,19,'A')),
+ dt:XS('<rect x="3.5" y="5" width="14" height="14" rx="1.2" fill="#fff"/><path d="M3.5 9h14M7.5 3.5v3M13.5 3.5v3"/><circle cx="17" cy="17" r="4.5" fill="#fff"/><path d="M17 14.5V17l1.8 1.2"/>'),
+ lookup:XS(XGRID(3.5,4,13,12,2,3)+'<circle cx="15" cy="15" r="3.8" fill="#fff"/><path d="M17.8 17.8l3.2 3.2" stroke-width="2"/>'),
+ math:XS(XT(12,18,19,'θ')),
+ more:XS('<circle cx="5.5" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.8" fill="currentColor" stroke="none"/>'),
+ namemgr:XS(XGRID(3.5,4,17,16,2,4,XBL)),
+ defn:XS('<path d="M3.5 12.5V4.5h8l9 9-8 8z" fill="#fff"/><circle cx="8" cy="8.5" r="1.3" stroke="'+XG+'"/>'),
+ usef:XS(XT(12,17,15,'fx',null,{i:1,ff:'Georgia,serif',n:1})+'<path d="M4 20h16" stroke="'+XG+'"/>'),
+ namesel:XS(XGRID(3.5,4,17,16,3,3)+'<rect x="3.5" y="4" width="5.7" height="16" fill="#c6e0b4" fill-opacity=".8" stroke="none"/><rect x="3.5" y="4" width="17" height="16"/>'),
+ tprec:XS('<circle cx="6" cy="12" r="2.2" fill="'+XB+'" stroke="'+XB+'"/><path d="M9 12h11M16 8l4 4-4 4" stroke="'+XB+'"/>'),
+ tdep:XS('<circle cx="18" cy="12" r="2.2" fill="'+XB+'" stroke="'+XB+'"/><path d="M15 12H4M8 8l-4 4 4 4" stroke="'+XB+'"/>'),
+ rmarr:XS('<path d="M3 10h12M11 6l4 4-4 4" stroke="'+XB+'"/><path d="M15 14l5 5M20 14l-5 5" stroke="'+XR+'" stroke-width="1.8"/>'),
+ showf:XS(XGRID(3.5,4,17,16,2,3)+XT(12,16,9,'fx',null,{i:1,ff:'Georgia,serif',n:1})),
+ errchk:XS('<path d="M12 4l9 16H3z" fill="#ffd966" stroke="#8a6d00"/><path d="M12 10v5M12 17.5v.5" stroke="#444" stroke-width="1.8"/>'),
+ evalf:XS(XT(8,15,10,'fx',null,{i:1,ff:'Georgia,serif',n:1})+'<path d="M15 12.5l6 3.5-6 3.5z" fill="'+XG+'" stroke="'+XG+'"/>'),
+ watch:XS('<circle cx="7" cy="14" r="3.6" fill="#fff"/><circle cx="17" cy="14" r="3.6" fill="#fff"/><path d="M10.6 14h2.8M3.4 14L5 7M20.6 14L19 7"/>'),
+ calc:XS(XCALC),
+ calcs:XS(XGRID(3.5,5,12,10,3,3)+'<path d="M20 12a6 6 0 0 1-9.5 4.8" stroke="'+XG+'"/><path d="M20.5 8v4.5H16" stroke="'+XG+'"/>'),
+ access:XS(XC(XR,'<ellipse cx="12" cy="6.5" rx="7" ry="2.8" fill="#fff"/><path d="M5 6.5v11c0 1.5 3 2.8 7 2.8s7-1.3 7-2.8v-11M5 12c0 1.5 3 2.8 7 2.8s7-1.3 7-2.8"/>')),
+ web:XS(XGLOBE),
+ txtf:XS('<path d="M6 3h8l4 4v14H6z" fill="#fff"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15h6M9 18h4" stroke="'+XG+'"/>'),
+ othr:XS('<ellipse cx="10" cy="6.5" rx="6" ry="2.5" fill="#fff"/><path d="M4 6.5v9c0 1.4 2.7 2.5 6 2.5M4 11c0 1.4 2.7 2.5 6 2.5"/><path d="M14 17h7M18 14l3 3-3 3" stroke="'+XG+'"/>'),
+ existc:XS('<path d="M10 14a3.5 3.5 0 0 0 5 0l3.5-3.5a3.5 3.5 0 0 0-5-5L12 7" stroke="'+XG+'"/><path d="M14 10a3.5 3.5 0 0 0-5 0L5.5 13.5a3.5 3.5 0 0 0 5 5L12 17" stroke="'+XG+'"/>'),
+ refresh:XS('<path d="M19 9a7.5 7.5 0 0 0-13.5-2M5 15a7.5 7.5 0 0 0 13.5 2" stroke="'+XG+'"/><path d="M19.5 3.5V9H14M4.5 20.5V15H10" stroke="'+XG+'"/>'),
+ conns:XS('<rect x="3.5" y="4" width="7" height="6" fill="#fff"/><rect x="13.5" y="14" width="7" height="6" fill="#fff"/><path d="M7 10v4h6.5" stroke="'+XG+'"/>'),
+ sortaz:XS(XT(8,10,9,'A')+XT(8,20,9,'Z')+XC(XG,'<path d="M17 4v16M14 17l3 3 3-3"/>')),
+ sortza:XS(XT(8,10,9,'Z')+XT(8,20,9,'A')+XC(XG,'<path d="M17 4v16M14 17l3 3 3-3"/>')),
+ sortdlg:XS('<path d="M5 6h6M5 12h9M5 18h12"/><path d="M19 5v13M16.5 15.5L19 18l2.5-2.5" stroke="'+XG+'"/>'),
+ filter:XS(XFUN),
+ fclear:XS(XFUN+'<path d="M15 14l5 5M20 14l-5 5" stroke="'+XR+'" stroke-width="1.8"/>'),
+ freap:XS(XFUN+'<path d="M21 14a4 4 0 1 1-1.2-2.4M21 10.5v2.5h-2.5" stroke="'+XG+'"/>'),
+ fadv:XS(XFUN+'<path d="M17 13v6M14 16h6" stroke="'+XG+'" stroke-width="1.8"/>'),
+ t2c:XS('<rect x="3.5" y="5" width="7" height="14" fill="#fff"/><rect x="13.5" y="5" width="7" height="14" fill="#fff"/><path d="M10.5 12h3M12 10.5l1.5 1.5-1.5 1.5" stroke="'+XG+'"/><path d="M5.5 9h3M5.5 12h3M15.5 9h3M15.5 12h3"/>'),
+ flash:XS('<path d="M13 3L5.5 13H11l-1 8 8-11h-5.5z" fill="#ffd966" stroke="#8a6d00"/>'),
+ rmdup:XS(XGRID(3.5,4.5,13,13,2,3)+'<path d="M14.5 14.5l6 6M20.5 14.5l-6 6" stroke="'+XR+'" stroke-width="1.8"/>'),
+ dval:XS(XGRID(3.5,4.5,13,13,2,3)+'<circle cx="17.5" cy="17.5" r="4.2" fill="'+XG+'" stroke="'+XG+'"/><path d="M15.3 17.5l1.6 1.6 2.9-3" stroke="#fff"/>'),
+ consol:XS('<path d="M4 6h5l5 6h3M4 18h5l5-6"/><path d="M17 9.5l3 2.5-3 2.5" stroke="'+XG+'"/>'),
+ whatif:XS(XGRID(3.5,5,13,12,3,3)+XT(18,19,12,'?',XO)),
+ relat:XS('<rect x="3.5" y="4" width="8" height="7" fill="#fff"/><rect x="12.5" y="13" width="8" height="7" fill="#fff"/><path d="M7.5 11v5h5" stroke="'+XB+'"/>'),
+ grpm:XS('<path d="M4 5v14M4 5h4M4 19h4" stroke="'+XG+'"/><path d="M11 6h9M11 12h9M11 18h9"/>'),
+ ungrp:XS('<path d="M4 5v5M4 5h4M4 14v5M4 19h4" stroke="'+XG+'"/><path d="M11 6h9M11 12h9M11 18h9"/>'),
+ subt:XS(XT(14,18,17,'Σ')+'<path d="M3.5 6h5M3.5 12h5M3.5 18h5" stroke="'+XG+'"/>'),
+ plus:XS('<rect x="3.5" y="3.5" width="17" height="17" fill="#fff"/><path d="M8 12h8M12 8v8" stroke="'+XG+'"/>'),
+ minus:XS('<rect x="3.5" y="3.5" width="17" height="17" fill="#fff"/><path d="M8 12h8" stroke="'+XG+'"/>'),
+ spell:XS(XT(9,11,9,'ABC')+'<path d="M5.5 16.5l4 4 10-10" stroke="'+XG+'" stroke-width="2.2"/>'),
+ research:XS('<path d="M4 4.5h8v12H4z" fill="#fff"/><path d="M6.5 8h3M6.5 11h3"/><circle cx="15" cy="14" r="4" fill="#fff"/><path d="M18 17l3 3.5" stroke-width="2"/>'),
+ thes:XS('<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/>'),
+ transl:XS('<rect x="3.5" y="4" width="11" height="11" rx="1" fill="#fff"/><rect x="9.5" y="9" width="11" height="11" rx="1" fill="#fff" stroke="'+XB+'"/>'+XT(9,12.5,8,'A')+XT(15,17.5,7,'文',XB)),
+ cmnew:XS(XBUB(XC(XG,'<path d="M12 7v6M9 10h6"/>'))),
+ cmdel:XS(XBUB('<path d="M9.5 7.5l5 5M14.5 7.5l-5 5" stroke="'+XR+'" stroke-width="1.8"/>')),
+ cmprev:XS(XBUB(XC(XG,'<path d="M13.5 7.5L10 10l3.5 2.5"/>'))),
+ cmnext:XS(XBUB(XC(XG,'<path d="M10.5 7.5L14 10l-3.5 2.5"/>'))),
+ cmshow:XS(XBUB()),
+ cmall:XS('<path d="M8 3.5h12.5v9H17" fill="#fff2cc" stroke="#bf9000"/>'+XBUB()),
+ ink:XS('<path d="M5 19l1-4 10-10 3 3-10 10z" fill="#fff"/><path d="M14 7l3 3"/>'),
+ prots:XS(XGRID(3.5,3.5,12,10,3,3)+'<g transform="translate(8 8) scale(.7)">'+XLOCK+'</g>'),
+ protw:XS(XPG+'<g transform="translate(8 8) scale(.7)">'+XLOCK+'</g>'),
+ share:XS('<circle cx="9" cy="8" r="3" fill="#fff"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4" fill="#fff" stroke="'+XG+'"/><path d="M16 14.5a4.5 4.5 0 0 1 5 4.5" stroke="'+XG+'"/>'),
+ protsh:XS('<circle cx="9" cy="8" r="3" fill="#fff"/><path d="M3.5 18a5.5 5.5 0 0 1 8-4.8"/><g transform="translate(11 10) scale(.65)">'+XLOCK+'</g>'),
+ allowr:XS(XGRID(3.5,4.5,13,13,2,3)+'<path d="M12 18l6.5-6.5 3 3L15 21z" fill="#ffd966" stroke="#8a6d00"/>'),
+ track:XS('<path d="M5 19l1-4 9-9 3 3-9 9z" fill="#fff"/><path d="M13 8l3 3"/><path d="M4 21h8" stroke="'+XG+'"/>'),
+ vnorm:XS(XGRID(3.5,4,17,16,3,4)),
+ vpbp:XS(XGRID(3.5,4,17,16,3,4)+'<path d="M12 4v16M3.5 12h17" stroke="'+XB+'" stroke-width="2"/>'),
+ vplv:XS(XPG+'<path d="M4.5 7h15M8 11h8M8 14h8M8 17h5"/>'),
+ vcust:XS('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="#fff"/><circle cx="12" cy="12" r="2.8" stroke="'+XG+'"/>'),
+ shopt:XS('<rect x="4" y="4.5" width="5" height="5" fill="#fff"/><path d="M5 7l1.2 1.2L8.5 5.5" stroke="'+XG+'"/><rect x="4" y="14" width="5" height="5" fill="#fff"/><path d="M12 7h8M12 16.5h8"/>'),
+ zoom:XS(XMAG+'<path d="M7.3 10h5.4M10 7.3v5.4" stroke="'+XG+'"/>'),
+ z100:XS(XMAG+XT(10,12.2,6,'1:1',XG)),
+ zsel:XS('<rect x="3.5" y="3.5" width="9" height="9" stroke="'+XG+'" stroke-dasharray="2 1.6"/><circle cx="12" cy="12" r="4.2" fill="#fff"/><path d="M15 15l5.5 5.5" stroke-width="2.2"/>'),
+ newwin:XS('<rect x="3.5" y="5" width="12" height="10" fill="#fff"/><rect x="8.5" y="9" width="12" height="10" fill="#fff"/><path d="M8.5 12h12" stroke="'+XG+'"/>'),
+ arrwin:XS(XGRID(3.5,3.5,17,17,2,2)+'<path d="M3.5 7.5h8.5M12 3.5v4M12 11.5h8.5" stroke="'+XG+'"/>'),
+ freeze:XS(XGRID(3.5,4,17,16,3,4)+'<path d="M9.2 4v16M3.5 8h17" stroke="'+XB+'" stroke-width="2"/>'),
+ split:XS('<rect x="3.5" y="4" width="17" height="16" fill="#fff"/><path d="M12 4v16M3.5 12h17" stroke="'+XG+'"/>'),
+ hide:XS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><path d="M3.5 9h17"/><path d="M8 14.5h8" stroke="'+XB+'" stroke-width="2"/>'),
+ unhide:XS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><path d="M3.5 9h17"/><path d="M8 14.5h8M12 11.5v6" stroke="'+XG+'" stroke-width="1.8"/>'),
+ sbs:XS('<rect x="3.5" y="5" width="8" height="14" fill="#fff"/><rect x="12.5" y="5" width="8" height="14" fill="#fff"/><path d="M6 9h3M15 9h3"/>'),
+ sync:XS('<rect x="3.5" y="5" width="8" height="14" fill="#fff"/><rect x="12.5" y="5" width="8" height="14" fill="#fff"/><path d="M16.5 8v8M14.5 10l2-2 2 2M14.5 14l2 2 2-2" stroke="'+XG+'"/>'),
+ resetw:XS(XGRID(3.5,4,17,16,2,2)+'<path d="M12 4v16M3.5 12h17" stroke="'+XG+'" stroke-width="1.8"/>'),
+ switchw:XS('<rect x="3.5" y="5" width="12" height="10" fill="#fff"/><rect x="8.5" y="9" width="12" height="10" fill="#fff"/><path d="M11 14h7M16 12l2 2-2 2" stroke="'+XG+'"/>'),
+ macro:XS(XPG+'<path d="M10 9l6 3-6 3z" fill="'+XG+'" stroke="'+XG+'"/>'),
+ save:XS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6" stroke="'+XG+'"/>'),
+ undo:XS('<path d="M9 6L4.5 10.5 9 15"/><path d="M4.5 10.5H15a5 5 0 0 1 0 10h-3"/>'),
+ redo:XS('<path d="M15 6l4.5 4.5L15 15"/><path d="M19.5 10.5H9a5 5 0 0 0 0 10h3"/>'),
+ mnew:XS(XPG.replace(' fill="#fff"','')+'<path d="M12 9v6M9 12h6"/>'),
+ mopen:XS('<path d="M3.5 7h6l2 2h9v10h-17z"/>'),
+ msave:XS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6"/>'),
+ mcsv:XS('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 15h6M9 18h4"/>'),
+ mprint:XS('<rect x="6.5" y="3.5" width="11" height="5"/><rect x="3.5" y="8.5" width="17" height="8" rx="1"/><rect x="6.5" y="14" width="11" height="6.5"/>'),
+ mback:XS('<path d="M20 12H5M10 6l-6 6 6 6"/>'),
+ vnormM:XS('<rect x="4" y="5" width="16" height="14"/><path d="M4 10h16M4 14.5h16M10 5v14"/>'),
+ vplvM:XS('<rect x="6" y="3.5" width="12" height="17"/><path d="M9 8h6M9 12h6"/>'),
+ vpbpM:XS('<rect x="4" y="5" width="16" height="14"/><path d="M12 5v14" stroke-width="2"/>')
+};
 const B=(ic,tip,a,m,lab,dd)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m?`<span>${lab||tip}${dd?(m==='big'?'<br>▾':' ▾'):''}</span>`:''}${dd&&!m?'<i class="car">▾</i>':''}</button>`;
 const S=(n,o,w,tip)=>`<span class="ddw"><select data-s="${n}" title="${tip||''}">${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select><button class="b dd vl" data-a="dd:${n}" title="${tip||''}" style="width:${w}px"><span class="v"></span><i class="car">▾</i></button></span>`;
 const G=(n,h,l)=>`<div class="grp"><div class="gb">${h}</div><div class="gn">${n}</div>${l?`<button class="gl" data-a="fmtcells:${l}" title="Format Sel">↘</button>`:''}</div>`;
@@ -968,29 +1163,29 @@ const INC='<small style="font-size:9px;letter-spacing:-.5px">←,0</small>',DEC=
 const csGal=CSTY.slice(0,6).map((s,i)=>{const o=s[2];return `<button data-a="cstyle:${i}" title="${s[1]}" style="${o.fill?'background:'+o.fill+';':''}${o.color?'color:'+o.color+';':''}${o.b?'font-weight:700;':''}${o.bd?'border:2px solid '+(o.bd.t?o.bd.t[1]:'#7f7f7f')+';':''}">${s[1]}</button>`;}).join('');
 const RIB={
 home:
- G('Papan klip',`<div style="display:flex;flex-direction:column;align-items:center"><button class="b big" data-a="paste" title="Tempel (Ctrl+V)" style="height:46px;min-width:46px"><em>📋</em></button><button class="b" data-a="m:paste" title="Opsi tempel" style="height:18px;font-size:11px;padding:0 4px">Tempel ▾</button></div>`+
-   `<div class="rows t3">${B('✂','Potong (Ctrl+X)','cut','rw','Potong')}${B('⎘','Salin (Ctrl+C)','copy','rw','Salin')}${B('🖌','Kuas Format','painter','rw','Kuas Format')}</div>`)+
+ G('Papan klip',`<div style="display:flex;flex-direction:column;align-items:center"><button class="b big" data-a="paste" title="Tempel (Ctrl+V)" style="height:46px;min-width:46px"><em>${XI.paste}</em></button><button class="b" data-a="m:paste" title="Opsi tempel" style="height:18px;font-size:11px;padding:0 4px">Tempel ▾</button></div>`+
+   `<div class="rows t3">${B(XI.cut,'Potong (Ctrl+X)','cut','rw','Potong')}${B(XI.copy,'Salin (Ctrl+C)','copy','rw','Salin')}${B(XI.painter,'Kuas Format','painter','rw','Kuas Format')}</div>`)+
  G('Font',R2(
-   S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B('A⁺','Perbesar font','grow')+B('A⁻','Perkecil font','shrink'),
-   B('<b>B</b>','Tebal (Ctrl+B)','bold')+B('<i>I</i>','Miring (Ctrl+I)','italic')+B('<u>U</u>','Garis bawah (Ctrl+U)','underline')+
+   S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B(XI.grow,'Perbesar font','grow')+B(XI.shrink,'Perkecil font','shrink'),
+   B(XI.bold,'Tebal (Ctrl+B)','bold')+B(XI.italic,'Miring (Ctrl+I)','italic')+B(XI.underline,'Garis bawah (Ctrl+U)','underline')+
    `<button class="b" data-a="m:ul" title="Jenis garis bawah" style="min-width:12px;padding:0 1px;margin-left:-3px"><i class="car">▾</i></button>`+
    `<span style="width:1px;height:18px;background:#ddd;margin:0 2px"></span>`+
    `<span class="clr"><button class="b" title="Garis tepi" data-a="border:last"><em>${BRDI}</em></button><button class="b" data-a="m:border" title="Garis tepi" style="min-width:14px;padding:0 1px"><i class="car">▾</i></button></span>`+
    CLRB('fill',FILLI,'#ffff00','Warna isi','fillnow','m:fill')+CLRB('color','A','#ff0000','Warna font','colornow','m:color')),'font')+
  G('Perataan',R2(
-   B(AV('t'),'Rata atas','va:top')+B(AV('m'),'Rata tengah','va:middle')+B(AV('b'),'Rata bawah','va:bottom')+B('<span style="display:inline-block;transform:rotate(-40deg);font-size:11px">ab</span>','Orientasi','m:orient',null,null,1)+
-   B('↵','Bungkus teks','wrap','sm','Bungkus Teks'),
-   B(AL('L'),'Rata kiri','ha:left')+B(AL('C'),'Tengah','ha:center')+B(AL('R'),'Rata kanan','ha:right')+B('⇤','Kurangi indentasi','indent:-1')+B('⇥','Tambah indentasi','indent:1')+
-   B('⇔','Gabung & Tengah','merge:center','sm','Gabung & Tengah')+`<button class="b" data-a="m:merge" title="Opsi gabung" style="min-width:14px;padding:0 1px"><i class="car">▾</i></button>`),'align')+
+   B(AV('t'),'Rata atas','va:top')+B(AV('m'),'Rata tengah','va:middle')+B(AV('b'),'Rata bawah','va:bottom')+B(XI.orient,'Orientasi','m:orient',null,null,1)+
+   B(XI.wrap,'Bungkus teks','wrap','sm','Bungkus Teks'),
+   B(AL('L'),'Rata kiri','ha:left')+B(AL('C'),'Tengah','ha:center')+B(AL('R'),'Rata kanan','ha:right')+B(XI.outd,'Kurangi indentasi','indent:-1')+B(XI.ind,'Tambah indentasi','indent:1')+
+   B(XI.merge,'Gabung & Tengah','merge:center','sm','Gabung & Tengah')+`<button class="b" data-a="m:merge" title="Opsi gabung" style="min-width:14px;padding:0 1px"><i class="car">▾</i></button>`),'align')+
  G('Angka',R2(
    S('nfmt',[...FMTLIST,['custom','Kustom']],130,'Format angka'),
-   `<button class="b sm" data-a="m:acct" title="Format akuntansi"><em>Rp</em><i class="car">▾</i></button>`+B('%','Gaya persen','nf:Percent')+B('<b>,</b>','Gaya koma','nf:Comma')+B(INC,'Tambah desimal','dec:1')+B(DEC,'Kurangi desimal','dec:-1')),'number')+
- G('Gaya',B('◧','Pemformatan Bersyarat','m:cf','big','Pemformatan Bersyarat',1)+B('▦','Format sebagai Tabel','m:tbl','big','Format sebagai Tabel',1)+
+   `<button class="b sm" data-a="m:acct" title="Format akuntansi"><em>${XI.acct}</em><i class="car">▾</i></button>`+B(XI.pct,'Gaya persen','nf:Percent')+B(XI.comma,'Gaya koma','nf:Comma')+B(INC,'Tambah desimal','dec:1')+B(DEC,'Kurangi desimal','dec:-1')),'number')+
+ G('Gaya',B(XI.cf,'Pemformatan Bersyarat','m:cf','big','Pemformatan Bersyarat',1)+B(XI.tbl,'Format sebagai Tabel','m:tbl','big','Format sebagai Tabel',1)+
    `<div class="gal">${csGal}</div><div class="gmore"><button data-a="m:csty" title="Gaya sel lainnya">▾</button></div>`+
    '<div style="width:0"></div>')+
- G('Sel',B('⊞','Sisipkan','m:insert','big','Sisipkan',1)+B('⊟','Hapus','m:delete','big','Hapus',1)+B('▤','Format','m:format','big','Format',1))+
- G('Pengeditan',`<div class="rows t3">${SPL('Σ','Jumlah Otomatis','autosum:SUM','m:sum','Jumlah Otomatis')}${SPL('⬇','Isi','filldown','m:fillm','Isi')}${SPL('⌧','Hapus','clearc','m:clear','Hapus')}</div>`+
-   B('⇅','Urutkan & Filter','m:sort','big','Urutkan & Filter',1)+B('🔍','Cari & Pilih','m:find','big','Cari & Pilih',1))
+ G('Sel',B(XI.cins,'Sisipkan','m:insert','big','Sisipkan',1)+B(XI.cdel,'Hapus','m:delete','big','Hapus',1)+B(XI.cfmt,'Format','m:format','big','Format',1))+
+ G('Pengeditan',`<div class="rows t3">${SPL(XI.sum,'Jumlah Otomatis','autosum:SUM','m:sum','Jumlah Otomatis')}${SPL(XI.filld,'Isi','filldown','m:fillm','Isi')}${SPL(XI.clr,'Hapus','clearc','m:clear','Hapus')}</div>`+
+   B(XI.sort,'Urutkan & Filter','m:sort','big','Urutkan & Filter',1)+B(XI.find,'Cari & Pilih','m:find','big','Cari & Pilih',1))
 };
 const BD=(ic,tip,lab)=>`<button class="b big" disabled title="${tip} (belum tersedia)"><em>${ic}</em><span>${lab||tip}</span></button>`;
 const CHI={
@@ -1002,23 +1197,23 @@ const CHI={
  chSct:'<svg width="16" height="16"><circle cx="4" cy="11" r="1.6" fill="#4472c4"/><circle cx="8" cy="6" r="1.6" fill="#4472c4"/><circle cx="12" cy="9" r="1.6" fill="#4472c4"/><circle cx="12" cy="3.5" r="1.6" fill="#4472c4"/></svg>'};
 const CB=(k,tip)=>`<button class="b" title="${tip}" data-a="m:${k}"><em>${CHI[k]}</em><i class="car">▾</i></button>`;
 RIB.insert=
- G('Tabel',BD('⊞','PivotTable')+BD('⊟','Rekomendasi PivotTable','Rekomendasi<br>PivotTable')+B('▦','Tabel','tblnow','big','Tabel'))+
- G('Ilustrasi',B('🖼','Sisipkan gambar dari komputer','pic','big','Gambar')+BD('🌐','Gambar Online','Gambar<br>Online')+B('◇','Bentuk','m:shapes','big','Bentuk',1)+BD('▤','SmartArt')+BD('📷','Tangkapan Layar','Tangkapan<br>Layar'))+
- G('Aplikasi',BD('🛍','Aplikasi untuk Office','Aplikasi untuk<br>Office'))+
- G('Bagan',BD('📈','Bagan yang Disarankan','Bagan yang<br>Disarankan')+`<div class="chg">${CB('chCol','Sisipkan bagan kolom')}${CB('chBar','Sisipkan bagan batang')}${CB('chLine','Sisipkan bagan garis')}${CB('chArea','Sisipkan bagan area')}${CB('chPie','Sisipkan bagan pai')}${CB('chSct','Sisipkan bagan sebar')}</div>`+BD('📊','PivotChart'))+
- G('Laporan',BD('📊','Power View'))+
- G('Sparkline',B('〰','Sparkline Garis','spark:line','big','Garis')+B('▮▯','Sparkline Kolom','spark:col','big','Kolom')+B('▀▄','Sparkline Menang/Kalah','spark:wl','big','Menang/<br>Kalah'))+
- G('Filter',BD('⧩','Slicer')+BD('⏱','Timeline'))+
- G('Tautan',B('🔗','Hyperlink','hyperlink','big','Hyperlink'))+
- G('Teks',B('A','Kotak Teks','textbox','big','Kotak Teks')+BD('▭','Header & Footer','Header<br>& Footer')+BD('𝒜','WordArt')+BD('✍','Baris Tanda Tangan','Baris Tanda<br>Tangan')+BD('▢','Objek'))+
- G('Simbol',BD('π','Persamaan')+B('Ω','Simbol','symbol','big','Simbol'));
+ G('Tabel',BD(XI.pivot,'PivotTable')+BD(XI.pivotrec,'Rekomendasi PivotTable','Rekomendasi<br>PivotTable')+B(XI.table,'Tabel','tblnow','big','Tabel'))+
+ G('Ilustrasi',B(XI.pic,'Sisipkan gambar dari komputer','pic','big','Gambar')+BD(XI.picon,'Gambar Online','Gambar<br>Online')+B(XI.shapes,'Bentuk','m:shapes','big','Bentuk',1)+BD(XI.smart,'SmartArt')+BD(XI.shot,'Tangkapan Layar','Tangkapan<br>Layar'))+
+ G('Aplikasi',BD(XI.store,'Aplikasi untuk Office','Aplikasi untuk<br>Office'))+
+ G('Bagan',BD(XI.chrec,'Bagan yang Disarankan','Bagan yang<br>Disarankan')+`<div class="chg">${CB('chCol','Sisipkan bagan kolom')}${CB('chBar','Sisipkan bagan batang')}${CB('chLine','Sisipkan bagan garis')}${CB('chArea','Sisipkan bagan area')}${CB('chPie','Sisipkan bagan pai')}${CB('chSct','Sisipkan bagan sebar')}</div>`+BD(XI.pchart,'PivotChart'))+
+ G('Laporan',BD(XI.pview,'Power View'))+
+ G('Sparkline',B(XI.spark,'Sparkline Garis','spark:line','big','Garis')+B(XI.sparkc,'Sparkline Kolom','spark:col','big','Kolom')+B(XI.sparkw,'Sparkline Menang/Kalah','spark:wl','big','Menang/<br>Kalah'))+
+ G('Filter',BD(XI.slicer,'Slicer')+BD(XI.timeline,'Timeline'))+
+ G('Tautan',B(XI.link,'Hyperlink','hyperlink','big','Hyperlink'))+
+ G('Teks',B(XI.textbox,'Kotak Teks','textbox','big','Kotak Teks')+BD(XI.hdr,'Header & Footer','Header<br>& Footer')+BD(XI.wordart,'WordArt')+BD(XI.sig,'Baris Tanda Tangan','Baris Tanda<br>Tangan')+BD(XI.obj,'Objek'))+
+ G('Simbol',BD(XI.eq,'Persamaan')+B(XI.sym,'Simbol','symbol','big','Simbol'));
 const FITO=[['0','Otomatis'],...[1,2,3,4,5,6,7,8,9].map(n=>[String(n),n+' halaman'])];
 RIB.layout=
- G('Tema',B('Aa','Tema','m:themes','big','Tema',1)+`<div class="rows t3">${B('◍','Warna','m:tcolors','rw','Warna',1)}${B('A','Font','m:tfonts','rw','Font',1)}<button class="b rw" disabled title="Efek (belum tersedia)"><em>◉</em><span>Efek ▾</span></button></div>`)+
- G('Penyiapan Halaman',B('▭','Margin','m:margins','big','Margin',1)+B('⬒','Orientasi','m:orient2','big','Orientasi',1)+B('▯','Ukuran','m:psize','big','Ukuran',1)+B('▦','Area Cetak','m:parea','big','Area<br>Cetak',1)+BD('⇥','Sela')+B('🖼','Latar Belakang','bg','big','Latar<br>Belakang')+B('⊞','Judul Cetak','ptitles','big','Judul<br>Cetak'),'page')+
+ G('Tema',B(XI.themes,'Tema','m:themes','big','Tema',1)+`<div class="rows t3">${B(XI.tcol,'Warna','m:tcolors','rw','Warna',1)}${B(XI.tfont,'Font','m:tfonts','rw','Font',1)}<button class="b rw" disabled title="Efek (belum tersedia)"><em>${XI.effects}</em><span>Efek ▾</span></button></div>`)+
+ G('Penyiapan Halaman',B(XI.margin,'Margin','m:margins','big','Margin',1)+B(XI.orient2,'Orientasi','m:orient2','big','Orientasi',1)+B(XI.psize,'Ukuran','m:psize','big','Ukuran',1)+B(XI.parea,'Area Cetak','m:parea','big','Area<br>Cetak',1)+BD(XI.breaks,'Sela')+B(XI.bg,'Latar Belakang','bg','big','Latar<br>Belakang')+B(XI.ptitle,'Judul Cetak','ptitles','big','Judul<br>Cetak'),'page')+
  G('Skala agar Muat',`<div class="rows t3"><div class="row"><span style="width:46px">Lebar:</span>${S('fitw',FITO,98)}</div><div class="row"><span style="width:46px">Tinggi:</span>${S('fith',FITO,98)}</div><div class="row"><span style="width:46px">Skala:</span><input type="number" data-s="scale" min="10" max="400" value="100" style="width:60px;height:23px;border:1px solid #ababab"> %</div></div>`,'page')+
- G('Opsi Lembar',B('▦','Garis Kisi','m:gridopt','big','Garis Kisi',1)+B('☰','Tajuk','m:headopt','big','Tajuk',1),'page')+
- G('Susun',B('⬆','Majukan','m:fwd','big','Majukan',1)+B('⬇','Mundurkan','m:back','big','Mundurkan',1)+B('▤','Panel Seleksi','selpane','big','Panel<br>Seleksi')+B('⇤','Ratakan','m:align','big','Ratakan',1)+BD('▣','Grup')+B('⟳','Putar','m:rot','big','Putar',1));
+ G('Opsi Lembar',B(XI.grid,'Garis Kisi','m:gridopt','big','Garis Kisi',1)+B(XI.heads,'Tajuk','m:headopt','big','Tajuk',1),'page')+
+ G('Susun',B(XI.fwd,'Majukan','m:fwd','big','Majukan',1)+B(XI.bwd,'Mundurkan','m:back','big','Mundurkan',1)+B(XI.selp,'Panel Seleksi','selpane','big','Panel<br>Seleksi')+B(XI.align,'Ratakan','m:align','big','Ratakan',1)+BD(XI.group,'Grup')+B(XI.rot,'Putar','m:rot','big','Putar',1));
 
 const FNL=`SUM|mt|SUM(angka1; [angka2]; …)|Menjumlahkan semua angka dalam rentang sel.
 SUMIF|mt|SUMIF(rentang; kriteria; [rentang_jumlah])|Menjumlahkan sel yang memenuhi satu kriteria.
@@ -1162,32 +1357,32 @@ const FNI={};FNL.split('\n').forEach(l=>{const p=l.split('|');FNI[p[0]]={c:p[1],
 const FNCAT=[['all','Semua'],['rec','Baru Digunakan'],['fin','Keuangan'],['log','Logika'],['txt','Teks'],['dt','Tanggal & Waktu'],['lk','Pencarian & Referensi'],['mt','Matematika & Trigonometri'],['st','Statistik'],['inf','Informasi']];
 const BC=(ic,tip,a,lab,col)=>`<button class="b big" title="${tip}" data-a="${a}"><em style="color:${col};font-weight:700">${ic}</em><span>${lab}<br>▾</span></button>`;
 RIB.formulas=
- G('Pustaka Fungsi',B('<i style="font-family:Georgia,serif">fx</i>','Sisipkan Fungsi','fxdlg','big','Sisipkan<br>Fungsi')+
-   B('Σ','Jumlah Otomatis','m:sum','big','Jumlah<br>Otomatis',1)+BC('★','Baru Digunakan','m:cRec','Baru<br>Digunakan','#2f5496')+BC('$','Keuangan','m:cfin','Keuangan','#4a8a6e')+BC('?','Logika','m:clog','Logika','#8a4aa6')+
-   BC('A','Teks','m:ctxt','Teks','#e69b2c')+BC('▦','Tanggal & Waktu','m:cdt','Tanggal &<br>Waktu','#d2562b')+BC('🔍','Pencarian & Referensi','m:clk','Pencarian &<br>Referensi','#2f5496')+BC('θ','Matematika & Trigonometri','m:cmt','Matematika<br>& Trig','#4a8a6e')+BC('…','Fungsi Lainnya','m:cmore','Fungsi<br>Lainnya','#d2562b'))+
- G('Nama Terdefinisi',B('▤','Pengelola Nama','namemgr','big','Pengelola<br>Nama')+`<div class="rows t3">${B('▭','Tentukan Nama','m:defn','rw','Tentukan Nama',1)}${B('ƒ','Gunakan di Rumus','m:usef','rw','Gunakan di Rumus',1)}${B('▦','Buat dari Pilihan','namesel','rw','Buat dari Pilihan')}</div>`)+
- G('Audit Rumus',`<div class="rows t3">${B('⇢','Telusuri Preseden','trace:prec','rw','Telusuri Preseden')}${B('⇠','Telusuri Dependen','trace:dep','rw','Telusuri Dependen')}${B('✖','Hapus Panah','m:rmarr','rw','Hapus Panah',1)}</div><div class="rows t3">${B('ƒ','Tampilkan Rumus','showf','rw','Tampilkan Rumus')}${B('⚠','Pemeriksaan Galat','m:errchk','rw','Pemeriksaan Galat',1)}${B('ƒ','Evaluasi Rumus','evalf','rw','Evaluasi Rumus')}</div>`+B('👓','Jendela Pantau','watch','big','Jendela<br>Pantau'))+
- G('Perhitungan',B('▦','Opsi Perhitungan','m:calcopt','big','Opsi<br>Perhitungan',1)+`<div class="rows t3">${B('▦','Hitung Sekarang (F9)','calcnow','rw','Hitung Sekarang')}${B('▦','Hitung Lembar (Shift+F9)','calcsheet','rw','Hitung Lembar')}</div>`);
+ G('Pustaka Fungsi',B(XI.fx,'Sisipkan Fungsi','fxdlg','big','Sisipkan<br>Fungsi')+
+   B(XI.sum,'Jumlah Otomatis','m:sum','big','Jumlah<br>Otomatis',1)+BC(XI.recent,'Baru Digunakan','m:cRec','Baru<br>Digunakan','#2f5496')+BC(XI.fin,'Keuangan','m:cfin','Keuangan','#4a8a6e')+BC(XI.logic,'Logika','m:clog','Logika','#8a4aa6')+
+   BC(XI.txt,'Teks','m:ctxt','Teks','#e69b2c')+BC(XI.dt,'Tanggal & Waktu','m:cdt','Tanggal &<br>Waktu','#d2562b')+BC(XI.lookup,'Pencarian & Referensi','m:clk','Pencarian &<br>Referensi','#2f5496')+BC(XI.math,'Matematika & Trigonometri','m:cmt','Matematika<br>& Trig','#4a8a6e')+BC(XI.more,'Fungsi Lainnya','m:cmore','Fungsi<br>Lainnya','#d2562b'))+
+ G('Nama Terdefinisi',B(XI.namemgr,'Pengelola Nama','namemgr','big','Pengelola<br>Nama')+`<div class="rows t3">${B(XI.defn,'Tentukan Nama','m:defn','rw','Tentukan Nama',1)}${B(XI.usef,'Gunakan di Rumus','m:usef','rw','Gunakan di Rumus',1)}${B(XI.namesel,'Buat dari Pilihan','namesel','rw','Buat dari Pilihan')}</div>`)+
+ G('Audit Rumus',`<div class="rows t3">${B(XI.tprec,'Telusuri Preseden','trace:prec','rw','Telusuri Preseden')}${B(XI.tdep,'Telusuri Dependen','trace:dep','rw','Telusuri Dependen')}${B(XI.rmarr,'Hapus Panah','m:rmarr','rw','Hapus Panah',1)}</div><div class="rows t3">${B(XI.showf,'Tampilkan Rumus','showf','rw','Tampilkan Rumus')}${B(XI.errchk,'Pemeriksaan Galat','m:errchk','rw','Pemeriksaan Galat',1)}${B(XI.evalf,'Evaluasi Rumus','evalf','rw','Evaluasi Rumus')}</div>`+B(XI.watch,'Jendela Pantau','watch','big','Jendela<br>Pantau'))+
+ G('Perhitungan',B(XI.calc,'Opsi Perhitungan','m:calcopt','big','Opsi<br>Perhitungan',1)+`<div class="rows t3">${B(XI.calc,'Hitung Sekarang (F9)','calcnow','rw','Hitung Sekarang')}${B(XI.calcs,'Hitung Lembar (Shift+F9)','calcsheet','rw','Hitung Lembar')}</div>`);
 RIB.data=
- G('Ambil Data Eksternal',BD('🗄','Dari Access','Dari<br>Access')+B('🌐','Dari Web','fromweb','big','Dari<br>Web')+B('📄','Dari Teks','fromtext','big','Dari<br>Teks')+BD('⚙','Dari Sumber Lain','Dari Sumber<br>Lain ▾')+BD('🔗','Koneksi yang Ada','Koneksi<br>yang Ada'))+
- G('Koneksi',B('⟳','Segarkan Semua','m:refresh','big','Segarkan<br>Semua',1)+`<div class="rows t3">${B('⛓','Koneksi','conns','rw','Koneksi')}<button class="b rw" disabled title="Properti (belum tersedia)"><em>▤</em><span>Properti</span></button><button class="b rw" disabled title="Edit Tautan (belum tersedia)"><em>🔗</em><span>Edit Tautan</span></button></div>`)+
- G('Urutkan & Filter',`<div class="rows">${B('<small style="line-height:1;font-size:10px">A↓<br>Z</small>','Urutkan A ke Z','sortaz')}${B('<small style="line-height:1;font-size:10px">Z↓<br>A</small>','Urutkan Z ke A','sortza')}</div>`+B('⇅','Urutkan','sortdlg','big','Urutkan')+B('⧩','Filter','filter','big','Filter')+`<div class="rows t3">${B('✖','Bersihkan','fclear','rw','Bersihkan')}${B('⟳','Terapkan Ulang','freapply','rw','Terapkan Ulang')}${B('⧩','Lanjutan','fadv','rw','Lanjutan')}</div>`)+
- G('Alat Data',B('▥','Teks ke Kolom','t2c','big','Teks ke<br>Kolom')+B('⚡','Isi Cepat (Ctrl+E)','flash','big','Isi<br>Cepat')+B('⊟','Hapus Duplikat','rmdup','big','Hapus<br>Duplikat')+B('✔','Validasi Data','m:dval','big','Validasi<br>Data',1)+B('⇥','Konsolidasi','consol','big','Konsolidasi')+B('?','Analisis Bagaimana-Jika','m:whatif','big','Analisis<br>Bagaimana-Jika',1)+BD('⇄','Hubungan','Hubungan'))+
- G('Kerangka',B('▣','Grup','m:grpm','big','Grup',1)+B('▢','Pisahkan Grup','m:ungrpm','big','Pisahkan<br>Grup',1)+B('Σ','Subtotal','subtotal','big','Subtotal')+`<div class="rows t3">${B('＋','Tampilkan Detail','showdet','rw','Tampilkan Detail')}${B('－','Sembunyikan Detail','hidedet','rw','Sembunyikan Detail')}</div>`);
+ G('Ambil Data Eksternal',BD(XI.access,'Dari Access','Dari<br>Access')+B(XI.web,'Dari Web','fromweb','big','Dari<br>Web')+B(XI.txtf,'Dari Teks','fromtext','big','Dari<br>Teks')+BD(XI.othr,'Dari Sumber Lain','Dari Sumber<br>Lain ▾')+BD(XI.existc,'Koneksi yang Ada','Koneksi<br>yang Ada'))+
+ G('Koneksi',B(XI.refresh,'Segarkan Semua','m:refresh','big','Segarkan<br>Semua',1)+`<div class="rows t3">${B(XI.conns,'Koneksi','conns','rw','Koneksi')}<button class="b rw" disabled title="Properti (belum tersedia)"><em>${XI.conns}</em><span>Properti</span></button><button class="b rw" disabled title="Edit Tautan (belum tersedia)"><em>${XI.existc}</em><span>Edit Tautan</span></button></div>`)+
+ G('Urutkan & Filter',`<div class="rows">${B(XI.sortaz,'Urutkan A ke Z','sortaz')}${B(XI.sortza,'Urutkan Z ke A','sortza')}</div>`+B(XI.sortdlg,'Urutkan','sortdlg','big','Urutkan')+B(XI.filter,'Filter','filter','big','Filter')+`<div class="rows t3">${B(XI.fclear,'Bersihkan','fclear','rw','Bersihkan')}${B(XI.freap,'Terapkan Ulang','freapply','rw','Terapkan Ulang')}${B(XI.fadv,'Lanjutan','fadv','rw','Lanjutan')}</div>`)+
+ G('Alat Data',B(XI.t2c,'Teks ke Kolom','t2c','big','Teks ke<br>Kolom')+B(XI.flash,'Isi Cepat (Ctrl+E)','flash','big','Isi<br>Cepat')+B(XI.rmdup,'Hapus Duplikat','rmdup','big','Hapus<br>Duplikat')+B(XI.dval,'Validasi Data','m:dval','big','Validasi<br>Data',1)+B(XI.consol,'Konsolidasi','consol','big','Konsolidasi')+B(XI.whatif,'Analisis Bagaimana-Jika','m:whatif','big','Analisis<br>Bagaimana-Jika',1)+BD(XI.relat,'Hubungan','Hubungan'))+
+ G('Kerangka',B(XI.group,'Grup','m:grpm','big','Grup',1)+B(XI.ungrp,'Pisahkan Grup','m:ungrpm','big','Pisahkan<br>Grup',1)+B(XI.subt,'Subtotal','subtotal','big','Subtotal')+`<div class="rows t3">${B(XI.plus,'Tampilkan Detail','showdet','rw','Tampilkan Detail')}${B(XI.minus,'Sembunyikan Detail','hidedet','rw','Sembunyikan Detail')}</div>`);
 RIB.review=
- G('Pemeriksaan',BD('ABC','Ejaan')+BD('🔎','Riset')+BD('📖','Tesaurus'))+
- G('Bahasa',BD('🌐','Terjemahkan'))+
- G('Komentar',B('🗨','Komentar Baru','cmnew','big','Komentar<br>Baru')+B('✖','Hapus Komentar','cmdel','big','Hapus')+B('◀','Komentar Sebelumnya','cmprev','big','Sebelumnya')+B('▶','Komentar Berikutnya','cmnext','big','Berikutnya')+
-   `<div class="rows t3">${B('🗨','Tampilkan/Sembunyikan Komentar','cmshow','rw','Tampilkan/Sembunyikan Komentar')}${B('🗨','Tampilkan Semua Komentar','cmall','rw','Tampilkan Semua Komentar')}<button class="b rw" disabled title="Tampilkan Tinta (belum tersedia)"><em>✎</em><span>Tampilkan Tinta</span></button></div>`)+
- G('Perubahan',B('🔒','Lindungi Lembar','protsheet','big','Lindungi<br>Lembar')+B('🔒','Lindungi Buku Kerja','protwb','big','Lindungi<br>Buku Kerja')+BD('⇄','Bagikan Buku Kerja','Bagikan<br>Buku Kerja')+
-   `<div class="rows t3"><button class="b rw" disabled title="Lindungi dan Bagikan Buku Kerja (belum tersedia)"><em>🔒</em><span>Lindungi dan Bagikan Buku Kerja</span></button>${B('▦','Izinkan Pengguna Mengedit Rentang','allowr','rw','Izinkan Pengguna Mengedit Rentang')}${B('✎','Lacak Perubahan','m:track','rw','Lacak Perubahan',1)}</div>`);
+ G('Pemeriksaan',BD(XI.spell,'Ejaan')+BD(XI.research,'Riset')+BD(XI.thes,'Tesaurus'))+
+ G('Bahasa',BD(XI.transl,'Terjemahkan'))+
+ G('Komentar',B(XI.cmnew,'Komentar Baru','cmnew','big','Komentar<br>Baru')+B(XI.cmdel,'Hapus Komentar','cmdel','big','Hapus')+B(XI.cmprev,'Komentar Sebelumnya','cmprev','big','Sebelumnya')+B(XI.cmnext,'Komentar Berikutnya','cmnext','big','Berikutnya')+
+   `<div class="rows t3">${B(XI.cmshow,'Tampilkan/Sembunyikan Komentar','cmshow','rw','Tampilkan/Sembunyikan Komentar')}${B(XI.cmall,'Tampilkan Semua Komentar','cmall','rw','Tampilkan Semua Komentar')}<button class="b rw" disabled title="Tampilkan Tinta (belum tersedia)"><em>${XI.ink}</em><span>Tampilkan Tinta</span></button></div>`)+
+ G('Perubahan',B(XI.prots,'Lindungi Lembar','protsheet','big','Lindungi<br>Lembar')+B(XI.protw,'Lindungi Buku Kerja','protwb','big','Lindungi<br>Buku Kerja')+BD(XI.share,'Bagikan Buku Kerja','Bagikan<br>Buku Kerja')+
+   `<div class="rows t3"><button class="b rw" disabled title="Lindungi dan Bagikan Buku Kerja (belum tersedia)"><em>${XI.protsh}</em><span>Lindungi dan Bagikan Buku Kerja</span></button>${B(XI.allowr,'Izinkan Pengguna Mengedit Rentang','allowr','rw','Izinkan Pengguna Mengedit Rentang')}${B(XI.track,'Lacak Perubahan','m:track','rw','Lacak Perubahan',1)}</div>`);
 RIB.view=
- G('Tampilan Buku Kerja',B('▦','Normal','view:normal','big','Normal')+B('▥','Pratinjau Sela Halaman','view:pbp','big','Pratinjau<br>Sela Halaman')+B('▭','Tata Letak Halaman','view:plv','big','Tata Letak<br>Halaman')+B('👁','Tampilan Kustom','cviews','big','Tampilan<br>Kustom'))+
- G('Tampilkan',B('☑','Tampilkan','m:showopt','big','Tampilkan',1))+
- G('Zoom',B('🔍','Zoom','zoomdlg','big','Zoom')+B('100','Zoom 100%','zoom100','big','100%')+B('⊡','Zoom ke Seleksi','zoomsel','big','Zoom ke<br>Seleksi'))+
- G('Jendela',BD('▤','Jendela Baru','Jendela<br>Baru')+BD('▦','Susun Semua','Susun<br>Semua')+B('❄','Bekukan Panel','m:freeze','big','Bekukan<br>Panel',1)+
-   `<div class="rows t3"><button class="b rw" disabled title="Pisahkan (belum tersedia)"><em>▭</em><span>Pisahkan</span></button><button class="b rw" disabled title="Sembunyikan (belum tersedia)"><em>▭</em><span>Sembunyikan</span></button><button class="b rw" disabled title="Tampilkan (belum tersedia)"><em>▭</em><span>Tampilkan</span></button></div><div class="rows t3"><button class="b rw" disabled title="Tampilan Berdampingan (belum tersedia)"><em>▥</em><span>Tampilan Berdampingan</span></button><button class="b rw" disabled title="Gulir Sinkron (belum tersedia)"><em>⇅</em><span>Gulir Sinkron</span></button><button class="b rw" disabled title="Setel Ulang Posisi Jendela (belum tersedia)"><em>▦</em><span>Setel Ulang Posisi Jendela</span></button></div>`+B('▤','Beralih Jendela','m:switchw','big','Beralih<br>Jendela',1))+
- G('Makro',BD('▤','Makro','Makro ▾'));
+ G('Tampilan Buku Kerja',B(XI.vnorm,'Normal','view:normal','big','Normal')+B(XI.vpbp,'Pratinjau Sela Halaman','view:pbp','big','Pratinjau<br>Sela Halaman')+B(XI.vplv,'Tata Letak Halaman','view:plv','big','Tata Letak<br>Halaman')+B(XI.vcust,'Tampilan Kustom','cviews','big','Tampilan<br>Kustom'))+
+ G('Tampilkan',B(XI.shopt,'Tampilkan','m:showopt','big','Tampilkan',1))+
+ G('Zoom',B(XI.zoom,'Zoom','zoomdlg','big','Zoom')+B(XI.z100,'Zoom 100%','zoom100','big','100%')+B(XI.zsel,'Zoom ke Seleksi','zoomsel','big','Zoom ke<br>Seleksi'))+
+ G('Jendela',BD(XI.newwin,'Jendela Baru','Jendela<br>Baru')+BD(XI.arrwin,'Susun Semua','Susun<br>Semua')+B(XI.freeze,'Bekukan Panel','m:freeze','big','Bekukan<br>Panel',1)+
+   `<div class="rows t3"><button class="b rw" disabled title="Pisahkan (belum tersedia)"><em>${XI.split}</em><span>Pisahkan</span></button><button class="b rw" disabled title="Sembunyikan (belum tersedia)"><em>${XI.hide}</em><span>Sembunyikan</span></button><button class="b rw" disabled title="Tampilkan (belum tersedia)"><em>${XI.unhide}</em><span>Tampilkan</span></button></div><div class="rows t3"><button class="b rw" disabled title="Tampilan Berdampingan (belum tersedia)"><em>${XI.sbs}</em><span>Tampilan Berdampingan</span></button><button class="b rw" disabled title="Gulir Sinkron (belum tersedia)"><em>${XI.sync}</em><span>Gulir Sinkron</span></button><button class="b rw" disabled title="Setel Ulang Posisi Jendela (belum tersedia)"><em>${XI.resetw}</em><span>Setel Ulang Posisi Jendela</span></button></div>`+B(XI.switchw,'Beralih Jendela','m:switchw','big','Beralih<br>Jendela',1))+
+ G('Makro',BD(XI.macro,'Makro','Makro ▾'));
 const SOON='<div class="soon">Menu ini akan dibuat pada tahap berikutnya.</div>';
 
 const PAPER={A4:[210,297],A3:[297,420],A5:[148,210],Letter:[215.9,279.4],Legal:[215.9,355.6]};
@@ -1211,7 +1406,7 @@ const hexOk=c=>/^#[0-9a-f]{6}$/i.test(c||'');
 function mount(root,opts={}){
   if(!document.getElementById('xl-css')){const s=document.createElement('style');s.id='xl-css';s.textContent=CSS;document.head.appendChild(s);}
   root.innerHTML=`<div class="xl">
-    <div class="qat"><div class="l"><span class="w">X</span><button data-a="save" title="Simpan (Ctrl+S)">💾</button><button data-a="undo" title="Urungkan (Ctrl+Z)">↶</button><button data-a="redo" title="Ulangi (Ctrl+Y)">↷</button></div><span class="fn"></span></div>
+    <div class="qat"><div class="l"><span class="w">X</span><button data-a="save" title="Simpan (Ctrl+S)">${XI.save}</button><button data-a="undo" title="Urungkan (Ctrl+Z)">${XI.undo}</button><button data-a="redo" title="Ulangi (Ctrl+Y)">${XI.redo}</button></div><span class="fn"></span></div>
     <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div>
     ${TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${RIB[t[0]]||SOON}</div>`).join('')}
     <div class="fbar"><div class="nbw"><input class="nb" value="A1" spellcheck="false" title="Kotak Nama"><button class="fb" data-a="m:nbnames" title="Daftar nama" style="width:16px;font-size:8px">▾</button></div>
@@ -1221,15 +1416,15 @@ function mount(root,opts={}){
       <div class="vp" tabindex="0"><div class="stage"></div><div class="sizer"></div></div><textarea class="ed" hidden spellcheck="false" style="position:absolute"></textarea></div>
     <div class="shbar"><div class="shnav"><button data-a="shprev">◀</button><button data-a="shnext">▶</button></div><div class="shs"></div><button class="shadd" data-a="addsheet" title="Lembar baru">+</button></div>
     <div class="stbar"><div class="s"><span class="mode">SIAP</span><span class="calcs"></span></div><div class="s"><span class="sum"></span></div>
-      <div class="s"><span><button class="on" data-a="view:normal" title="Normal">▦</button><button data-a="view:plv" title="Tata Letak Halaman">▭</button><button data-a="view:pbp" title="Pratinjau Sela Halaman">▥</button></span>
+      <div class="s"><span><button class="on" data-a="view:normal" title="Normal">${XI.vnormM}</button><button data-a="view:plv" title="Tata Letak Halaman">${XI.vplvM}</button><button data-a="view:pbp" title="Pratinjau Sela Halaman">${XI.vpbpM}</button></span>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="20" max="200" step="10" value="100" class="zr"><button data-a="zoomd:10">+</button> <span class="zv" style="display:inline-block;min-width:34px;text-align:right">100%</span></span></div></div>
     <div class="find" hidden><span>Cari:</span><input type="text" class="f1"><span>Ganti:</span><input type="text" class="f2">
       <div class="fo"><label><input type="checkbox" class="fcase"> Cocokkan huruf besar/kecil</label><label><input type="checkbox" class="fwhole"> Seluruh isi sel</label></div>
       <div class="fb"><button data-a="fnext">Cari Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti Semua</button><button data-a="fclose">Tutup</button></div></div>
     <div class="menu" hidden>
-      <button data-a="new">📄  Buku kerja kosong baru</button><button data-a="open">📂  Buka…</button>
-      <button data-a="save">💾  Simpan sebagai .xlsx</button><button data-a="savecsv">📑  Simpan lembar sebagai .csv</button><button data-a="print">🖨  Cetak / simpan PDF</button>
-      <hr><button data-a="home">⬅  Kembali ke menu utama</button></div>
+      <button data-a="new">${XI.mnew}<span>Buku kerja kosong baru</span></button><button data-a="open">${XI.mopen}<span>Buka…</span></button>
+      <button data-a="save">${XI.msave}<span>Simpan sebagai .xlsx</span></button><button data-a="savecsv">${XI.mcsv}<span>Simpan lembar sebagai .csv</span></button><button data-a="print">${XI.mprint}<span>Cetak / simpan PDF</span></button>
+      <hr><button data-a="home">${XI.mback}<span>Kembali ke menu utama</span></button></div>
     <input type="file" class="fin" accept=".xlsx,.csv,.tsv,.txt" hidden><input type="file" class="imgin" accept="image/*" hidden><input type="file" class="txtin" accept=".txt,.csv,.tsv,.prn" hidden><input type="file" class="bgin" accept="image/*" hidden>
   </div>`;
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
