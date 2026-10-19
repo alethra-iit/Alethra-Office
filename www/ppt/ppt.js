@@ -534,22 +534,34 @@ const shapeIcon=id=>id==='tb'?`<svg width="16" height="16" viewBox="0 0 16 16"><
   :`<svg width="16" height="16" viewBox="0 0 16 16">${shapeSVG({shape:id,w:16,h:16,fill:'none',stroke:'#4a4a4a',sw:1,dash:''})}</svg>`;
 
 function shapeSVG(o){
+  if(o.img||o.media)return '';
   const sw=o.stroke?(+o.sw||1):0,i=sw/2,w=Math.max(1,o.w),h=Math.max(1,o.h),x0=i,y0=i,x1=w-i,y1=h-i,t=o.shape;
-  const A=`fill="${o.fill||'none'}" stroke="${o.stroke||'none'}" stroke-width="${sw}" stroke-linejoin="round"${o.dash?` stroke-dasharray="${o.dash}"`:''}`;
+  const A=`fill="${o.fill||'none'}"${o.fop!=null&&o.fop<100?` fill-opacity="${o.fop/100}"`:''} stroke="${o.stroke||'none'}" stroke-width="${sw}" stroke-linejoin="round"${o.dash?` stroke-dasharray="${o.dash}"`:''}`;
   if(t==='line'||t==='arrow'){const y=h/2;
     return `<line x1="${x0}" y1="${y}" x2="${t==='arrow'?w-12:w-i}" y2="${y}" ${A} fill="none"/>`+(t==='arrow'?`<polygon points="${w},${y} ${w-14},${y-7} ${w-14},${y+7}" fill="${o.stroke||'#000'}" stroke="none"/>`:'');}
   if(t==='oval')return `<ellipse cx="${w/2}" cy="${h/2}" rx="${Math.max(0,(x1-x0)/2)}" ry="${Math.max(0,(y1-y0)/2)}" ${A}/>`;
   if(PTS[t])return `<polygon points="${PTS[t].map(([a,b])=>(x0+a*(x1-x0)).toFixed(1)+','+(y0+b*(y1-y0)).toFixed(1)).join(' ')}" ${A}/>`;
   return `<rect x="${x0}" y="${y0}" width="${Math.max(0,x1-x0)}" height="${Math.max(0,y1-y0)}"${t==='round'?` rx="${Math.min(w,h)/6}"`:''} ${A}/>`;
 }
-function fxCSS(o){
-  const c=o.fill||o.stroke||'#5b9bd5';let f='';
-  if(o.fx==='shadow')f='filter:drop-shadow(4px 4px 4px rgba(0,0,0,.45));';
-  else if(o.fx==='glow')f=`filter:drop-shadow(0 0 10px ${c});`;
-  else if(o.fx==='soft')f='filter:blur(3px);';
-  else if(o.fx==='bevel')f='filter:drop-shadow(2px 2px 0 rgba(0,0,0,.35)) drop-shadow(-1px -1px 0 rgba(255,255,255,.7));';
-  else if(o.fx==='refl')f='-webkit-box-reflect:below 2px linear-gradient(transparent 65%,rgba(255,255,255,.45));';
-  if(o.fh||o.fv)f+=`transform:scale(${o.fh?-1:1},${o.fv?-1:1});`;
+function picFilter(o){
+  const f=[];
+  if(o.br!=null&&o.br!==100)f.push('brightness('+o.br/100+')');
+  if(o.co!=null&&o.co!==100)f.push('contrast('+o.co/100+')');
+  if(o.sat!=null&&o.sat!==100)f.push('saturate('+o.sat/100+')');
+  if(o.eff==='gray')f.push('grayscale(1)');else if(o.eff==='sepia')f.push('sepia(1)');else if(o.eff==='invert')f.push('invert(1)');else if(o.eff==='blur')f.push('blur(2px)');
+  return f.join(' ');
+}
+function fxCSS(o,pic){
+  const c=o.fill||o.stroke||'#5b9bd5',F=[];let f='';
+  if(pic){const p=picFilter(o);if(p)F.push(p);}
+  if(o.fx==='shadow')F.push('drop-shadow(4px 4px 4px rgba(0,0,0,.45))');
+  else if(o.fx==='glow')F.push('drop-shadow(0 0 10px '+c+')');
+  else if(o.fx==='soft')F.push('blur(3px)');
+  else if(o.fx==='bevel')F.push('drop-shadow(2px 2px 0 rgba(0,0,0,.35)) drop-shadow(-1px -1px 0 rgba(255,255,255,.7))');
+  else if(o.fx==='refl')f+='-webkit-box-reflect:below 2px linear-gradient(transparent 65%,rgba(255,255,255,.45));';
+  if(F.length)f+='filter:'+F.join(' ')+';';
+  if(o.fh||o.fv)f+='transform:scale('+(o.fh?-1:1)+','+(o.fv?-1:1)+');';
+  if(pic&&o.op!=null&&o.op<100)f+='opacity:'+o.op/100+';';
   return f;
 }
 function txCSS(o){
@@ -557,20 +569,31 @@ function txCSS(o){
   return `font-family:'${t.font||'Calibri'}',Carlito,Calibri,sans-serif;font-size:${t.size||18}pt;color:${t.color||'#000'};text-align:${t.align||'left'};line-height:${t.lh||1.1};${t.bold?'font-weight:700;':''}${VERT[o.vert]||''}${o.cols>1?`column-count:${o.cols};column-gap:24px;`:''}`;
 }
 function obHTML(o,edit){
-  const noTx=o.shape==='line'||o.shape==='arrow';
+  const noTx=o.shape==='line'||o.shape==='arrow',pm=!!(o.img||o.media);
+  const rad=o.rad===-1?'border-radius:50%;':(o.rad>0?'border-radius:'+o.rad+'px;':'');
+  let bd='';
+  if(pm&&o.stroke&&+o.sw>0)bd=`<div class="pbd" style="border:${o.sw}px ${o.dash==='2 4'?'dotted':o.dash?'dashed':'solid'} ${o.stroke};${rad}"></div>`;
+  let pic='';
+  if(o.img){
+    const c=o.crop||{},l=+c.l||0,t=+c.t||0,r=+c.r||0,b=+c.b||0,vw=Math.max(5,100-l-r),vh=Math.max(5,100-t-b);
+    pic=`<div class="pcr" style="${rad}${fxCSS(o,1)}"><img class="pic" src="${o.img}" alt="${esc(o.alt||'')}" draggable="false" style="width:${(10000/vw).toFixed(3)}%;height:${(10000/vh).toFixed(3)}%;left:${(-l*100/vw).toFixed(3)}%;top:${(-t*100/vh).toFixed(3)}%"></div>`;
+  }
+  const ms=o.media?rad+fxCSS(o,1):'';
   return `<div class="ob ${o.k}${o.media?' mdo':''}${/<table/i.test(o.html||'')?' tbl':''}" data-id="${o.id}"${o.link?' data-lk="1"':''} style="left:${o.x}px;top:${o.y}px;width:${o.w}px;height:${o.h}px;transform:rotate(${o.rot||0}deg);justify-content:${AN[o.anchor]||'flex-start'}">`+
-    `<svg class="bg" viewBox="0 0 ${Math.max(1,o.w)} ${Math.max(1,o.h)}" style="${fxCSS(o)}">${shapeSVG(o)}</svg>`+
-    (o.img?`<img class="pic" src="${o.img}" alt="" draggable="false" style="${fxCSS(o)}">`:'')+
-    (o.media?mediaHTML(o,edit):'')+
+    `<svg class="bg" viewBox="0 0 ${Math.max(1,o.w)} ${Math.max(1,o.h)}" style="${pm?'':fxCSS(o)}">${shapeSVG(o)}</svg>`+
+    pic+
+    (o.media?mediaHTML(o,edit,ms):'')+bd+
     (noTx||o.media?'':`<div class="tx"${edit===true?' contenteditable="true" spellcheck="true"':''} data-ph="${esc(o.ph||'')}" style="${txCSS(o)}">${o.html}</div>`)+`</div>`;
 }
 /* media: pemutar sungguhan hanya saat slide show (edit==='show'); di kanvas/thumbnail berupa penanda */
-function mediaHTML(o,mode){
-  const m=o.media,au=m.type==='audio';
+function mediaHTML(o,mode,ms){
+  const m=o.media,au=m.type==='audio',st=ms?` style="${ms}"`:'';
   if(mode==='show'){
-    if(m.embed)return `<div class="med"><iframe src="${esc(m.src)}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
-    return au?`<div class="med au"><audio controls src="${esc(m.src)}"></audio></div>`:`<div class="med"><video controls playsinline src="${esc(m.src)}"></video></div>`;}
-  return `<div class="med${au?' au':''}"><em>${au?'🔊':'▶'}</em><span>${esc(m.name||(au?'Audio':'Video'))}</span></div>`;
+    if(m.embed)return `<div class="med"${st}><iframe src="${esc(m.src)}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
+    const at=(m.nc?'':' controls')+(m.loop?' loop':'')+(m.mute?' muted':'')+(m.auto?' autoplay':'');
+    if(au)return `<div class="med au" style="${ms||''}${m.hid?'visibility:hidden;':''}"><audio${at} src="${esc(m.src)}"></audio></div>`;
+    return `<div class="med"${st}><video${at} playsinline src="${esc(m.src)}"></video></div>`;}
+  return `<div class="med${au?' au':''}"${st}><em>${au?'🔊':'▶'}</em><span>${esc(m.name||(au?'Audio':'Video'))}</span></div>`;
 }
 
 let uid=1;
@@ -827,14 +850,92 @@ const RIB_VIEW=
  G('Jendela',VB(VWI.neww,'Jendela<br>Baru','vwnew')+`<div class="rows">${VRW(PX.arrwin,'Susun Semua','vwarr','',' data-vwd="win" disabled')}${VRW(PX.cascade,'Cascade','vwcas','',' data-vwd="win" disabled')}${VRW(PX.split,'Pindahkan Pemisah','vwsplit','')}</div>`+VBM(VWI.sw,'Beralih<br>Jendela','vwwin'))+
  G('Makro',VBM(VWI.mac,'Makro','vwmac'));
 
+/* ===== FORMAT kontekstual (gambar / media / bentuk / tabel) — tab oranye yang muncul saat objek dipilih ===== */
+const PXCM=96/2.54;
+const CTXT=[['fpic','FORMAT GAMBAR'],['fmed','FORMAT MEDIA'],['fshp','FORMAT BENTUK'],['ftbl','FORMAT TABEL']];
+const FX={
+ lock:PXS('<rect x="5.5" y="11" width="13" height="9" rx="1.2" fill="#fff"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>'),
+ fit:PXS('<rect x="3.5" y="5.5" width="17" height="12" fill="#fff"/><path d="M7 9V8h1M17 9V8h-1M7 14v1h1M17 14v1h-1" stroke="'+PXA+'"/>'),
+ ctr:PXS('<rect x="3.5" y="5.5" width="17" height="12" fill="#fff"/><rect x="9" y="9" width="6" height="5" fill="'+PXAL+'" stroke="'+PXA+'"/>'),
+ alt:PXS('<rect x="3.5" y="4.5" width="17" height="15" rx="1" fill="#fff"/><path d="M7 15l2.2-6 2.2 6M7.8 13h2.8M14 9v6M14 9.5h2.4a1.6 1.6 0 0 1 0 3.2H14" stroke="'+PXB+'"/>'),
+ dup:PXS('<rect x="3.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="9.5" y="3.5" width="11" height="11" fill="#fff" stroke="'+PXA+'"/>'),
+ del:PXS('<path d="M5.5 7h13M10 7V4.5h4V7M7 7l.8 12.5h8.4L17 7M10.5 10.5v6M13.5 10.5v6"/>'),
+ reset:PXS('<path d="M5 12a7 7 0 1 0 2.2-5.1M5 4.5v4h4" stroke="'+PXB+'"/>'),
+ rep:PXS('<rect x="3.5" y="5.5" width="14" height="11" fill="#fff"/><path d="M5 14l3.5-4 3 3 2-2 3 3" stroke="'+PXG+'"/><path d="M15 19h5M18 17l2 2-2 2" stroke="'+PXA+'"/>'),
+ orig:PXS('<rect x="4.5" y="4.5" width="15" height="15" fill="#fff"/>'+PXT(12,15.5,8,'1:1',PXA)),
+ sel:PXS('<rect x="3.5" y="3.5" width="12" height="9" fill="#fff"/><rect x="8.5" y="8.5" width="12" height="9" fill="#fff" stroke="'+PXA+'"/><path d="M4 20h16" stroke="#999"/>'),
+ front:PXS('<rect x="3.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="9.5" y="3.5" width="11" height="11" fill="'+PXAL+'" stroke="'+PXA+'"/>'),
+ back:PXS('<rect x="9.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="3.5" y="3.5" width="11" height="11" fill="'+PXAL+'" stroke="'+PXA+'"/>'),
+ rot:PXS('<path d="M19 12a7 7 0 1 1-2.2-5.1M19 4.5v4h-4" stroke="'+PXB+'"/>'),
+ play:PXS('<rect x="3.5" y="5.5" width="17" height="13" rx="1.5" fill="#fff"/><path d="M10 9l5 3-5 3z" fill="'+PXA+'" stroke="none"/>')
+};
+const NI=(n,lab,tip,step,min,max)=>`<div class="row"><label class="nin" title="${tip}"><span>${lab}</span><input type="number" data-n="${n}" step="${step||1}"${min!==undefined?` min="${min}"`:''}${max!==undefined?` max="${max}"`:''}></label></div>`;
+const TI=(n,lab,tip)=>`<div class="row"><label class="nin" title="${tip}"><span>${lab}</span><input type="text" data-n="${n}" autocomplete="off" spellcheck="false"></label></div>`;
+const SR=(n,o,w,tip,r)=>`<div class="row">${S(n,o,w,tip,r)}</div>`;
+const TB=(a,ic,lab,tip)=>`<div class="row"><button class="b rw" title="${tip||lab}" data-a="${a}"><em>${ic}</em><span>${lab}</span></button></div>`;
+const CR=(n,v,t,ic)=>`<div class="row">${CL(n,v,t,ic)}</div>`;
+const IBX=(ic,tip,a,lab)=>`<button class="b big" title="${tip}" data-a="${a}"><em>${ic}</em><span>${lab||tip}</span></button>`;
+const IMX=(ic,tip,m,lab)=>`<button class="b big" title="${tip}" data-m="${m}"><em>${ic}</em><span>${lab||tip} ▾</span></button>`;
+const FXO=[['','Efek ▾'],['shadow','Bayangan'],['glow','Cahaya'],['refl','Pantulan'],['soft','Tepi Halus'],['bevel','Timbul'],['none','Tanpa Efek']];
+const DASHO=[['','Garis Polos'],['8 5','Putus-putus'],['2 4','Titik-titik']];
+const PST={frame:{stroke:'#ffffff',sw:10,fx:'shadow'},black:{stroke:'#000000',sw:5},thin:{stroke:'#a6a6a6',sw:2},round:{rad:40},oval:{rad:-1},soft:{rad:16,fx:'shadow'},glow:{stroke:'#ffffff',sw:3,fx:'glow'},none:{}};
+const PSTO=[['','Gaya Cepat'],['none','Tanpa Gaya'],['frame','Bingkai Putih + Bayangan'],['black','Bingkai Hitam'],['thin','Bingkai Tipis'],['round','Sudut Membulat'],['oval','Oval'],['soft','Bayangan Lembut'],['glow','Cahaya']];
+const TBS=[['Biru','#5b9bd5','#cfd5ea','#e9ebf5'],['Oranye','#ed7d31','#fbe3d6','#fdf1ea'],['Abu-abu','#7f7f7f','#d9d9d9','#efefef'],['Hijau','#70ad47','#dbecd0','#edf6e8'],['Gelap','#404040','#cfcfcf','#e7e7e7'],['Tanpa Gaya','','','']];
+const OSIZE=(extra)=>G('Ukuran',`<div class="rows">${NI('oh','Tinggi:','Tinggi (cm)',0.1,0.2)}${NI('ow','Lebar:','Lebar (cm)',0.1,0.2)}${NI('orot','Putar (°):','Sudut rotasi (derajat)',5,-360,360)}</div><div class="rows">${TB('otog:lock',FX.lock,'Kunci Rasio','Kunci rasio aspek saat mengubah ukuran')}${TB('ofitslide',FX.fit,'Pas ke Slide','Sesuaikan ke ukuran slide')}${extra||''}</div>`);
+const OPOS=G('Posisi',`<div class="rows">${NI('ox','Horizontal:','Jarak dari tepi kiri slide (cm)',0.1)}${NI('oy','Vertikal:','Jarak dari tepi atas slide (cm)',0.1)}${TB('octr',FX.ctr,'Tengahkan','Tengahkan di slide')}</div>`);
+const OSUSUN=G('Susun',IMX(PX.arrange,'Ratakan, putar, balik, urutan','arrange','Susun')+IBX(FX.front,'Bawa ke depan','arrange:front','Bawa ke<br>Depan')+IBX(FX.back,'Kirim ke belakang','arrange:back','Kirim ke<br>Belakang')+IMX(FX.sel,'Panel Seleksi: daftar objek di slide','selpane','Panel<br>Seleksi'));
+const OPROP=G('Properti',`<div class="rows">${TI('oname','Nama:','Nama objek')}${TB('oalt',FX.alt,'Teks Alternatif','Teks alternatif untuk aksesibilitas')}${TB('odup',FX.dup,'Gandakan','Gandakan objek terpilih')}</div>`+IBX(FX.del,'Hapus objek terpilih','odel','Hapus<br>Objek'));
+const RIBX={
+fpic:
+ G('Sesuaikan',`<div class="rows">${NI('obr','Kecerahan %','Kecerahan (100 = asli)',5,0,300)}${NI('oco','Kontras %','Kontras (100 = asli)',5,0,300)}${NI('osat','Saturasi %','Saturasi (100 = asli)',5,0,300)}</div><div class="rows">${SR('ofx',[['none','Warna Normal'],['gray','Hitam Putih'],['sepia','Sepia'],['invert','Negatif'],['blur','Buram']],104,'Efek warna')}${TB('ipreset',FX.reset,'Atur Ulang','Hapus semua penyesuaian, bingkai, dan efek')}${TB('irep',FX.rep,'Ganti Gambar','Ganti dengan gambar lain (ukuran dipertahankan)')}</div>`)+
+ G('Gaya Gambar',`<div class="rows">${SR('opst',PSTO,124,'Gaya gambar cepat',1)}${CR('oline','#000000','Garis Tepi',PX.outline)}${SR('odash',DASHO,124,'Jenis garis tepi')}</div><div class="rows">${NI('obw','Tebal tepi:','Tebal garis tepi (px)',1,0,40)}${NI('orad','Sudut:','Sudut membulat (px)',4,0,400)}${SR('ofx2',FXO,92,'Efek gambar',1)}</div>`)+
+ G('Pangkas',`<div class="rows">${NI('cl','Kiri %','Pangkas sisi kiri (%)',2,0,90)}${NI('cr','Kanan %','Pangkas sisi kanan (%)',2,0,90)}${NI('ct','Atas %','Pangkas sisi atas (%)',2,0,90)}</div><div class="rows">${NI('cb','Bawah %','Pangkas sisi bawah (%)',2,0,90)}${NI('oop','Opasitas %','Opasitas gambar (%)',10,0,100)}</div>`)+
+ OSIZE(TB('oorig',FX.orig,'Ukuran Asli','Kembalikan ke ukuran asli gambar'))+
+ G('Skala',`<div class="rows">${NI('osc','Skala %:','Skala terhadap ukuran asli (%)',5,5,1000)}</div>`)+OPOS+OSUSUN+OPROP,
+fmed:
+ G('Pemutaran',`<div class="rows">${TB('mt:auto',FX.play,'Mulai Otomatis','Putar otomatis saat slide tampil')}${TB('mt:loop',FX.rot,'Ulangi','Ulangi terus sampai dihentikan')}${TB('mt:mute',PX.audio||'','Senyap','Matikan suara')}</div><div class="rows">${TB('mt:hid',FX.fit,'Sembunyikan saat Tayang','Sembunyikan ikon audio saat slide show')}${TB('mt:nc',PX.video||'','Tanpa Kontrol','Sembunyikan kontrol pemutar saat slide show')}</div>`)+
+ G('Gaya Media',`<div class="rows">${SR('opst',PSTO,124,'Gaya cepat',1)}${CR('oline','#000000','Garis Tepi',PX.outline)}${SR('odash',DASHO,124,'Jenis garis tepi')}</div><div class="rows">${NI('obw','Tebal tepi:','Tebal garis tepi (px)',1,0,40)}${NI('orad','Sudut:','Sudut membulat (px)',4,0,400)}${SR('ofx2',FXO,92,'Efek',1)}</div><div class="rows">${NI('oop','Opasitas %','Opasitas (%)',10,0,100)}${SR('omrat',[['','Rasio ▾'],['16:9','16:9'],['4:3','4:3'],['1:1','1:1']],92,'Atur rasio tinggi/lebar',1)}</div>`)+
+ OSIZE('')+OPOS+OSUSUN+OPROP,
+fshp:
+ G('Bentuk',`<div class="rows">${SR('oshp',SHAPES.filter(x=>x[0]!=='tb'),124,'Ubah jenis bentuk')}${TB('otext',PX.textbox,'Edit Teks','Edit teks di dalam bentuk')}</div>`)+
+ G('Gaya Bentuk',`<div class="rows"><div class="row"><button class="b rw" data-m="qstyle" title="Gaya cepat"><em>${PX.qstyle}</em><span>Gaya Cepat ▾</span></button></div>${CR('ofill','#5b9bd5','Isian Bentuk',PX.fill)}${CR('oline','#41719c','Garis Tepi',PX.outline)}</div><div class="rows">${TB('nofill',PX.nofill,'Tanpa Isian','Hapus isian')}${NI('olw','Tebal garis:','Tebal garis tepi (px)',0.5,0,20)}${NI('ofop','Opasitas isi %','Opasitas isian (%)',10,0,100)}</div><div class="rows">${SR('odash',DASHO,104,'Jenis garis')}${SR('ofx2',FXO,104,'Efek bentuk',1)}</div>`)+
+ G('Teks',`<div class="rows"><div class="row">${S('ofont',FONTS,110,'Font')}${S('osize',SIZES,46,'Ukuran font')}</div><div class="row">${B(PX.bold,'Tebal','bold')}${B(PX.italic,'Miring','italic')}${B(PX.underline,'Garis bawah','underline')}${C('otc','#000000','Warna font','<b>A</b>')}</div><div class="row">${B(AL('L'),'Rata kiri','justifyLeft')}${B(AL('C'),'Tengah','justifyCenter')}${B(AL('R'),'Rata kanan','justifyRight')}${S('oanch',[['t','Atas'],['m','Tengah'],['b','Bawah']],66,'Ratakan teks vertikal')}</div></div><div class="rows">${SR('odir',[['h','Horizontal'],['v90','Putar 90°'],['v270','Putar 270°'],['st','Bertumpuk']],92,'Arah teks')}</div>`)+
+ OSIZE('')+OPOS+OSUSUN+OPROP,
+ftbl:
+ G('Opsi Gaya',`<div class="rows">${TB('tbl:hdr',PX.hdr||'','Baris Judul','Baris pertama sebagai judul')}${TB('tbl:band',PX.table,'Baris Belang','Warna selang-seling')}${TB('tbl:first',PX.bold,'Kolom Pertama','Tebalkan kolom pertama')}</div>`)+
+ G('Gaya Tabel',`<div class="rows">${SR('tbs',TBS.map((x,i)=>[i,x[0]]),104,'Gaya tabel')}${CR('tbc','#ffffff','Warna Tepi',PX.outline)}${NI('tbw','Tebal tepi:','Tebal garis tepi sel (px)',1,0,10)}</div>`)+
+ G('Sel',`<div class="rows">${SR('tscope',[['cell','Sel Ini'],['row','Seluruh Baris'],['col','Seluruh Kolom'],['all','Seluruh Tabel']],104,'Cakupan perubahan sel')}${CR('tcfill','#ffff00','Isian Sel',PX.fill)}<div class="row">${B(AL('L'),'Rata kiri sel','tcal:left')}${B(AL('C'),'Tengah sel','tcal:center')}${B(AL('R'),'Rata kanan sel','tcal:right')}<button class="b" title="Rata atas" data-a="tva:top">⬒</button><button class="b" title="Rata tengah" data-a="tva:middle">⬓</button><button class="b" title="Rata bawah" data-a="tva:bottom">⬔</button></div></div>`)+
+ G('Baris & Kolom',`<div class="rows">${TB('tins:above','＋','Sisipkan Atas','Sisipkan baris di atas')}${TB('tins:below','＋','Sisipkan Bawah','Sisipkan baris di bawah')}${TB('tdel:row','✕','Hapus Baris','Hapus baris')}</div><div class="rows">${TB('tins:left','＋','Sisipkan Kiri','Sisipkan kolom di kiri')}${TB('tins:right','＋','Sisipkan Kanan','Sisipkan kolom di kanan')}${TB('tdel:col','✕','Hapus Kolom','Hapus kolom')}</div>`)+
+ OSIZE('')+OPOS+OSUSUN+OPROP
+};
+const FORMAT_CSS=`
+.pp .tab.ctx{color:#9c3a1e;background:#fdeee8;border-color:#f0b9a6;font-weight:600}
+.pp .tab.ctx.on{background:#fff;color:#9c3a1e}
+.pp .ribbon.cx{background:#fffaf7}
+.pp .nin{display:flex;align-items:center;gap:4px;height:22px;font-size:11.5px;color:#333;white-space:nowrap}
+.pp .nin span{min-width:64px}
+.pp .nin input{width:62px;height:20px;border:1px solid #ababab;padding:0 3px;background:#fff;font-size:12px}
+.pp .nin input[type=text]{width:112px}
+.pp .nin input:focus{outline:1px solid var(--acc);outline-offset:-1px}
+.pp .stg .ob.sh,.pp .stg .ob.mdo,.pp .stg .hd,.pp .stg .ed,.pp .stg .rh{touch-action:none}
+.pp .rh{position:absolute;left:50%;top:calc(-30px*var(--inv));width:calc(12px*var(--inv));height:calc(12px*var(--inv));transform:translate(-50%,-50%);border-radius:50%;background:#fff;border:calc(1px*var(--inv)) solid #d24726;cursor:grab;z-index:3}
+.pp .rh::before{content:"";position:absolute;left:50%;top:100%;height:calc(18px*var(--inv));border-left:calc(1px*var(--inv)) solid #8a8a8a}
+.pp .sg{position:absolute;background:#e23b8e;z-index:20;pointer-events:none}
+.pp .ob>.pcr,.pp-print .ob>.pcr{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.pp .ob>.pcr>img.pic,.pp-print .ob>.pcr>img.pic{position:absolute;max-width:none;pointer-events:none;-webkit-user-drag:none}
+.pp .ob>.pbd,.pp-print .ob>.pbd{position:absolute;inset:0;pointer-events:none;box-sizing:border-box}
+@media (pointer:coarse){.pp .hd{width:calc(22px*var(--inv));height:calc(22px*var(--inv))}.pp .rh{width:calc(24px*var(--inv));height:calc(24px*var(--inv))}.pp .ed.t{top:calc(-12px*var(--inv));height:calc(24px*var(--inv))}.pp .ed.b{bottom:calc(-12px*var(--inv));height:calc(24px*var(--inv))}.pp .ed.l{left:calc(-12px*var(--inv));width:calc(24px*var(--inv))}.pp .ed.r{right:calc(-12px*var(--inv));width:calc(24px*var(--inv))}.pp .nin{height:32px}.pp .nin input{height:28px;font-size:15px;width:70px}.pp .nin input[type=text]{width:120px}}
+`;
+
 function mount(root,opts={}){
-  if(!document.getElementById('pp-css')){const s=document.createElement('style');s.id='pp-css';s.textContent=CSS;document.head.appendChild(s);}
+  if(!document.getElementById('pp-css')){const s=document.createElement('style');s.id='pp-css';s.textContent=CSS+FORMAT_CSS;document.head.appendChild(s);}
   let name='Presentasi1.pptx',scale=.8,autoFit=true,slides=[mkSlide('title')],cur=0,sel=[],hist=[],hi=-1,clip=null,painting=null,lastR=null,lastTx=null,drawing=null,view='normal',fk=-1,timer=0,sortFrom=null;
+  let ctxKind=null,ctxPrev=null,ctxRc=false,pinching=false,ctxReady=false;
   let ss={type:'full',loop:0,playNarr:1,noAnim:0,pen:'#ff0000',range:'all',from:1,to:0,custom:'',useTimings:1,mediaCtrl:1,monitor:'auto',presenter:0},customShows=[],cidn=1,scrList=[],scrTried=false;
-  const panes=TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${t[0]==='home'?RIB_HOME:t[0]==='insert'?RIB_INSERT:t[0]==='design'?RIB_DESIGN:t[0]==='trans'?RIB_TRANS:t[0]==='anim'?RIB_ANIM:t[0]==='show'?RIB_SHOW:t[0]==='review'?RIB_REVIEW:t[0]==='view'?RIB_VIEW:`<div class="soon">Menu ${t[1]} akan ditambahkan pada tahap berikutnya.</div>`}</div>`).join('');
+  const panes=TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${t[0]==='home'?RIB_HOME:t[0]==='insert'?RIB_INSERT:t[0]==='design'?RIB_DESIGN:t[0]==='trans'?RIB_TRANS:t[0]==='anim'?RIB_ANIM:t[0]==='show'?RIB_SHOW:t[0]==='review'?RIB_REVIEW:t[0]==='view'?RIB_VIEW:`<div class="soon">Menu ${t[1]} akan ditambahkan pada tahap berikutnya.</div>`}</div>`).join('')+CTXT.map(t=>`<div class="ribbon cx" data-pane="${t[0]}" hidden>${RIBX[t[0]]}</div>`).join('');
   root.innerHTML=`<div class="pp">
     <div class="qat"><div class="l"><span class="w">P</span><button data-a="save" title="Simpan (Ctrl+S)">${PX.save}</button><button data-a="undo" title="Urungkan (Ctrl+Z)">${PX.undo}</button><button data-a="redo" title="Ulangi (Ctrl+Y)">${PX.redo}</button><button data-a="showfirst" title="Mulai dari awal">${PX.qplay}</button></div><span class="fn"></span></div>
-    <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div>
+    <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}${CTXT.map(t=>`<button class="tab ctx" data-tab="${t[0]}" hidden>${t[1]}</button>`).join('')}</div>
     ${panes}
     <div class="main"><div class="thumbs" tabindex="0"></div>
       <div class="ws"><div class="desk"><div class="holder"><div class="slide stg" tabindex="-1"></div></div></div><div class="notes" contenteditable="true" data-ph="Klik untuk menambahkan catatan"></div></div>
@@ -888,8 +989,8 @@ function mount(root,opts={}){
       el.insertAdjacentHTML('beforeend',['t','b','l','r'].map(s=>`<div class="ed ${s}" data-ed="1"></div>`).join(''));
       const line=o.shape==='line'||o.shape==='arrow',hs=line?['w','e']:['nw','n','ne','e','se','s','sw','w'];
       el.insertAdjacentHTML('beforeend',hs.map(h=>{const x=h.includes('w')?0:h.includes('e')?100:50,y=h.includes('n')?0:h.includes('s')?100:50;
-        return `<div class="hd" data-h="${h}" style="left:${x}%;top:${y}%;cursor:${h}-resize"></div>`;}).join(''));}}
-    syncUI();syncAn();
+        return `<div class="hd" data-h="${h}" style="left:${x}%;top:${y}%;cursor:${h}-resize"></div>`;}).join(''));el.insertAdjacentHTML('beforeend','<div class="rh" data-h="rot" title="Putar"></div>');}}
+    syncUI();syncAn();ctxSync();
   }
   function redrawOb(o){sync();const el=elOf(o.id);if(el){el.outerHTML=obHTML(o,true);}decorate();}
   function thumbHTML(s,i,w,c){const k=w/W;return `<div class="${c}${i===cur?' on':''}${s.hid?' hid':''}" data-i="${i}" draggable="true"><span class="n">${i+1}${s.tr&&s.tr.t&&s.tr.t!=='none'?'<br><i class="trm">★</i>':''}</span><div class="tv" style="width:${w}px;height:${Math.round(H*k)}px${s.bg?';background:'+s.bg:''}"><div class="sc" style="transform:scale(${k})">${s.objs.map(o=>obHTML(o,false)).join('')}</div></div></div>`;}
@@ -947,7 +1048,7 @@ function mount(root,opts={}){
       if(inTx){try{on=document.queryCommandState(c);}catch{}}
       else if(c==='bold')on=+cs.fontWeight>=600;else if(c==='italic')on=cs.fontStyle==='italic';
       else if(c==='justifyLeft'||c==='justifyCenter'||c==='justifyRight'||c==='justifyFull'){const a=cs.textAlign;on=c==={left:'justifyLeft',start:'justifyLeft',center:'justifyCenter',right:'justifyRight',end:'justifyRight',justify:'justifyFull'}[a]?true:false;on=on||(c==='justifyLeft'&&(a==='left'||a==='start'));}
-      b.classList.toggle('on',!!on);});
+      $$(`[data-a="${c}"]`).forEach(x=>x.classList.toggle('on',!!on));});
     const ts=$('[data-a=tshadow]');if(ts)ts.classList.toggle('on',cs.textShadow&&cs.textShadow!=='none');
   }
   const fmtNow=()=>{const s=getSelection(),inTx=hasRange()&&s.rangeCount&&txOf(s.anchorNode);const t=hasRange()?lastTx:(sel.length&&elOf(sel[0])&&elOf(sel[0]).querySelector('.tx'));if(!t)return null;
@@ -1231,7 +1332,7 @@ function mount(root,opts={}){
     try{
       sync();toast('Menyiapkan .pptx…',60000);
       await lib('jszip',()=>window.JSZip);await lib('pptx',()=>window.PptxGenJS);await lib('pptxio',()=>window.PptxIO);
-      const blob=await PptxIO.write({name,slides},window.PptxGenJS,window.JSZip);
+      const blob=await PptxIO.write({name,slides:await bakeAll()},window.PptxGenJS,window.JSZip);
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=/\.pptx$/i.test(name)?name:name+'.pptx';
       document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);const nm=slides.reduce((c,s)=>c+s.objs.filter(o=>o.media).length,0),nx=slides.reduce((c,s)=>c+s.objs.filter(o=>o.img&&!/^data:/.test(o.img)).length,0),na=slides.reduce((c,s)=>c+s.objs.filter(o=>o.an&&o.an.t&&o.an.t!=='none').length,0);
       toast('Tersimpan: '+a.download+(nm?' — '+nm+' video/audio tidak ikut tersimpan':'')+(nx?' — '+nx+' gambar online tidak ikut tersimpan':'')+(na?' — '+na+' animasi tidak ikut tersimpan':'')+(slides.some(x=>x.narr)?' — narasi tidak ikut tersimpan':''),nm||nx||na||slides.some(x=>x.narr)?7000:3000);
@@ -1882,6 +1983,225 @@ function mount(root,opts={}){
     if(e.key!=='F5'||pp.querySelector('.show'))return;e.preventDefault();if(e.shiftKey)acts.show();else acts.showfirst();});
   syncSs();
 
+  /* ===== TAB KONTEKSTUAL FORMAT: gambar / media / bentuk-teks / tabel ===== */
+  const isLock=o=>o.lock===undefined?!!(o.img||o.media):!!o.lock;
+  const isPic=o=>!!o.img,isMed=o=>!!o.media,isTbl=o=>/<table/i.test(o.html||''),isShp=o=>!o.img&&!o.media&&!isTbl(o);
+  const oname=o=>o.name||objName(o);
+  const kindOf=o=>o.media?'fmed':isTbl(o)?'ftbl':o.img?'fpic':'fshp';
+  const prim=()=>selObjs().slice(-1)[0]||null;
+  function showTab(id,collapse){
+    $$('.tab[data-tab]').forEach(x=>x.classList.toggle('on',!collapse&&x.dataset.tab===id));
+    $$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==id);
+    pp.classList.toggle('rc',!!collapse);pp.classList.remove('ant');
+    const t=$(`.tab[data-tab=${id}]`),bar=$('.tabs');if(t&&bar&&!collapse&&bar.scrollTo)bar.scrollTo({left:Math.max(0,t.offsetLeft-60),behavior:'smooth'});
+  }
+  function ctxSync(){
+    if(!ctxReady)return;
+    const o=prim(),kind=o?kindOf(o):null;
+    $$('.tab.ctx').forEach(t=>{t.hidden=t.dataset.tab!==kind;});
+    const act=$('.tab.on[data-tab]'),onCtx=!!(act&&act.classList.contains('ctx'));
+    const auto=o&&(kind!=='fshp'||o.k==='sh'); /* kotak teks/placeholder: tab muncul tapi tidak memindahkan Beranda saat mengetik */
+    if(kind&&kind!==ctxKind){
+      if(onCtx||auto){if(!onCtx){ctxPrev=act?act.dataset.tab:null;ctxRc=pp.classList.contains('rc');}showTab(kind,false);}
+    }else if(!kind&&ctxKind&&onCtx){showTab(ctxPrev||'home',ctxRc&&!ctxPrev);ctxRc=false;}
+    ctxKind=kind;ctxFill();
+  }
+  function natOf(o){
+    return new Promise(ok=>{
+      if(o.nw)return ok({w:o.nw,h:o.nh});if(!o.img)return ok(null);
+      const im=new Image();im.onload=()=>{o.nw=im.naturalWidth||o.w;o.nh=im.naturalHeight||o.h;ok({w:o.nw,h:o.nh});};im.onerror=()=>ok(null);im.src=o.img;
+    });
+  }
+  function ctxFill(){
+    const o=prim();if(!o||!ctxKind)return;
+    const set=(n,v)=>$$(`[data-n=${n}]`).forEach(i=>{if(document.activeElement!==i)i.value=v;});
+    const sv=(n,v)=>$$(`[data-s=${n}]`).forEach(s=>{if(s.value!==String(v))s.value=String(v);});
+    const tg=(a,on)=>$$(`[data-a="${a}"]`).forEach(b=>b.classList.toggle('on',!!on));
+    const cc=(n,c)=>$$(`[data-s=${n}]`).forEach(i=>{if(/^#[0-9a-f]{6}$/i.test(c||''))i.value=c;const sp=i.parentElement&&i.parentElement.firstElementChild;if(sp)sp.style.borderBottomColor=c||'#d0d0d0';});
+    const cm=v=>+(v/PXCM).toFixed(2);
+    set('ow',cm(o.w));set('oh',cm(o.h));set('orot',Math.round(o.rot||0));set('ox',cm(o.x));set('oy',cm(o.y));set('oname',oname(o));
+    tg('otog:lock',isLock(o));
+    if(ctxKind==='fpic'||ctxKind==='fmed'){
+      const c=o.crop||{};
+      set('obr',o.br==null?100:o.br);set('oco',o.co==null?100:o.co);set('osat',o.sat==null?100:o.sat);set('oop',o.op==null?100:o.op);
+      set('obw',o.stroke?+o.sw||0:0);set('orad',o.rad>0?o.rad:0);set('cl',c.l||0);set('cr',c.r||0);set('ct',c.t||0);set('cb',c.b||0);
+      sv('ofx',o.eff||'none');sv('odash',o.dash||'');cc('oline',o.stroke||'#000000');
+      if(o.img){if(o.nw)set('osc',Math.round(o.w/o.nw*100));else natOf(o).then(r=>{if(r&&ctxKind==='fpic')ctxFill();});}
+      if(o.media){const m=o.media;['auto','loop','mute','hid','nc'].forEach(k=>tg('mt:'+k,m[k]));}
+    }else if(ctxKind==='fshp'){
+      const t=o.ts||{};
+      set('olw',o.stroke?+o.sw||0:0);set('ofop',o.fop==null?100:o.fop);
+      sv('oshp',o.shape||'rect');sv('odash',o.dash||'');sv('ofont',t.font||'Calibri');sv('osize',t.size||18);sv('oanch',o.anchor||'t');sv('odir',o.vert||'h');
+      cc('ofill',o.fill);cc('oline',o.stroke);cc('otc',t.color||'#000000');
+      $$('[data-dd=oshp]').forEach(b=>{b.disabled=o.k==='ph';});
+    }else if(ctxKind==='ftbl'){
+      const st=o.tbs||{p:0,hdr:1,band:1,first:0},bb=o.tbb||{c:'#ffffff',w:1};
+      tg('tbl:hdr',st.hdr);tg('tbl:band',st.band);tg('tbl:first',st.first);sv('tbs',st.p);set('tbw',bb.w);cc('tbc',bb.c);
+    }
+  }
+  const objPatch=(fn,test)=>{
+    if(!sel.length)return toast('Pilih objek terlebih dahulu');
+    sync();let n=0;
+    selObjs().forEach(o=>{if(test&&!test(o))return;n++;Object.assign(o,typeof fn==='function'?fn(o):fn);});
+    if(!n)return toast('Perintah ini tidak berlaku untuk objek yang dipilih');
+    draw();commit();
+  };
+  const cropP=(k,v,o)=>{const c=Object.assign({l:0,t:0,r:0,b:0},o.crop),opp={l:'r',r:'l',t:'b',b:'t'}[k];c[k]=v;if(c[k]+c[opp]>90)c[k]=90-c[opp];return{crop:c};};
+  const NUMH={
+    ow:(v,o)=>{const w=Math.max(12,Math.round(v*PXCM));return isLock(o)?{w,h:Math.max(12,Math.round(w*o.h/o.w))}:{w};},
+    oh:(v,o)=>{const h=Math.max(12,Math.round(v*PXCM));return isLock(o)?{h,w:Math.max(12,Math.round(h*o.w/o.h))}:{h};},
+    orot:v=>({rot:((Math.round(v)%360)+360)%360}),
+    ox:v=>({x:Math.round(v*PXCM)}),oy:v=>({y:Math.round(v*PXCM)}),
+    osc:(v,o)=>o.nw?{w:Math.round(o.nw*v/100),h:Math.round(o.nh*v/100)}:{},
+    obr:v=>({br:v}),oco:v=>({co:v}),osat:v=>({sat:v}),oop:v=>({op:v}),
+    obw:(v,o)=>v>0?{sw:v,stroke:o.stroke||'#000000'}:{sw:0,stroke:''},
+    orad:v=>({rad:v}),
+    cl:(v,o)=>cropP('l',v,o),cr:(v,o)=>cropP('r',v,o),ct:(v,o)=>cropP('t',v,o),cb:(v,o)=>cropP('b',v,o),
+    olw:(v,o)=>v>0?{sw:v,stroke:o.stroke||'#41719c'}:{sw:0,stroke:''},
+    ofop:v=>({fop:v})
+  };
+  root.addEventListener('change',async e=>{
+    const el=e.target,n=el.dataset&&el.dataset.n;if(!n)return;
+    if(n==='oname'){objPatch({name:el.value.trim()||undefined});return;}
+    if(n==='tbw'){tblBorder(null,Math.max(0,Math.min(10,parseFloat(el.value)||0)));return;}
+    let v=parseFloat(el.value);if(!isFinite(v)){ctxFill();return;}
+    if(el.min!=='')v=Math.max(+el.min,v);if(el.max!=='')v=Math.min(+el.max,v);
+    if(!NUMH[n])return;
+    if(n==='osc')await Promise.all(selObjs().map(natOf));
+    objPatch(o=>NUMH[n](v,o));
+  });
+  root.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.n){e.preventDefault();e.target.blur();}});
+
+  /* --- tabel --- */
+  const tbl0=o=>o.tbs||{p:0,hdr:1,band:1,first:0};
+  const tcell=o=>{
+    const el=elOf(o.id),tb=el&&el.querySelector('table');if(!tb)return null;
+    let n=null;if(hasRange())n=lastR.startContainer;else{const s=getSelection();n=s.rangeCount?s.anchorNode:null;}
+    const e=n&&(n.nodeType===3?n.parentElement:n),td=e&&e.closest&&e.closest('td');
+    return td&&tb.contains(td)?td:tb.rows[0].cells[0];
+  };
+  const tcells=o=>{
+    const el=elOf(o.id),tb=el&&el.querySelector('table'),c=tcell(o);if(!tb||!c)return[];
+    const sc=($('[data-s=tscope]')||{}).value||'cell',ci=c.cellIndex;
+    return[...tb.rows].flatMap(r=>[...r.cells].filter(x=>sc==='all'||(sc==='row'&&x.parentElement===c.parentElement)||(sc==='col'&&x.cellIndex===ci)||(sc==='cell'&&x===c)));
+  };
+  const tfin=o=>{redrawOb(o);commit();};
+  function tblStyle(o,clearCustom){
+    const el=elOf(o.id),tb=el&&el.querySelector('table');if(!tb)return;
+    const st=tbl0(o),P=TBS[st.p]||TBS[0];
+    [...tb.rows].forEach((r,i)=>[...r.cells].forEach((c,j)=>{
+      if(clearCustom)delete c.dataset.cf;
+      const hd=st.hdr&&i===0;
+      if(!c.dataset.cf)c.style.background=!P[1]?'':hd?P[1]:(st.band&&(i-(st.hdr?1:0))%2===0?P[2]:P[3]);
+      if(hd&&P[1])c.style.color='#ffffff';else if(c.style.color==='rgb(255, 255, 255)'||!c.style.color)c.style.color='#000000';
+      c.style.fontWeight=hd||(st.first&&j===0)?'700':'';
+    }));
+    tfin(o);
+  }
+  function tblBorder(color,w){
+    const o=prim();if(!o||!isTbl(o))return;sync();
+    const b=Object.assign({c:'#ffffff',w:1},o.tbb);if(color)b.c=color;if(w!=null)b.w=w;o.tbb=b;
+    const tb=elOf(o.id).querySelector('table');
+    [...tb.querySelectorAll('td')].forEach(c=>{c.style.border=b.w>0?b.w+'px solid '+b.c:'0';});
+    tfin(o);
+  }
+  function tblIns(where){
+    const o=prim();if(!o||!isTbl(o))return;sync();
+    const el=elOf(o.id),tb=el.querySelector('table'),c=tcell(o),tr=c.parentElement,ci=c.cellIndex;
+    const blank=td=>{const n=td.cloneNode(true);n.innerHTML='<br>';return n;};
+    if(where==='above'||where==='below'){
+      if(tb.rows.length>=20)return toast('Jumlah baris maksimum 20');
+      const nr=tr.cloneNode(true);[...nr.cells].forEach(td=>td.innerHTML='<br>');
+      tr.parentNode.insertBefore(nr,where==='above'?tr:tr.nextSibling);o.h+=46;
+    }else{
+      if(tr.cells.length>=12)return toast('Jumlah kolom maksimum 12');
+      [...tb.rows].forEach(r=>{const src=r.cells[Math.min(ci,r.cells.length-1)],nc=blank(src);r.insertBefore(nc,where==='left'?src:src.nextSibling);});
+    }
+    tfin(o);
+  }
+  function tblDel(what){
+    const o=prim();if(!o||!isTbl(o))return;sync();
+    const tb=elOf(o.id).querySelector('table'),c=tcell(o),tr=c.parentElement,ci=c.cellIndex;
+    if((what==='row'&&tb.rows.length<=1)||(what==='col'&&tr.cells.length<=1)){delSel();return toast('Tabel dihapus karena tidak ada baris/kolom tersisa');}
+    if(what==='row'){tr.remove();o.h=Math.max(46,o.h-46);}else[...tb.rows].forEach(r=>{if(r.cells[ci])r.cells[ci].remove();});
+    tfin(o);
+  }
+
+  /* --- sels (dropdown & warna) tambahan --- */
+  Object.assign(sels,{
+    ofx:v=>objPatch({eff:v==='none'?'':v},isPic),
+    opst:v=>{const q=PST[v];if(q)objPatch(Object.assign({stroke:'',sw:0,rad:0,fx:''},q),o=>isPic(o)||isMed(o));},
+    oline:v=>objPatch(o=>({stroke:v,sw:o.sw>0?o.sw:(o.img||o.media?3:1)})),
+    ofill:v=>objPatch({fill:v},isShp),
+    odash:v=>objPatch(o=>({dash:v,stroke:o.stroke||'#41719c',sw:o.sw>0?o.sw:1})),
+    ofx2:v=>v&&objPatch({fx:v==='none'?'':v}),
+    oshp:v=>objPatch(o=>{const line=v==='line'||v==='arrow',r={shape:v};
+      if(o.k==='tb'){r.k='sh';}
+      if(line&&!o.stroke){r.stroke='#5b9bd5';r.sw=2.25;}
+      if(!line&&!o.fill&&!o.stroke){r.fill='#5b9bd5';r.stroke='#41719c';r.sw=1;}
+      return r;},o=>isShp(o)&&o.k!=='ph'),
+    omrat:v=>{if(!v)return;const [a,b]=v.split(':').map(Number);objPatch(o=>({h:Math.round(o.w*b/a)}));},
+    ofont:v=>sels.font(v),osize:v=>sels.size(v),otc:v=>sels.color(v),oanch:v=>sels.anchor(v),odir:v=>sels.dir(v),
+    tbs:v=>{const o=prim();if(!o||!isTbl(o))return;sync();o.tbs=Object.assign({},tbl0(o),{p:+v});tblStyle(o,true);},
+    tcfill:v=>{const o=prim();if(!o||!isTbl(o))return;sync();tcells(o).forEach(c=>{c.style.background=v;c.dataset.cf='1';});tfin(o);},
+    tbc:v=>tblBorder(v,null)
+  });
+
+  /* --- aksi tombol --- */
+  Object.assign(acts,{
+    otog(k){
+      if(k==='lock'){objPatch(o=>({lock:!isLock(o)}));return;}
+    },
+    mt(k){objPatch(o=>{const m=Object.assign({},o.media);m[k]=!m[k];return{media:m};},isMed);},
+    ofitslide(){objPatch(o=>{
+      if(isLock(o)){const k=Math.min(W/o.w,H/o.h),w=Math.round(o.w*k),h=Math.round(o.h*k);return{w,h,x:Math.round((W-w)/2),y:Math.round((H-h)/2)};}
+      return{x:0,y:0,w:W,h:H};});},
+    octr(){objPatch(o=>({x:Math.round((W-o.w)/2),y:Math.round((H-o.h)/2)}));},
+    oalt(){const o=prim();if(!o)return;const v=prompt('Teks alternatif (deskripsi untuk aksesibilitas):',o.alt||'');if(v!==null)objPatch({alt:v||undefined});},
+    odup(){if(!sel.length)return;sync();const n=selObjs().map(o=>Object.assign(cloneO(o),{x:o.x+24,y:o.y+24}));objs().push(...n);sel=n.map(o=>o.id);draw();commit();},
+    odel:delSel,
+    ipreset(){objPatch({br:undefined,co:undefined,sat:undefined,eff:'',crop:undefined,rad:0,stroke:'',sw:1,dash:'',fx:'',op:undefined},isPic);},
+    async oorig(){await Promise.all(selObjs().map(natOf));objPatch(o=>o.nw?{w:o.nw,h:o.nh}:{},isPic);},
+    async irep(){
+      const o=selObjs().find(isPic);if(!o)return toast('Pilih gambar terlebih dahulu');
+      const fs=await pick('image/*',false);if(!fs.length)return;
+      try{const r=await shrink(await readFile(fs[0]));sync();o.img=r.src;o.nw=r.w;o.nh=r.h;draw();commit();}catch(e){toast('Gagal mengganti gambar: '+e.message,5000);}
+    },
+    otext(){
+      const o=prim();if(!o||o.shape==='line'||o.shape==='arrow')return toast('Garis tidak dapat berisi teks');
+      const el=elOf(o.id),t=el&&el.querySelector('.tx');if(!t)return;
+      el.classList.add('edt');t.focus();const r=document.createRange();r.selectNodeContents(t);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);
+    },
+    tbl(k){const o=prim();if(!o||!isTbl(o))return;sync();o.tbs=Object.assign({},tbl0(o));o.tbs[k]=o.tbs[k]?0:1;tblStyle(o,false);},
+    tins:tblIns,tdel:tblDel,
+    tcal(v){const o=prim();if(!o||!isTbl(o))return;sync();tcells(o).forEach(c=>c.style.textAlign=v);tfin(o);},
+    tva(v){const o=prim();if(!o||!isTbl(o))return;sync();tcells(o).forEach(c=>c.style.verticalAlign=v);tfin(o);},
+    osel(id){sel=[id];decorate();stg.focus({preventScroll:true});}
+  });
+  Object.assign(MENUS,{
+    selpane:()=>{const L=objs().slice().reverse();return L.length?L.map(o=>[(sel.includes(o.id)?'✓ ':'')+oname(o),'osel:'+o.id]):[['(slide kosong)','selnone']];}
+  });
+  /* gambar yang diedit disimpan ke .pptx dengan efek "dipanggang" ke dalam gambar */
+  const rrPath=(g,x,y,w,h,r)=>{g.beginPath();if(r===-1)g.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);else if(r>0&&g.roundRect)g.roundRect(x,y,w,h,Math.min(r,w/2,h/2));else g.rect(x,y,w,h);};
+  async function bakePic(o){
+    const c=o.crop||{},has=(o.br!=null&&o.br!==100)||(o.co!=null&&o.co!==100)||(o.sat!=null&&o.sat!==100)||(o.eff&&o.eff!=='none')||c.l||c.t||c.r||c.b||o.rad||(o.stroke&&+o.sw>0)||o.fh||o.fv;
+    if(!has||!/^data:/.test(o.img))return o;
+    try{
+      const im=await loadImg(o.img),l=(+c.l||0)/100,t=(+c.t||0)/100,r=(+c.r||0)/100,b=(+c.b||0)/100;
+      const k=Math.min(2,2000/Math.max(o.w,o.h)),cw=Math.max(1,Math.round(o.w*k)),ch=Math.max(1,Math.round(o.h*k));
+      const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;const g=cv.getContext('2d');
+      g.save();if(o.rad){rrPath(g,0,0,cw,ch,o.rad===-1?-1:o.rad*k);g.clip();}
+      const f=picFilter(o);if(f)g.filter=f;
+      if(o.fh||o.fv){g.translate(o.fh?cw:0,o.fv?ch:0);g.scale(o.fh?-1:1,o.fv?-1:1);}
+      g.drawImage(im,im.naturalWidth*l,im.naturalHeight*t,Math.max(1,im.naturalWidth*(1-l-r)),Math.max(1,im.naturalHeight*(1-t-b)),0,0,cw,ch);
+      g.restore();
+      if(o.stroke&&+o.sw>0){const lw=o.sw*k;g.lineWidth=lw;g.strokeStyle=o.stroke;rrPath(g,lw/2,lw/2,cw-lw,ch-lw,o.rad===-1?-1:o.rad*k);g.stroke();}
+      return Object.assign({},o,{img:cv.toDataURL('image/png'),fh:0,fv:0});
+    }catch(e){return o;}
+  }
+  const bakeAll=()=>Promise.all(slides.map(async s=>Object.assign({},s,{objs:await Promise.all(s.objs.map(o=>o.img?bakePic(o):o))})));
+  ctxReady=true;
+
   /* ===== event ===== */
   root.addEventListener('mousedown',e=>{
     if(!e.target.closest('.pm'))closePop();
@@ -1905,7 +2225,7 @@ function mount(root,opts={}){
   });
   const onSel=e=>{const s=e.target.dataset&&e.target.dataset.s;if(!s||!sels[s])return;
     if(e.type==='input'&&(e.target.tagName==='SELECT'||e.target.type==='number'))return;
-    if(e.type==='input'&&e.target.type==='color'&&['sfill','sline'].indexOf(s)<0&&s!=='color')return;
+    if(e.type==='input'&&e.target.type==='color'&&!['sfill','sline','color','ofill','oline','otc','tcfill','tbc'].includes(s))return;
     sels[s](e.target.value);if(e.target.hasAttribute('data-r'))e.target.selectedIndex=0;
     if(e.target.type==='color'){const sp=e.target.previousElementSibling;if(sp)sp.style.borderBottomColor=e.target.value;}};
   root.addEventListener('change',onSel);root.addEventListener('input',onSel);
@@ -1913,23 +2233,76 @@ function mount(root,opts={}){
   $('.desk').addEventListener('mousedown',()=>{fm.hidden=true;});
 
   /* kanvas: seleksi, geser, ubah ukuran, gambar */
-  const pt=e=>{const r=stg.getBoundingClientRect();return[(e.clientX-r.left)/scale,(e.clientY-r.top)/scale];};
-  function drag(move,end){const mv=ev=>move(ev),up=ev=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);end&&end(ev);};addEventListener('mousemove',mv);addEventListener('mouseup',up);}
+  const pt=e=>{const q=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;const r=stg.getBoundingClientRect();return[(q.clientX-r.left)/scale,(q.clientY-r.top)/scale];};
+  function drag(move,end){
+    const mv=ev=>{if(ev.type==='touchmove'&&ev.cancelable)ev.preventDefault();move(ev);};
+    const up=ev=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);removeEventListener('touchmove',mv);removeEventListener('touchend',up);removeEventListener('touchcancel',up);end&&end(ev);};
+    addEventListener('mousemove',mv);addEventListener('mouseup',up);addEventListener('touchmove',mv,{passive:false});addEventListener('touchend',up);addEventListener('touchcancel',up);
+  }
+  const applyGeom=(o,el)=>{Object.assign(el.style,{left:o.x+'px',top:o.y+'px',width:o.w+'px',height:o.h+'px'});const sv=el.querySelector('svg.bg');if(sv){sv.setAttribute('viewBox',`0 0 ${o.w} ${o.h}`);sv.innerHTML=shapeSVG(o);}};
+  function guides(gx,gy){
+    stg.querySelectorAll('.sg').forEach(x=>x.remove());
+    const g1=s=>{const d=document.createElement('div');d.className='sg';d.style.cssText=s;stg.appendChild(d);};
+    if(gx!=null)g1(`left:${gx}px;top:0;width:${1/scale}px;height:${H}px`);
+    if(gy!=null)g1(`left:0;top:${gy}px;height:${1/scale}px;width:${W}px`);
+  }
   function startMove(e){
-    const [sx,sy]=pt(e),l=selObjs(),o0=l.map(o=>[o.x,o.y]);let moved=false;
-    drag(ev=>{const [x,y]=pt(ev),dx=x-sx,dy=y-sy;if(!moved&&Math.hypot(dx,dy)*scale<3)return;moved=true;
-      l.forEach((o,i)=>{o.x=vsn(Math.round(o0[i][0]+dx));o.y=vsn(Math.round(o0[i][1]+dy));const el=elOf(o.id);el.style.left=o.x+'px';el.style.top=o.y+'px';});},
-      ()=>{if(moved)commit();if(painting)applyPaint();});
+    const [sx,sy]=pt(e),l=selObjs(),o0=l.map(o=>[o.x,o.y]),others=objs().filter(o=>!sel.includes(o.id));let moved=false;
+    const bb={x:Math.min(...l.map(o=>o.x)),y:Math.min(...l.map(o=>o.y)),r:Math.max(...l.map(o=>o.x+o.w)),b:Math.max(...l.map(o=>o.y+o.h))};
+    const snapAxis=(ed,tg)=>{const thr=6/scale;let best=null;ed.forEach(v=>tg.forEach(t=>{const d=t-v;if(Math.abs(d)<thr&&(best==null||Math.abs(d)<Math.abs(best.d)))best={d,t};}));return best;};
+    drag(ev=>{if(pinching)return;const [x,y]=pt(ev);let dx=x-sx,dy=y-sy;if(!moved&&Math.hypot(dx,dy)*scale<3)return;moved=true;
+      let gx=null,gy=null;
+      if(!vwSnap&&!ev.altKey){ /* garis panduan pintar: tepi/tengah slide dan objek lain */
+        const X=[0,W/2,W],Y=[0,H/2,H];others.forEach(o=>{X.push(o.x,o.x+o.w/2,o.x+o.w);Y.push(o.y,o.y+o.h/2,o.y+o.h);});
+        const bx=snapAxis([bb.x+dx,(bb.x+bb.r)/2+dx,bb.r+dx],X),by=snapAxis([bb.y+dy,(bb.y+bb.b)/2+dy,bb.b+dy],Y);
+        if(bx){dx+=bx.d;gx=bx.t;}if(by){dy+=by.d;gy=by.t;}}
+      guides(gx,gy);
+      l.forEach((o,i)=>{o.x=vsn(Math.round(o0[i][0]+dx));o.y=vsn(Math.round(o0[i][1]+dy));const el=elOf(o.id);el.style.left=o.x+'px';el.style.top=o.y+'px';});ctxFill();},
+      ()=>{guides(null,null);if(moved)commit();if(painting)applyPaint();});
   }
   function startResize(e,h){
-    const o=byId(sel[0]),el=elOf(o.id),[sx,sy]=pt(e),b={x:o.x,y:o.y,w:o.w,h:o.h};
-    drag(ev=>{const [x,y]=pt(ev),dx=x-sx,dy=y-sy;let {x:nx,y:ny,w:nw,h:nh}=b;
-      if(h.includes('e'))nw=Math.max(12,b.w+dx);if(h.includes('s'))nh=Math.max(12,b.h+dy);
-      if(h.includes('w')){nw=Math.max(12,b.w-dx);nx=b.x+b.w-nw;}if(h.includes('n')){nh=Math.max(12,b.h-dy);ny=b.y+b.h-nh;}
-      Object.assign(o,{x:Math.round(nx),y:Math.round(ny),w:Math.round(nw),h:Math.round(nh)});
-      Object.assign(el.style,{left:o.x+'px',top:o.y+'px',width:o.w+'px',height:o.h+'px'});
-      const sv=el.querySelector('svg.bg');sv.setAttribute('viewBox',`0 0 ${o.w} ${o.h}`);sv.innerHTML=shapeSVG(o);},commit);
+    const o=byId(sel[0]),el=elOf(o.id),[sx,sy]=pt(e),b={x:o.x,y:o.y,w:o.w,h:o.h},th=(o.rot||0)*Math.PI/180,cs=Math.cos(th),sn=Math.sin(th);
+    const R=(x,y)=>[x*cs-y*sn,x*sn+y*cs],hx=h.includes('e')?1:h.includes('w')?-1:0,hy=h.includes('s')?1:h.includes('n')?-1:0,corner=hx&&hy,ratio=b.w/b.h;
+    const A=R(-hx*b.w/2,-hy*b.h/2),AW=[b.x+b.w/2+A[0],b.y+b.h/2+A[1]]; /* titik jangkar (sisi seberang) tetap diam, juga saat objek diputar */
+    drag(ev=>{const [x,y]=pt(ev),dx=x-sx,dy=y-sy,ldx=dx*cs+dy*sn,ldy=-dx*sn+dy*cs;
+      let nw=hx?Math.max(12,b.w+hx*ldx):b.w,nh=hy?Math.max(12,b.h+hy*ldy):b.h;
+      if(corner&&(isLock(o)||ev.shiftKey)){const k=Math.max(nw/b.w,nh/b.h);nw=Math.max(12,b.w*k);nh=nw/ratio;}
+      const N=R(-hx*nw/2,-hy*nh/2);o.w=Math.round(nw);o.h=Math.round(nh);o.x=Math.round(AW[0]-N[0]-o.w/2);o.y=Math.round(AW[1]-N[1]-o.h/2);
+      applyGeom(o,el);ctxFill();},commit);
   }
+  function startRotate(e){
+    const o=byId(sel[0]),el=elOf(o.id),cx=o.x+o.w/2,cy=o.y+o.h/2;
+    drag(ev=>{const [x,y]=pt(ev);let a=Math.atan2(y-cy,x-cx)*180/Math.PI+90;a=((a%360)+360)%360;
+      const s=Math.round(a/15)*15;if(ev.shiftKey||Math.abs(a-s)<3)a=s;a=Math.round(a)%360;o.rot=a;el.style.transform=`rotate(${a}deg)`;ctxFill();},commit);
+  }
+  function editShape(el){el.classList.add('edt');const t=el.querySelector('.tx');if(!t)return;t.focus();const r=document.createRange();r.selectNodeContents(t);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);}
+  function pinch(e){
+    const o=byId(sel[0]),el=o&&elOf(o.id);if(!o||!el||e.touches.length<2)return;e.preventDefault();pinching=true;
+    const dist=ev=>Math.hypot(ev.touches[0].clientX-ev.touches[1].clientX,ev.touches[0].clientY-ev.touches[1].clientY),d0=dist(e)||1,b={x:o.x,y:o.y,w:o.w,h:o.h};let ch=false;
+    const mv=ev=>{if(ev.touches.length<2)return;ev.preventDefault();const k=Math.max(.1,dist(ev)/d0);ch=true;
+      o.w=Math.max(12,Math.round(b.w*k));o.h=Math.max(12,Math.round(b.h*k));o.x=Math.round(b.x+b.w/2-o.w/2);o.y=Math.round(b.y+b.h/2-o.h/2);applyGeom(o,el);ctxFill();};
+    const up=ev=>{if(ev.touches&&ev.touches.length>0)return;pinching=false;removeEventListener('touchmove',mv);removeEventListener('touchend',up);removeEventListener('touchcancel',up);if(ch)commit();};
+    addEventListener('touchmove',mv,{passive:false});addEventListener('touchend',up);addEventListener('touchcancel',up);
+  }
+  /* sentuhan (HP): geser, ubah ukuran, putar, cubit untuk skala, ketuk 2x untuk edit teks bentuk */
+  let lastTap={t:0,id:null};
+  stg.addEventListener('touchstart',e=>{
+    if(drawing)return;
+    if(e.touches.length===2&&sel.length===1){pinch(e);return;}
+    if(e.touches.length>1)return;
+    const tg=e.target,hd=tg.closest('.hd'),rh=tg.closest('.rh');
+    if(hd){e.preventDefault();startResize(e,hd.dataset.h);return;}
+    if(rh){e.preventDefault();startRotate(e);return;}
+    const el=tg.closest('.ob');if(!el)return;
+    const o=byId(el.dataset.id);if(!o)return;
+    const ed=tg.closest('.ed'),editing=el.classList.contains('edt');
+    if(ed||((o.k==='sh'||o.media)&&!editing)){
+      e.preventDefault();const now=Date.now();
+      if(!sel.includes(o.id)||sel.length>1){sel=[o.id];getSelection().removeAllRanges();lastR=null;decorate();}
+      if(lastTap.id===o.id&&now-lastTap.t<350&&o.k==='sh'&&!o.img&&!o.media&&o.shape!=='line'&&o.shape!=='arrow'){lastTap={t:0,id:null};editShape(el);return;}
+      lastTap={t:now,id:o.id};startMove(e);
+    }
+  },{passive:false});
   function startDraw(e){
     const [sx,sy]=pt(e),id=drawing,mq=document.createElement('div');mq.className='mq';stg.appendChild(mq);
     drag(ev=>{const [x,y]=pt(ev);Object.assign(mq.style,{left:Math.min(sx,x)+'px',top:Math.min(sy,y)+'px',width:Math.abs(x-sx)+'px',height:Math.abs(y-sy)+'px'});},
@@ -1952,6 +2325,7 @@ function mount(root,opts={}){
     if(e.target.closest('.cm'))return;
     if(drawing){e.preventDefault();startDraw(e);return;}
     const hd=e.target.closest('.hd');if(hd){e.preventDefault();startResize(e,hd.dataset.h);return;}
+    const rh=e.target.closest('.rh');if(rh){e.preventDefault();startRotate(e);return;}
     const el=e.target.closest('.ob');
     if(!el){getSelection().removeAllRanges();lastR=null;if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
       if(!e.shiftKey){sel=[];decorate();}e.preventDefault();stg.focus({preventScroll:true});startMarquee(e,e.shiftKey);if(painting)applyPaint();return;}

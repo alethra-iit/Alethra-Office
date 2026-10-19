@@ -121,7 +121,7 @@ async function write(data,PptxGenJS,JSZip,type){
       if(/<table/i.test(o.html||'')){                       // tabel (sisipan dari menu SISIPKAN)
         const d=document.createElement('div');d.innerHTML=o.html;const tb=d.querySelector('table');
         if(tb&&tb.rows.length){
-          const rows=[...tb.rows].map(r=>[...r.cells].map(c=>{const st=c.style,op={fontFace:o.ts.font||'Calibri',fontSize:+o.ts.size||18,color:hex6(st.color)||hex6(o.ts.color)||'000000',valign:'top',border:{type:'solid',pt:1,color:'FFFFFF'}};
+          const rows=[...tb.rows].map(r=>[...r.cells].map(c=>{const st=c.style,op={fontFace:o.ts.font||'Calibri',fontSize:+o.ts.size||18,color:hex6(st.color)||hex6(o.ts.color)||'000000',valign:'top',border:{type:'solid',pt:(st.borderTopWidth&&st.borderTopWidth!=='0px'?parseFloat(st.borderTopWidth):(st.borderTopWidth==='0px'?0:1))||0.01,color:hex6(st.borderTopColor)||'FFFFFF'}};
             const bg=hex6(st.backgroundColor||st.background);if(bg)op.fill={color:bg};
             if(st.fontWeight==='bold'||+st.fontWeight>=600)op.bold=true;
             return{text:c.textContent.replace(/\u00a0/g,' ').trim(),options:op};}));
@@ -130,7 +130,7 @@ async function write(data,PptxGenJS,JSZip,type){
         return;}
       if(o.img){
         if(!/^data:/.test(o.img))return;                    // gambar dari URL (tanpa data) dilewati
-        sl.addImage(Object.assign({data:o.img.replace(/^data:/,''),x:inch(o.x),y:inch(o.y),w:inch(o.w),h:inch(o.h)},common));return;}
+        sl.addImage(Object.assign({data:o.img.replace(/^data:/,''),x:inch(o.x),y:inch(o.y),w:inch(o.w),h:inch(o.h),transparency:(o.op!=null&&o.op<100)?100-o.op:undefined},common));return;}
       if(line){
         const st=hex6(o.stroke)||'5B9BD5',lo={color:st,width:+o.sw||2.25};
         if(o.shape==='arrow')lo.endArrowType='triangle';if(o.dash)lo.dashType=o.dash==='2 4'?'sysDot':'dash';
@@ -142,7 +142,7 @@ async function write(data,PptxGenJS,JSZip,type){
         valign:{t:'top',m:'middle',b:'bottom'}[o.anchor]||'top',wrap:true},common);
       if(name)opts.objectName=name;
       if(boxy){opts.shape=SHAPE_OUT[o.shape]||'rect';
-        if(o.fill)opts.fill={color:hex6(o.fill)||'FFFFFF'};
+        if(o.fill)opts.fill={color:hex6(o.fill)||'FFFFFF',transparency:(o.fop!=null&&o.fop<100)?100-o.fop:undefined};
         opts.line=o.stroke?{color:hex6(o.stroke)||'000000',width:+o.sw||1,dashType:o.dash?(o.dash==='2 4'?'sysDot':'dash'):'solid'}:{type:'none'};}
       else if(ph)opts.line={type:'none'};
       else opts.isTextBox=true;

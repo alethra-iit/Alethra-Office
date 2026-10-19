@@ -92,3 +92,30 @@ Panel Seleksi, nama objek, teks alternatif, gandakan, dan hapus. Perubahan berla
 
 Catatan: gambar dengan efek/bingkai, bagan, bentuk, kotak teks, dan sparkline hanya tersimpan penuh di sesi aplikasi; saat disimpan ke `.xlsx`
 hanya gambar (tanpa efek/bingkai) yang ikut tersimpan.
+
+## Menu "Format" kontekstual di PowerPoint
+
+Sama seperti Word dan Excel, PowerPoint kini punya tab oranye yang muncul otomatis saat objek di slide dipilih
+(kembali ke tab sebelumnya saat pilihan dilepas). Fiturnya menyesuaikan jenis objek:
+
+| Objek terpilih | Tab | Fitur utama |
+|---|---|---|
+| Gambar | FORMAT GAMBAR | kecerahan, kontras, saturasi, efek warna, gaya cepat, garis tepi, sudut membulat/oval, bayangan/cahaya/pantulan, pangkas (4 sisi), opasitas, ganti gambar, ukuran asli, skala %, atur ulang |
+| Video / Audio | FORMAT MEDIA | mulai otomatis, ulangi, senyap, tanpa kontrol, sembunyikan ikon audio saat tayang, gaya (tepi, sudut, efek, opasitas), rasio 16:9 / 4:3 / 1:1 |
+| Bentuk / Garis / Kotak Teks | FORMAT BENTUK | ubah jenis bentuk, gaya cepat, isian, garis tepi (warna/tebal/jenis), opasitas isian, efek, font, ukuran, tebal/miring/garis bawah, warna, rata teks, arah teks |
+| Tabel | FORMAT TABEL | gaya tabel, baris judul/belang/kolom pertama, warna & tebal tepi, isian sel, rata sel (sel/baris/kolom/tabel), sisipkan/hapus baris & kolom |
+
+Semua tab juga punya: tinggi, lebar, rotasi (cm/derajat), **kunci rasio**, **Pas ke Slide**, posisi horizontal/vertikal (cm), **Tengahkan**,
+susun (depan/belakang/ratakan/putar/balik), **Panel Seleksi**, nama objek, teks alternatif, gandakan, dan hapus.
+Perubahan berlaku ke semua objek yang dipilih dan bisa di-*Undo*. Untuk kotak teks/placeholder tab Format tersedia
+tetapi tidak memindahkan tab Beranda saat Anda mengetik.
+
+### Geser, ubah ukuran, putar (mouse **dan sentuhan HP**)
+
+- Geser objek dengan menyeret; muncul **garis panduan** magenta saat sejajar dengan tengah/tepi slide atau objek lain (tahan Alt untuk menonaktifkan).
+- Handle ubah ukuran bekerja benar walau objek sedang **diputar**; sudut gambar/video menjaga rasio (Shift untuk bentuk).
+- **Handle putar** di atas objek (otomatis menempel ke kelipatan 15°).
+- Di HP: seret objek/handle dengan jari, **cubit dua jari** untuk skala, **ketuk dua kali** bentuk untuk edit teks.
+
+Catatan penyimpanan `.pptx`: efek gambar (kecerahan, kontras, efek warna, pangkas, sudut, garis tepi, balik) "dipanggang" ke dalam gambar;
+opasitas gambar/isian tersimpan; opsi media dan bayangan/efek bentuk khusus tersimpan penuh hanya di sesi aplikasi.
