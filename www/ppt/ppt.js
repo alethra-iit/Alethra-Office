@@ -111,6 +111,7 @@ const CSS=`
 .pp .status button{background:none;border:0;color:#fff;cursor:pointer;min-width:20px;height:20px;font-size:12px;text-transform:uppercase;padding:0 4px}
 .pp .status button.on{background:rgba(255,255,255,.25)}
 .pp .status input{width:130px}
+.pp .status .snx{display:none}
 .pp .menu{position:absolute;z-index:10;top:52px;left:0;bottom:22px;width:260px;background:var(--acc);color:#fff;padding:8px 0}
 .pp .menu button{display:block;width:100%;background:none;border:0;color:#fff;text-align:left;padding:12px 24px;cursor:pointer;font-size:14px}
 .pp .menu button:hover{background:rgba(255,255,255,.18)}
@@ -141,6 +142,9 @@ const CSS=`
  .pp .thumbs{width:auto;height:86px;display:flex;gap:8px;overflow-x:auto;border-right:0;border-bottom:1px solid #ddd;padding:6px}
  .pp .th{margin:0;flex:none}.pp .th .n{display:none}.pp .sec{display:none}
  .pp .desk{padding:10px}.pp .status .s>span:nth-child(2),.pp .status .zr{display:none}
+ .pp .status{padding:0 4px;font-size:10px}.pp .status .s{gap:2px;white-space:nowrap;flex:none}
+ .pp .status button{min-width:26px;padding:0 2px;font-size:15px}.pp .status .bt,.pp .status .snw+.snw{display:none}.pp .status .snx{display:inline}
+ .pp .status .zv{display:inline-block;min-width:30px;text-align:right}
  .pp .find{left:8px;right:8px;top:auto;bottom:40px;grid-template-columns:auto 1fr}
 }
 @media print{
@@ -702,8 +706,8 @@ function mount(root,opts={}){
       <div class="cpane" hidden><div class="ah"><span class="cph">Komentar</span><span><button data-a="rvpane" title="Tutup">✕</button></span></div><div class="cpl"></div></div></div>
     <div class="find" hidden><span>Cari:</span><input type="text" class="f1"><span>Ganti:</span><input type="text" class="f2">
       <div class="fb"><button data-a="fnext">Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti semua</button><button data-a="fclose">Tutup</button></div></div>
-    <div class="status"><div class="s"><span class="sn">SLIDE 1 DARI 1</span><span>BAHASA INDONESIA</span></div>
-      <div class="s"><button data-a="notes" class="on">☰ CATATAN</button><button data-a="comments">💬 KOMENTAR</button>
+    <div class="status"><div class="s"><span class="sn"><span class="snw">SLIDE </span>1<span class="snw"> DARI </span><span class="snx">/</span>1</span><span>BAHASA INDONESIA</span></div>
+      <div class="s"><button data-a="notes" class="on" title="Catatan">☰<span class="bt"> CATATAN</span></button><button data-a="comments" title="Komentar">💬<span class="bt"> KOMENTAR</span></button>
       <button data-a="vnormal" class="on vb" title="Normal">▭</button><button data-a="vsorter" class="vb" title="Penyortir Slide">▦</button><button data-a="show" title="Slide Show">▶</button>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="10" max="200" value="80" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">80%</span> <button data-a="fit" title="Sesuaikan ke jendela">⛶</button></span></div></div>
     <input type="file" class="fin" accept=".pptx" hidden>
@@ -717,7 +721,7 @@ function mount(root,opts={}){
   const S0=()=>slides[cur],objs=()=>S0().objs,byId=id=>objs().find(o=>o.id===id),selObjs=()=>sel.map(byId).filter(Boolean);
   const elOf=id=>stg.querySelector(`.ob[data-id="${id}"]`);
   const txOf=n=>{const e=n&&(n.nodeType===3?n.parentElement:n);const t=e&&e.closest&&e.closest('.tx');return t&&stg.contains(t)?t:null;};
-  const status=()=>{$('.sn').textContent=`SLIDE ${cur+1} DARI ${slides.length}`;};
+  const status=()=>{$('.sn').innerHTML=`<span class="snw">SLIDE </span>${cur+1}<span class="snw"> DARI </span><span class="snx">/</span>${slides.length}`;};
 
   /* ===== model ⇄ DOM, riwayat ===== */
   function sync(){

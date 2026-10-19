@@ -818,6 +818,13 @@ const CSS=`
 .xl .fdd{width:16px;height:16px;border:1px solid #999;background:#f5f5f5;font-size:8px;display:grid;place-items:center;cursor:pointer;z-index:2;padding:0}
 .xl .fdd.on{background:#d3e8d9;border-color:var(--g)}
 .xl .ed{z-index:4;border:2px solid var(--g);background:#fff;outline:none;resize:none;overflow:hidden;font:11pt var(--df,Calibri),Carlito,"Segoe UI",sans-serif;color:#000;padding:0 2px;line-height:1.2;user-select:text;-webkit-user-select:text;white-space:pre;margin:0}
+.xl .plv{position:absolute;inset:0;z-index:30;overflow:auto;background:#d6d6d6;padding:10px 0 24px;-webkit-overflow-scrolling:touch}
+.xl .plv[hidden]{display:none}
+.xl .plp{margin:0 auto 12px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.35);overflow:hidden;position:relative}
+.xl .pls{position:relative;transform-origin:0 0}
+.xl .plc{position:absolute;overflow:hidden}
+.xl .plh,.xl .plf{position:absolute;text-align:center;font:9pt Calibri,Carlito,sans-serif;color:#9a9a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xl .plc td{box-sizing:border-box;line-height:1.15}.xl .plc tr{height:auto}.xl .plm{text-align:center;color:#555;font-size:12px;padding:6px}
 .xl .stbar{background:var(--g);color:#fff;height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:11px;flex:none}
 .xl .stbar .s{display:flex;gap:18px;align-items:center}
 .xl .stbar button{background:none;border:0;color:#fff;cursor:pointer;width:22px;height:20px;font-size:13px}
@@ -1169,7 +1176,7 @@ RIB.review=
  G('Perubahan',B('🔒','Lindungi Lembar','protsheet','big','Lindungi<br>Lembar')+B('🔒','Lindungi Buku Kerja','protwb','big','Lindungi<br>Buku Kerja')+BD('⇄','Bagikan Buku Kerja','Bagikan<br>Buku Kerja')+
    `<div class="rows t3"><button class="b rw" disabled title="Lindungi dan Bagikan Buku Kerja (belum tersedia)"><em>🔒</em><span>Lindungi dan Bagikan Buku Kerja</span></button>${B('▦','Izinkan Pengguna Mengedit Rentang','allowr','rw','Izinkan Pengguna Mengedit Rentang')}${B('✎','Lacak Perubahan','m:track','rw','Lacak Perubahan',1)}</div>`);
 RIB.view=
- G('Tampilan Buku Kerja',B('▦','Normal','view:normal','big','Normal')+B('▥','Pratinjau Sela Halaman','view:pbp','big','Pratinjau<br>Sela Halaman')+BD('▭','Tata Letak Halaman','Tata Letak<br>Halaman')+B('👁','Tampilan Kustom','cviews','big','Tampilan<br>Kustom'))+
+ G('Tampilan Buku Kerja',B('▦','Normal','view:normal','big','Normal')+B('▥','Pratinjau Sela Halaman','view:pbp','big','Pratinjau<br>Sela Halaman')+B('▭','Tata Letak Halaman','view:plv','big','Tata Letak<br>Halaman')+B('👁','Tampilan Kustom','cviews','big','Tampilan<br>Kustom'))+
  G('Tampilkan',`<div class="rows t3" style="min-width:84px"><div class="row"><label style="opacity:.45"><input type="checkbox" disabled> Penggaris</label></div><div class="row"><label><input type="checkbox" data-s="gview"> Garis Kisi</label></div></div><div class="rows t3" style="min-width:96px"><div class="row"><label><input type="checkbox" data-s="fbar"> Bilah Rumus</label></div><div class="row"><label><input type="checkbox" data-s="hview"> Tajuk</label></div></div>`)+
  G('Zoom',B('🔍','Zoom','zoomdlg','big','Zoom')+B('100','Zoom 100%','zoom100','big','100%')+B('⊡','Zoom ke Seleksi','zoomsel','big','Zoom ke<br>Seleksi'))+
  G('Jendela',BD('▤','Jendela Baru','Jendela<br>Baru')+BD('▦','Susun Semua','Susun<br>Semua')+B('❄','Bekukan Panel','m:freeze','big','Bekukan<br>Panel',1)+
@@ -1208,7 +1215,7 @@ function mount(root,opts={}){
       <div class="vp" tabindex="0"><div class="stage"></div><div class="sizer"></div></div><textarea class="ed" hidden spellcheck="false" style="position:absolute"></textarea></div>
     <div class="shbar"><div class="shnav"><button data-a="shprev">◀</button><button data-a="shnext">▶</button></div><div class="shs"></div><button class="shadd" data-a="addsheet" title="Lembar baru">+</button></div>
     <div class="stbar"><div class="s"><span class="mode">SIAP</span><span class="calcs"></span></div><div class="s"><span class="sum"></span></div>
-      <div class="s"><span><button class="on" data-a="view:normal" title="Normal">▦</button><button data-a="soonv" title="Tata Letak Halaman">▭</button><button data-a="view:pbp" title="Pratinjau Sela Halaman">▥</button></span>
+      <div class="s"><span><button class="on" data-a="view:normal" title="Normal">▦</button><button data-a="view:plv" title="Tata Letak Halaman">▭</button><button data-a="view:pbp" title="Pratinjau Sela Halaman">▥</button></span>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="20" max="200" step="10" value="100" class="zr"><button data-a="zoomd:10">+</button> <span class="zv" style="display:inline-block;min-width:34px;text-align:right">100%</span></span></div></div>
     <div class="find" hidden><span>Cari:</span><input type="text" class="f1"><span>Ganti:</span><input type="text" class="f2">
       <div class="fo"><label><input type="checkbox" class="fcase"> Cocokkan huruf besar/kecil</label><label><input type="checkbox" class="fwhole"> Seluruh isi sel</label></div>
@@ -1626,8 +1633,9 @@ function mount(root,opts={}){
     const sc=root.querySelector('[data-s=scale]');if(sc){if(document.activeElement!==sc)sc.value=P.scale;sc.disabled=!!(P.fitW||P.fitH);}
     const C=(n,v)=>{root.querySelectorAll(`[data-s=${n}]`).forEach(e=>{e.checked=!!v;});};
     C('gview',cur.grid!==false);C('gprint',P.pg);C('hview',cur.head!==false);C('hprint',P.ph);C('fbar',wb.fbar!==false);
-    root.querySelectorAll('[data-a="view:normal"]').forEach(b=>b.classList.toggle('on',wb.viewMode!=='pbp'));
+    root.querySelectorAll('[data-a="view:normal"]').forEach(b=>b.classList.toggle('on',!wb.viewMode||wb.viewMode==='normal'));
     root.querySelectorAll('[data-a="view:pbp"]').forEach(b=>b.classList.toggle('on',wb.viewMode==='pbp'));
+    root.querySelectorAll('[data-a="view:plv"]').forEach(b=>b.classList.toggle('on',wb.viewMode==='plv'));
     const bg=root.querySelector('[data-a=bg] span');if(bg)bg.innerHTML=cur.bg?'Hapus Latar<br>Belakang':'Latar<br>Belakang';
     $('.gwrap').classList.toggle('nh',cur.head===false);
     vp.style.backgroundImage=cur.bg?`url(${cur.bg})`:'';vp.style.backgroundAttachment='local';
@@ -1645,7 +1653,7 @@ function mount(root,opts={}){
       if(g.c1===0&&g.c2===MAXC-1&&g.r1===g.r2)nb.value=addr(s.ar,s.ac);
     }
     if(!ed){const m=mergeAt(s.ar,s.ac);const fc=cellAt(cur,m?m.r1:s.ar,m?m.c1:s.ac);fxi.value=cur.prot&&fc&&fc.st&&fc.st.hide&&fc.f!=null?'':rawText(fc);}
-    refreshRibbon();updStatus();schedule();
+    refreshRibbon();updStatus();schedule();plvRender();
   }
   /* ===== editor sel ===== */
   const setMode=m=>{$('.mode').textContent=m;};
@@ -2564,7 +2572,7 @@ function mount(root,opts={}){
     const old=Z;Z=Math.min(Math.max(v,20),200)/100;
     const sl=vp.scrollLeft/old,st=vp.scrollTop/old;
     $('.zr').value=Math.round(Z*100);$('.zv').textContent=Math.round(Z*100)+'%';
-    draw();vp.scrollLeft=sl*Z;vp.scrollTop=st*Z;schedule();
+    draw();vp.scrollLeft=sl*Z;vp.scrollTop=st*Z;schedule();plvRender();
   }
 
   /* ===== lembar ===== */
@@ -2705,7 +2713,6 @@ function mount(root,opts={}){
     goto(){dlg('Pergi ke',`<label>Referensi: <input type="text" class="v" placeholder="mis. B12 atau A1:C10"></label>`,d=>{if(!selectAddr(d.querySelector('.v').value)){toast('Referensi tidak valid.');return false;}});},
     editok(){commitEdit(0,0);},editcancel(){cancelEdit();},
     fxdlg(){fnDialog();},
-    soonv(){toast('Tampilan ini belum tersedia.');},
     zoomd(d){setZoom(Math.round(Z*100)+ +d);},
     shprev(){$('.shs').scrollLeft-=120;},shnext(){$('.shs').scrollLeft+=120;},
     addsheet:addSheet,
@@ -4022,6 +4029,47 @@ function mount(root,opts={}){
     tx(()=>{cur.freeze=(r||c)?{r,c}:null;},true);
     vp.scrollLeft=0;vp.scrollTop=0;sync();
   }
+
+  /* ===== TAMPILAN TATA LETAK HALAMAN ===== */
+  let plvEl=null;
+  function plvRender(){
+    const on=wb.viewMode==='plv'&&cur;
+    if(!on){if(plvEl)plvEl.hidden=true;return;}
+    if(!plvEl){plvEl=document.createElement('div');plvEl.className='plv';$('.gwrap').appendChild(plvEl);}
+    plvEl.hidden=false;
+    const P=cur.page,u=usedRange(cur);
+    const g=P.area?{...P.area}:(u.any?{r1:0,c1:0,r2:u.r2,c2:u.c2}:{r1:0,c1:0,r2:0,c2:0});
+    let [pw,ph]=PAPER[P.paper]||PAPER.A4;if(P.orient==='landscape')[pw,ph]=[ph,pw];
+    const pwPx=pw/25.4*96,phPx=ph/25.4*96,mT=P.m.t*96,mB=P.m.b*96,mL=P.m.l*96,mR=P.m.r*96;
+    let totW=0,totH=0;for(let c=g.c1;c<=g.c2;c++)totW+=cur.cw.size(c);for(let r=g.r1;r<=g.r2;r++)totH+=cur.rh.size(r);
+    const aW0=pwPx-mL-mR,aH0=phPx-mT-mB;
+    let zoom=P.scale/100;if(P.fitW||P.fitH)zoom=Math.min(1,P.fitW?aW0*P.fitW/Math.max(1,totW):Infinity,P.fitH?aH0*P.fitH/Math.max(1,totH):Infinity);
+    const aW=aW0/zoom*.97,aH=aH0/zoom*.94,colB=[g.c1],rowB=[g.r1];
+    let acc=0;for(let c=g.c1;c<=g.c2;c++){const w=cur.cw.size(c);if(acc+w>aW+.5&&acc>0){colB.push(c);acc=0;}acc+=w;}
+    acc=0;for(let r=g.r1;r<=g.r2;r++){const h=cur.rh.size(r);if(acc+h>aH+.5&&acc>0){rowB.push(r);acc=0;}acc+=h;}
+    colB.push(g.c2+1);rowB.push(g.r2+1);
+    const nPages=(colB.length-1)*(rowB.length-1),MAXP=40;
+    const gl=cur.grid!==false?'border:1px solid #e2e2e2;':'';
+    const fit=Math.min(1,Math.max(.2,(vp.clientWidth||plvEl.clientWidth||360)-20)/pwPx);
+    const sc=fit*Z;
+    const tr=[];if(P.tRows)for(let r=P.tRows.r1;r<=P.tRows.r2;r++)tr.push(r);
+    let html='',n=0;
+    outer:for(let i=0;i<colB.length-1;i++)for(let j=0;j<rowB.length-1;j++){
+      n++;if(n>MAXP){break outer;}
+      let rows='';
+      const rs=[];if(j>0)for(const r of tr)if(cur.rh.size(r))rs.push(r);
+      for(let r=rowB[j];r<rowB[j+1];r++)if(cur.rh.size(r)&&!(j===0&&false))rs.push(r);
+      for(const r of rs){let t='<tr>';for(let c=colB[i];c<colB[i+1];c++)t+=printCell(r,c,gl);rows+=t+'</tr>';}
+      const hd=esc(cur.name||'');
+      html+=`<div class="plp" style="width:${pwPx*sc}px;height:${phPx*sc}px"><div class="pls" style="width:${pwPx}px;height:${phPx}px;zoom:${sc}">`+
+        `<div class="plh" style="left:${mL}px;right:${mR}px;top:${Math.max(6,mT/2-8)}px">${hd}</div>`+
+        `<div class="plc" style="left:${mL}px;top:${mT}px;width:${aW0}px;height:${aH0}px"><table style="border-collapse:collapse;table-layout:fixed;font:11pt ${DF()},Calibri,Carlito,sans-serif;zoom:${zoom}">${rows}</table></div>`+
+        `<div class="plf" style="left:${mL}px;right:${mR}px;bottom:${Math.max(6,mB/2-8)}px">Halaman ${n} dari ${nPages}</div></div></div>`;
+    }
+    if(nPages>MAXP)html+=`<div class="plm">Menampilkan ${MAXP} halaman pertama dari ${nPages}.</div>`;
+    const keep=plvEl.scrollTop;
+    plvEl.innerHTML=html;plvEl.scrollTop=keep;
+  }
   function pbpOverlay(W,H,mapX,mapY){
     const P=cur.page,u=usedRange(cur);
     const g=P.area?{...P.area}:(u.any?{r1:0,c1:0,r2:u.r2,c2:u.c2}:{r1:0,c1:0,r2:0,c2:0});
@@ -4085,7 +4133,7 @@ function mount(root,opts={}){
   const applyFbar=()=>{$('.fbar').hidden=wb.fbar===false;};
   Object.assign(sels,{fbar:v=>{wb.fbar=!!v;applyFbar();sync();}});
   Object.assign(acts,{
-    view(v){wb.viewMode=v;sync();},
+    view(v){wb.viewMode=v;sync();toast(v==='plv'?'Tata Letak Halaman (pratinjau). Ketuk Normal untuk mengedit.':v==='pbp'?'Pratinjau Sela Halaman':'Normal');},
     zoomdlg:zoomDialog,zoom100(){setZoom(100);},zoomsel:zoomSel,cviews:customViews
   });
   Object.assign(menus,{
@@ -4310,6 +4358,12 @@ function mount(root,opts={}){
     if(u.any)for(let r=0;r<=u.r2;r++){const row=[];for(let c=0;c<=u.c2;c++){const cl=cellAt(cur,r,c);const v=cl?cellVal(cur,r,c):null;let t=v===null?'':typeof v==='number'?String(v):fmtValue(v,cl&&cl.st&&cl.st.fmt).t;row.push(/[",\n;]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t);}lines.push(row.join(','));}
     dl(new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),name.replace(/\.[^.]+$/,'')+'.csv');
   }
+  const printCell=(r,c,gl)=>{
+      if(cur.cw.size(c)===0)return '';
+      const m=mergeAtSh(cur,r,c);if(m&&(m.r1!==r||m.c1!==c))return '';
+      const cl=cellAt(cur,r,c),st=(cl&&cl.st)||{},f=fmtValue(cl?cellVal(cur,r,c):null,st.fmt);
+      const bds=st.bd?SIDES.map(sd=>st.bd[sd]?`border-${{t:'top',r:'right',b:'bottom',l:'left'}[sd]}:${BTYPES[st.bd[sd][0]].join(' ')} ${st.bd[sd][1]};`:'').join(''):'';
+      return `<td ${m?`rowspan="${m.r2-m.r1+1}" colspan="${m.c2-m.c1+1}"`:''} style="${gl}padding:1px 4px;height:${cur.rh.size(r)*.75}pt;min-width:${cur.cw.size(c)}px;max-width:${cur.cw.size(c)}px;overflow:hidden;white-space:nowrap;text-align:${st.ha&&st.ha!=='general'?st.ha:(f.al||'left')};${st.fill?'background:'+st.fill+';':''}${st.color?'color:'+st.color+';':''}${st.b?'font-weight:700;':''}${st.i?'font-style:italic;':''}${st.u?'text-decoration:underline;':''}${st.sz?'font-size:'+st.sz+'pt;':''}${st.font?'font-family:'+st.font+';':''}${bds}">${esc(f.t)}</td>`;};
   function printSheet(){
     if(ed&&!commitEdit())return;
     const P=cur.page,u=usedRange(cur);
@@ -4322,12 +4376,7 @@ function mount(root,opts={}){
     let zoom=P.scale/100;
     if(P.fitW||P.fitH)zoom=Math.min(1,P.fitW?availW*P.fitW/totW:Infinity,P.fitH?availH*P.fitH/totH:Infinity);
     const gl=P.pg?'border:1px solid #bbb;':'';
-    const cell=(r,c)=>{
-      if(cur.cw.size(c)===0)return '';
-      const m=mergeAtSh(cur,r,c);if(m&&(m.r1!==r||m.c1!==c))return '';
-      const cl=cellAt(cur,r,c),st=(cl&&cl.st)||{},f=fmtValue(cl?cellVal(cur,r,c):null,st.fmt);
-      const bds=st.bd?SIDES.map(sd=>st.bd[sd]?`border-${{t:'top',r:'right',b:'bottom',l:'left'}[sd]}:${BTYPES[st.bd[sd][0]].join(' ')} ${st.bd[sd][1]};`:'').join(''):'';
-      return `<td ${m?`rowspan="${m.r2-m.r1+1}" colspan="${m.c2-m.c1+1}"`:''} style="${gl}padding:1px 4px;height:${cur.rh.size(r)*.75}pt;min-width:${cur.cw.size(c)}px;max-width:${cur.cw.size(c)}px;overflow:hidden;white-space:nowrap;text-align:${st.ha&&st.ha!=='general'?st.ha:(f.al||'left')};${st.fill?'background:'+st.fill+';':''}${st.color?'color:'+st.color+';':''}${st.b?'font-weight:700;':''}${st.i?'font-style:italic;':''}${st.u?'text-decoration:underline;':''}${st.sz?'font-size:'+st.sz+'pt;':''}${st.font?'font-family:'+st.font+';':''}${bds}">${esc(f.t)}</td>`;};
+    const cell=(r,c)=>printCell(r,c,gl);
     const th='border:1px solid #bbb;background:#eee;font-weight:400;text-align:center;';
     const row=r=>{let h='<tr>';if(P.ph)h+=`<th style="${th}">${r+1}</th>`;for(let c=g.c1;c<=g.c2;c++)h+=cell(r,c);return h+'</tr>';};
     let head='',body='';
@@ -4369,7 +4418,7 @@ function mount(root,opts={}){
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveXlsx();}
   });
   fin.onchange=()=>{if(fin.files[0])openFile(fin.files[0]);fin.value='';};
-  if(window.ResizeObserver)new ResizeObserver(()=>{if(root.isConnected)schedule();}).observe(vp);
+  if(window.ResizeObserver)new ResizeObserver(()=>{if(root.isConnected){schedule();plvRender();}}).observe(vp);
   if(matchMedia('(max-width:700px),(max-height:500px)').matches){X.classList.add('rc');$$('.tab[data-tab]').forEach(x=>x.classList.remove('on'));}
 
   /* ===== mulai ===== */

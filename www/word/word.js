@@ -258,7 +258,7 @@ function mount(root,opts={}){
       <div class="fb"><button data-a="fnext">Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti semua</button><button data-a="fclose">Tutup</button></div></div>
     <div class="sp" hidden></div>
     <div class="status"><div class="s"><span class="pg">Halaman 1 dari 1</span><span class="wc">0 kata</span><span>Bahasa Indonesia</span></div>
-      <div class="s"><button class="on" title="Tata letak cetak">▭</button><button data-a="read" title="Mode baca">📖</button>
+      <div class="s"><button class="on" data-a="edit" data-m="edit" title="Mode edit (tata letak cetak)">▭</button><button data-a="read" data-m="read" title="Mode baca">📖</button>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="20" max="200" value="100" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">100%</span></span></div></div>
     <div class="menu" hidden>
       <button data-a="new">📄  Dokumen kosong baru</button><button data-a="open">📂  Buka…</button>
@@ -341,6 +341,7 @@ function mount(root,opts={}){
     const v=Math.max(20,Math.min(100,Math.floor(avail/(dims()[0]+2)*100)));
     if(v!==zoom)setZoom(v);
   }
+  function setMode(edit){page.contentEditable=edit?'true':'false';$$('.status [data-m]').forEach(b=>b.classList.toggle('on',(b.dataset.m==='edit')===edit));$$('.b[data-a="read"]').forEach(b=>b.classList.toggle('on',!edit));}
   function setZoom(v){zoom=v;sheet.style.zoom=ruler.style.zoom=v/100;$('.zr').value=v;$('.zv').textContent=v+'%';}
 
   /* berkas */
@@ -675,7 +676,7 @@ function bib(){
     setdef(){store.set('design',D);toast('Format disimpan sebagai default');},
     spell(){page.spellcheck=!page.spellcheck;toast('Pemeriksa ejaan '+(page.spellcheck?'aktif':'nonaktif'));},
     wordcount(){const t=page.innerText;toast(`${t.trim()?t.trim().split(/\s+/).length:0} kata · ${t.replace(/\n/g,'').length} karakter · ${page.querySelectorAll('p,h1,h2,h3,li').length} paragraf`);},
-    read(){const e=page.isContentEditable;page.contentEditable=e?'false':'true';toast(e?'Mode baca':'Mode edit');},
+    read(){const e=page.isContentEditable;setMode(!e);toast(e?'Mode baca':'Mode edit');},edit(){if(!page.isContentEditable){setMode(true);toast('Mode edit');}},
     ruler(){root.querySelector('.rbar').hidden=!root.querySelector('.rbar').hidden;},
     zoom(v){if(v==='fit'){autoFit=true;fit();}else{autoFit=false;setZoom(+v);}},zoomd(d){autoFit=false;setZoom(Math.min(200,Math.max(20,zoom+ +d)));}
   };

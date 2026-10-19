@@ -857,10 +857,13 @@ const CSS=`
  .pd .menu{top:72px;bottom:30px}.pd .menu button{padding:16px 24px}
  .pd .find input,.pd .db input,.pd .db select{font-size:16px;height:34px}
 }
+@media (max-width:700px),(max-height:500px){.pd.rc .rib{display:none}}
 @media (max-width:700px){
  .pd .qat .fn{max-width:calc(100% - 150px)}
  .pd .menu{width:min(260px,86vw)}
- .pd .status input[type=range]{width:70px}
+ .pd .status{padding:0 4px;font-size:10px}.pd .status .s{gap:2px;white-space:nowrap;flex:none}
+ .pd .status button{min-width:26px;padding:0 2px}.pd .status input[type=number]{width:34px}
+ .pd .status input[type=range]{width:56px}.pd .status .zv{display:inline-block;min-width:30px;text-align:right}
  .pd .find{left:8px;right:8px;top:auto;bottom:40px}.pd .find input{width:100%;min-width:0}
 }
 .pd .b.dim{color:#8a8a8a}.pd .b.dim svg{opacity:.55}
@@ -1395,7 +1398,7 @@ function mount(root,opts={}){
     if(a.type==='tx'){updTx(el,a);return;}
     el.replaceWith(mkAnn(a));
   }
-  function showTab(n){$$('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===n));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==n);}
+  function showTab(n){const rc=pd.classList.contains('rc');$$('.tab[data-tab]').forEach(x=>x.classList.toggle('on',!rc&&x.dataset.tab===n));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==n);}
   const HEX=v=>/^#[0-9a-f]{6}$/i.test(v||'')?v.toLowerCase():null;
   const clampN=(v,a,b)=>Math.max(a,Math.min(b,+v));
   function ppTargets(){const ed=editId&&annots.find(a=>a.id===editId);return ed?[ed]:selA().filter(a=>a.type!=='tb');}
@@ -2257,7 +2260,11 @@ function mount(root,opts={}){
     if(!e.target.closest('.menu')&&!e.target.closest('[data-a=menu]'))menu.hidden=true;
     if(dd){if(was!==dd)openDD(dd);return;}
     const t=e.target.closest('[data-tab]');
-    if(t){if(!t.classList.contains('ctx'))lastMain=t.dataset.tab;showTab(t.dataset.tab);return;}
+    if(t){
+      const small=matchMedia('(max-width:700px),(max-height:500px)').matches;
+      if(small&&t.classList.contains('on')&&!pd.classList.contains('rc')){pd.classList.add('rc');t.classList.remove('on');return;}  /* ketuk tab aktif = ciutkan pita */
+      pd.classList.remove('rc');
+      if(!t.classList.contains('ctx'))lastMain=t.dataset.tab;showTab(t.dataset.tab);return;}
     const tb=e.target.closest('[data-t]');
     if(tb){setTool(tool===tb.dataset.t&&tb.dataset.t!=='select'?'select':tb.dataset.t);return;}
     const b=e.target.closest('[data-a]');
@@ -2283,7 +2290,7 @@ function mount(root,opts={}){
     else if(e.key==='PageDown')acts.next();else if(e.key==='PageUp')acts.prev();
   });
   if(window.ResizeObserver){let rt=0;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!root.isConnected||!pages.length||!autoFit)return;const v=Math.max(10,Math.min(100,fitW()));if(v!==zoom)setZoom(v,false);},80);}).observe(desk);}
-  if(matchMedia('(max-width:700px)').matches){$$('.tab[data-tab]').forEach(x=>x.classList.remove('on'));$$('[data-pane]').forEach(p=>p.hidden=true);}
+  if(matchMedia('(max-width:700px),(max-height:500px)').matches){pd.classList.add('rc');$$('.tab[data-tab]').forEach(x=>x.classList.remove('on'));}
 
   drawFavs();setTool('select');btns();
   (async()=>{
