@@ -182,6 +182,43 @@ const CSS=`
 .wd .spi:hover{background:#e6f1fb}.wd .spi.on{background:#cde6f7}
 .wd .spi button{background:none;border:0;cursor:pointer}
 @media print{body *{visibility:hidden}.wd .paper,.wd .paper *{visibility:visible}.wd .cm{display:none}.wd .paper{position:absolute;left:0;top:0;border:0;zoom:1!important}}
+/* ===== Label teks di ribbon, ikon SVG, popup tabel ===== */
+.wd .b .lbl{display:block;font-size:11px;line-height:1.15;white-space:nowrap;text-align:center}
+.wd .b .lbl .ar{margin-left:2px}
+.wd .b.big{justify-content:flex-start;padding:3px 5px 0}
+.wd .b.big em{display:grid;place-items:center;height:30px;font-size:inherit}
+.wd .b.big .ic{width:28px;height:28px}
+.wd .b.rw,.wd .b.sm{justify-content:flex-start;gap:5px;padding:0 6px;height:20px}
+.wd .b.rw .ic,.wd .b.sm .ic{width:16px;height:16px}
+.wd .b.rw em,.wd .b.sm em{display:grid;place-items:center}
+.wd .rows>.ddw{display:flex}.wd .rows>.ddw>.b{flex:1}
+.wd .clr .lbl2{font-size:11px;padding:0 3px;white-space:nowrap}
+.wd .clr.big{flex-direction:column;justify-content:flex-start;height:62px;min-width:48px;gap:3px;padding:3px 5px 0}
+.wd .clr.big>span:first-child{display:grid;place-items:center;padding:0 2px 1px}
+.wd .clr.big .ic{width:26px;height:26px}
+.wd .rows>.clr{justify-content:flex-start;height:20px;gap:4px;padding:0 6px}
+.wd .rows>.clr .ic{width:16px;height:16px}
+.wd .nlt{font-size:11px;color:#444;white-space:nowrap}
+.wd .qat .ic{width:16px;height:16px;display:block;margin:auto}
+.wd .menu button{display:flex;align-items:center;gap:12px}
+.wd .menu .ic{width:20px;height:20px;flex:none}
+.wd .status .ic{width:15px;height:15px;display:block;margin:auto}
+.wd .tbg{padding:6px 8px 4px}
+.wd .tbg .lb{margin:0 0 5px;text-align:center;color:#555;min-height:16px}
+.wd .tbg .gr{display:grid;grid-template-columns:repeat(10,18px);gap:2px}
+.wd .tbg .gr i{width:18px;height:18px;border:1px solid #aaa;background:#fff;display:block}
+.wd .tbg .gr i.on{background:#cde6f7;border-color:#2b579a}
+.wd .wpop hr{border:0;border-top:1px solid #ddd;margin:3px 0}
+.wd .db label{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.wd .db label input[type=text]{width:72px}
+@media (pointer:coarse){
+ .wd .b.big .ic,.wd .clr.big .ic{width:30px;height:30px}
+ .wd .b.big em{height:32px}
+ .wd .b.rw,.wd .b.sm,.wd .rows>.clr{height:24px}
+ .wd .clr.big{height:78px}
+ .wd .qat .ic{width:18px;height:18px}
+ .wd .tbg .gr{grid-template-columns:repeat(10,26px)}.wd .tbg .gr i{width:26px;height:26px}
+}
 `;
 
 const FONTS=['Calibri','Arial','Times New Roman','Cambria','Georgia','Verdana','Courier New','Segoe UI','Tahoma','Trebuchet MS'];
@@ -227,69 +264,163 @@ const DDI={
  rot:ICS('<path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/>'),
  addtxt:ICS('<path d="M4 6h10M4 12h10M4 18h6M18 9v8M14 13h8"/>')
 };
+/* ===== Ikon SVG gaya Word 2013 (garis abu-abu + aksen biru Word) ===== */
+const WB='#2b579a';
+const ICX=(x,y,fs,t,o)=>{o=o||{};return `<text x="${x}" y="${y}" font-size="${fs}"${o.w?` font-weight="${o.w}"`:''}${o.i?' font-style="italic"':''} text-anchor="middle" fill="${o.f||'currentColor'}" stroke="none" font-family="${o.ff||'Arial,sans-serif'}">${t}</text>`;};
+const WM={
+ mnew:ICS(ICPG+'<path d="M12 9v6M9 12h6"/>'),
+ mopen:ICS('<path d="M3.5 7h6l2 2h9v10h-17z"/>'),
+ msave:ICS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6"/>'),
+ mprint:ICS('<rect x="6.5" y="3.5" width="11" height="5"/><rect x="3.5" y="8.5" width="17" height="8" rx="1"/><rect x="6.5" y="14" width="11" height="6.5"/>'),
+ mback:ICS('<path d="M20 12H5M10 6l-6 6 6 6"/>'),
+ edit:ICS('<rect x="5" y="3.5" width="14" height="17"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
+ read:ICS('<path d="M3 6c3-1 6-1 9 1.5 3-2.5 6-2.5 9-1.5v12c-3-1-6-1-9 1.5C9 17 6 17 3 18z"/><path d="M12 7.5v12"/>')
+};
+const WI={
+ paste:ICS('<rect x="4.5" y="5" width="11" height="14.5" rx="1.2"/><rect x="7.5" y="3" width="5" height="3.6" rx=".8" fill="#fff"/><rect x="10.5" y="9.5" width="9.5" height="11.5" rx="1" fill="#fff" stroke="'+WB+'"/><path d="M12.8 13.5h5M12.8 16.5h5" stroke="'+WB+'"/>'),
+ cut:ICS('<circle cx="7" cy="17.5" r="2.6"/><circle cx="17" cy="17.5" r="2.6"/><path d="M8.7 15.4L16 3.5M15.3 15.4L8 3.5"/>'),
+ copy:ICS('<rect x="8.5" y="8.5" width="11.5" height="12" rx="1" fill="#fff"/><path d="M15.5 8.5v-4a1 1 0 0 0-1-1h-9.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h3.5"/>'),
+ painter:ICS('<rect x="4" y="3.5" width="12" height="5" rx="1" fill="#ffd966" stroke="#8a6d00"/><path d="M16 6h3.2v5.5H11V14"/><rect x="9" y="14" width="4" height="7" rx="1.2" fill="#fff"/>'),
+ grow:ICS('<path d="M3 19L8.5 5l5.5 14M5 14.5h7"/><path d="M18 11V4M15.2 6.8L18 4l2.8 2.8" stroke="'+WB+'"/>'),
+ shrink:ICS('<path d="M3 19L8 7l5 12M4.8 15h6.4"/><path d="M18 4v7M15.2 8.2L18 11l2.8-2.8" stroke="'+WB+'"/>'),
+ clear:ICS('<path d="M3 19L8 6l5 13M5 14.5h6"/><path d="M12.5 20.5h8M13 20.5l-2.8-2.8a1.4 1.4 0 0 1 0-2l5.5-5.5a1.4 1.4 0 0 1 2 0l3 3a1.4 1.4 0 0 1 0 2l-5.2 5.3" stroke="#c0455e" fill="#f9d3da"/>'),
+ bold:ICS(ICX(12,18,18,'B',{w:700})),
+ italic:ICS(ICX(12,18,18,'I',{i:1,ff:'Georgia,serif'})),
+ underline:ICS(ICX(12,16.5,16,'U',{w:700})+'<path d="M6 21h12"/>'),
+ strike:ICS(ICX(12,16,11,'abc')+'<path d="M3.5 12.5h17" stroke="'+WB+'"/>'),
+ sub:ICS(ICX(7,15,12,'x',{w:700})+ICX(17,21,9,'2',{w:700,f:WB})),
+ sup:ICS(ICX(7,19,12,'x',{w:700})+ICX(17,10,9,'2',{w:700,f:WB})),
+ hilite:ICS('<path d="M14.5 3.5l6 6-9 9-4.2.4-.4-4.2z" fill="#fff"/><path d="M5 20.5h6"/>'),
+ fcolor:ICS(ICX(12,17,18,'A',{w:700})),
+ ul:ICS('<circle cx="5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="17.5" r="1.5" fill="currentColor" stroke="none"/><path d="M10 6.5h10M10 12h10M10 17.5h10"/>'),
+ ol:ICS(ICX(5,8.8,6.5,'1',{w:700,f:WB})+ICX(5,14.3,6.5,'2',{w:700,f:WB})+ICX(5,19.8,6.5,'3',{w:700,f:WB})+'<path d="M10 6.5h10M10 12h10M10 17.5h10"/>'),
+ outd:ICS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M8 9.2L4.2 12 8 14.8z" fill="'+WB+'" stroke="'+WB+'"/>'),
+ ind:ICS('<path d="M4 4.5h16M11 9.5h9M11 14.5h9M4 19.5h16"/><path d="M4 9.2L7.8 12 4 14.8z" fill="'+WB+'" stroke="'+WB+'"/>'),
+ marks:ICS(ICX(12,19,19,'¶',{f:WB})),
+ shade:ICS('<path d="M4.5 11.5l6.5-6.5 7 7-6.5 6.5z" fill="#fff"/><path d="M19.8 14.6c1.2 1.6 1.7 2.5 1.7 3.2a1.7 1.7 0 0 1-3.4 0c0-.7.5-1.6 1.7-3.2z" fill="'+WB+'" stroke="none"/>'),
+ find:ICS('<circle cx="10" cy="10" r="5.8"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/>'),
+ repl:ICS('<path d="M4 7h11M12 4l3 3-3 3" stroke="'+WB+'"/><path d="M20 17H9M12 14l-3 3 3 3"/>'),
+ sall:ICS('<rect x="3.5" y="3.5" width="12" height="12" stroke-dasharray="2.4 1.8"/><path d="M11 11l9 3-4 1.5L14 20z" fill="#fff" stroke="'+WB+'"/>'),
+ pgbrk:ICS('<path d="M6 3h12v7H6zM6 14h12v7H6z"/><path d="M2.5 12h3M9 12h2M13 12h2M18.5 12h3" stroke="'+WB+'"/>'),
+ table:ICS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><rect x="3.5" y="5" width="17" height="4.5" fill="#bcd0ec"/><path d="M3.5 9.5h17M3.5 14.2h17M9.2 5v14M14.8 5v14"/><rect x="3.5" y="5" width="17" height="14" stroke="'+WB+'"/>'),
+ image:ICS('<rect x="3.5" y="4.5" width="17" height="15" rx="1" fill="#fff"/><circle cx="9" cy="9.5" r="1.8" fill="#f2b01e" stroke="none"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="#2b8a3e"/>'),
+ link:ICS('<path d="M10 14a3.5 3.5 0 0 0 5 0l3.5-3.5a3.5 3.5 0 0 0-5-5L12 7" stroke="'+WB+'"/><path d="M14 10a3.5 3.5 0 0 0-5 0L5.5 13.5a3.5 3.5 0 0 0 5 5L12 17" stroke="'+WB+'"/>'),
+ hr:ICS('<path d="M4 12h16" stroke-width="2.4"/><path d="M4 6.5h16M4 17.5h16" stroke-dasharray="2 2" stroke-width="1.2"/>'),
+ date:ICS('<rect x="3.5" y="5" width="14" height="14" rx="1.2" fill="#fff"/><path d="M3.5 9h14M7.5 3.5v3M13.5 3.5v3"/><circle cx="17" cy="17" r="4.5" fill="#fff" stroke="'+WB+'"/><path d="M17 14.5V17l1.8 1.2" stroke="'+WB+'"/>'),
+ toc:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 7.5h8" stroke="'+WB+'" stroke-width="2.2"/><path d="M8 11.5h8M8 15h8M8 18h5"/>'),
+ fn:ICS(ICX(8,17,12,'ab',{w:700})+ICX(17.5,10.5,9,'1',{w:700,f:WB})),
+ en:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 7.5h8M8 11h8"/><path d="M8 17h8" stroke="'+WB+'"/>'),
+ nfn:ICS(ICX(8,15,12,'ab',{w:700})+ICX(17,9,9,'1',{w:700,f:WB})+'<path d="M17 14v6M14.5 17.5L17 20l2.5-2.5" stroke="'+WB+'"/>'),
+ snotes:ICS('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8" stroke="'+WB+'"/>'),
+ cite:ICS('<path d="M6 7h5v5c0 3-1.8 5-4.5 6M14 7h5v5c0 3-1.8 5-4.5 6" stroke="'+WB+'"/>'),
+ src:ICS('<rect x="4" y="4" width="4.5" height="16" rx=".8"/><rect x="9.5" y="6" width="4.5" height="14" rx=".8" stroke="'+WB+'"/><path d="M15.5 7l4.2 1.1-3.3 12.4-4.2-1.1z"/>'),
+ bib:ICS('<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/>'),
+ cap:ICS('<rect x="3.5" y="4" width="17" height="11" rx="1" fill="#fff"/><path d="M3.5 13l4.5-4.5 3.5 3.5 3-3 6 6"/><circle cx="16.5" cy="7.8" r="1.4" fill="#f2b01e" stroke="none"/><path d="M6 19h12" stroke="'+WB+'" stroke-width="2"/>'),
+ tof:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><rect x="7" y="6" width="5" height="4" stroke="'+WB+'"/><path d="M14 7h3M14 9.5h3M7 13.5h10M7 17h10"/>'),
+ xref:ICS('<path d="M4 6h9M4 11h6M4 16h9"/><path d="M14.5 13.5l5.5 5.5M20 14v5h-5" stroke="'+WB+'"/>'),
+ mxe:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 8h8M8 12h4"/><path d="M15.5 14.5v6M12.5 17.5h6" stroke="'+WB+'" stroke-width="2"/>'),
+ idx:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 7.5h3M13 7.5h3M8 11.5h3M13 11.5h3M8 15.5h3M13 15.5h3" /><path d="M12 5v14" stroke="'+WB+'"/>'),
+ mta:ICS('<path d="M12 4v15M7 20h10M5 7h14"/><path d="M5 7l-2.5 6a3 3 0 0 0 5 0zM19 7l-2.5 6a3 3 0 0 0 5 0z"/>'),
+ toa:ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M8 7.5h8M8 11.5h8M8 15.5h5" /><path d="M16 14v5M13.5 16.5h5" stroke="'+WB+'"/>'),
+ upd:ICS('<path d="M19.5 12a7.5 7.5 0 1 1-2.5-5.6" stroke="'+WB+'"/><path d="M19.5 4.5v4.5h-4.5" stroke="'+WB+'"/>'),
+ spell:ICS(ICX(9,11,9,'ABC',{w:700})+'<path d="M5.5 16.5l4 4 10-10" stroke="'+WB+'" stroke-width="2.2"/>'),
+ wc:ICS(ICX(11,10,8.5,'ABC',{w:700})+ICX(11,19,8.5,'123',{w:700,f:WB})),
+ read:WM.read,
+ ruler:ICS('<rect x="2.5" y="8" width="19" height="8" fill="#fff"/><path d="M6 8v3.5M9.5 8v5M13 8v3.5M16.5 8v5"/>'),
+ zin:ICS('<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/><path d="M7.3 10h5.4M10 7.3v5.4" stroke="'+WB+'"/>'),
+ zout:ICS('<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/><path d="M7.3 10h5.4" stroke="'+WB+'"/>'),
+ z100:ICS('<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/>'+ICX(10,12.2,6,'1:1',{w:700,f:WB})),
+ zfit:ICS('<path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><path d="M8 12h8M10 10l-2 2 2 2M14 10l2 2-2 2" stroke="'+WB+'"/>'),
+ save:ICS('<path d="M4.5 4.5h12l3 3v12h-15z"/><rect x="7.5" y="4.5" width="7" height="5"/><rect x="7.5" y="13.5" width="9" height="6" stroke="'+WB+'"/>'),
+ undo:ICS('<path d="M9 6L4.5 10.5 9 15"/><path d="M4.5 10.5H15a5 5 0 0 1 0 10h-3"/>'),
+ redo:ICS('<path d="M15 6l4.5 4.5L15 15"/><path d="M19.5 10.5H9a5 5 0 0 0 0 10h3"/>'),
+ selp:ICS('<rect x="3.5" y="4" width="11" height="8" fill="#fff"/><rect x="9.5" y="11" width="11" height="8" fill="#cfe0f5" stroke="'+WB+'"/>'),
+ fwd:ICS('<rect x="3.5" y="9.5" width="11" height="11" fill="#fff"/><rect x="9.5" y="3.5" width="11" height="11" fill="#cfe0f5" stroke="'+WB+'"/>'),
+ bwd:ICS('<rect x="9.5" y="3.5" width="11" height="11" fill="#fff"/><rect x="3.5" y="9.5" width="11" height="11" fill="#cfe0f5" stroke="'+WB+'"/>'),
+ bsq:ICS('<rect x="4.5" y="4.5" width="15" height="15"/>'),
+ chk:ICS('<path d="M5 12.5l4.5 4.5L19 7" stroke="'+WB+'" stroke-width="2"/>')
+};
 const VALDD=new Set(['font','size','cstyle']);
 const WPAL=[['#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff'],['#980000','#ff0000','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff'],['#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc'],['#dd7e6b','#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd'],['#a61c00','#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3c78d8','#3d85c6','#674ea7','#a64d79']];
-const B=(ic,tip,a,m)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m==='big'?`<span>${tip}</span>`:''}</button>`;
-const S=(n,o,w,tip,r)=>{const op=o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join(''),v=VALDD.has(n);
-  return `<span class="ddw"><select data-s="${n}" title="${tip||''}"${r?' data-r':''} hidden>${op}</select><button class="b dd${v?' vl':''}" data-dd="${n}" title="${tip||''}"${v?` style="width:${w}px"`:''}>${v?'<span class="v"></span>':`<em>${DDI[n]||''}</em>`}<i class="ar">▾</i></button></span>`;};
-const C=(n,v,t,ic)=>`<span class="clr" data-cp="${n}" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"><i class="ar">▾</i></span>`;
+const B=(ic,tip,a,m,lab)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m==='big'||m==='rw'?`<span class="lbl">${lab||tip}</span>`:''}</button>`;
+/* S(nama,opsi,lebar,tooltip,reset,label,mode): label tampil di samping ikon (kecil) atau di bawah ikon (mode 'big') */
+const S=(n,o,w,tip,r,lab,m)=>{const op=o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join(''),v=VALDD.has(n);
+  const cls=v?' vl':m==='big'?' big':lab?' sm':'';
+  const inner=v?'<span class="v"></span><i class="ar">▾</i>':m==='big'?`<em>${DDI[n]||''}</em><span class="lbl">${lab||''}<i class="ar">▾</i></span>`:`<em>${DDI[n]||''}</em>${lab?`<span class="lbl">${lab}</span>`:''}<i class="ar">▾</i>`;
+  return `<span class="ddw"><select data-s="${n}" title="${tip||''}"${r?' data-r':''} hidden>${op}</select><button class="b dd${cls}" data-dd="${n}" title="${tip||''}"${v?` style="width:${w}px"`:''}>${inner}</button></span>`;};
+const C=(n,v,t,ic,lab)=>`<span class="clr" data-cp="${n}" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}">${lab?`<span class="lbl2">${lab}</span>`:''}<i class="ar">▾</i></span>`;
+const CB=(n,v,t,ic,lab)=>`<span class="clr big" data-cp="${n}" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"><span class="lbl">${lab}<i class="ar">▾</i></span></span>`;
 const G=(n,h)=>`<div class="grp"><div class="gb">${h}</div><div class="gn">${n}</div></div>`;
 const R2=(a,b)=>`<div class="rows"><div class="row">${a}</div><div class="row">${b}</div></div>`;
 const AL=t=>{const w=[14,9,14,9],x=i=>t==='L'||t==='J'?0:t==='C'?(14-w[i])/2:14-w[i];if(t==='J')w.fill(14);return `<svg width="16" height="14">${w.map((v,i)=>`<rect x="${1+x(i)}" y="${1+i*3.5}" width="${v}" height="1.6" fill="#444"/>`).join('')}</svg>`;};
 
-const N=(n,v,t,st,l)=>`<label class="nl" title="${t}">${l}<input type="number" data-s="${n}" value="${v}" step="${st}"><small>${(t.match(/\((\w+)\)/)||[])[1]||''}</small></label>`;
+const N=(n,v,t,st,l,lab)=>`<label class="nl" title="${t}">${l}${lab?`<span class="nlt">${lab}</span>`:''}<input type="number" data-s="${n}" value="${v}" step="${st}"><small>${(t.match(/\((\w+)\)/)||[])[1]||''}</small></label>`;
 const RIB={
 home:
- G('Papan klip',B('📋','Tempel','paste','big')+`<div class="rows">${B('✂','Potong','cut','rw')}${B('⎘','Salin','copy','rw')}${B('🖌','Kuas Format','painter','rw')}</div>`)+
+ G('Papan klip',B(WI.paste,'Tempel','paste','big')+`<div class="rows">${B(WI.cut,'Potong','cut','rw')}${B(WI.copy,'Salin','copy','rw')}${B(WI.painter,'Kuas Format','painter','rw')}</div>`)+
  G('Font',R2(
-  S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B('A⁺','Perbesar font','grow')+B('A⁻','Perkecil font','shrink')+
-  S('case',[['','Aa'],['upper','HURUF BESAR'],['lower','huruf kecil'],['title','Kapital Tiap Kata']],50,'Ubah huruf besar/kecil',1)+B('🧽','Hapus semua format','removeFormat'),
-  B('<b>B</b>','Tebal (Ctrl+B)','bold')+B('<i>I</i>','Miring (Ctrl+I)','italic')+B('<u>U</u>','Garis bawah (Ctrl+U)','underline')+B('<s>abc</s>','Coret','strikeThrough')+
-  B('x₂','Subskrip','subscript')+B('x²','Superskrip','superscript')+C('hilite','#ffff00','Warna sorot teks','🖍')+C('color','#ff0000','Warna font','<b>A</b>')))+
+  S('font',FONTS,128,'Font')+S('size',SIZES,48,'Ukuran font')+B(WI.grow,'Perbesar font','grow')+B(WI.shrink,'Perkecil font','shrink')+
+  S('case',[['','Aa'],['upper','HURUF BESAR'],['lower','huruf kecil'],['title','Kapital Tiap Kata']],50,'Ubah huruf besar/kecil',1)+B(WI.clear,'Hapus semua format','removeFormat'),
+  B(WI.bold,'Tebal (Ctrl+B)','bold')+B(WI.italic,'Miring (Ctrl+I)','italic')+B(WI.underline,'Garis bawah (Ctrl+U)','underline')+B(WI.strike,'Coret','strikeThrough')+
+  B(WI.sub,'Subskrip','subscript')+B(WI.sup,'Superskrip','superscript')+C('hilite','#ffff00','Warna sorot teks',WI.hilite)+C('color','#ff0000','Warna font',WI.fcolor)))+
  G('Paragraf',R2(
-  B('•≡','Poin','insertUnorderedList')+B('1≡','Penomoran','insertOrderedList')+B('⇤','Kurangi indentasi','outdent')+B('⇥','Tambah indentasi','indent')+B('¶','Tampilkan/sembunyikan ¶','marks'),
+  B(WI.ul,'Poin','insertUnorderedList')+B(WI.ol,'Penomoran','insertOrderedList')+B(WI.outd,'Kurangi indentasi','outdent')+B(WI.ind,'Tambah indentasi','indent')+B(WI.marks,'Tampilkan/sembunyikan ¶','marks'),
   B(AL('L'),'Rata kiri (Ctrl+L)','justifyLeft')+B(AL('C'),'Tengah (Ctrl+E)','justifyCenter')+B(AL('R'),'Rata kanan (Ctrl+R)','justifyRight')+B(AL('J'),'Rata kiri-kanan (Ctrl+J)','justifyFull')+
-  S('lh',[['','↕ Spasi'],['1','1,0'],['1.15','1,15'],['1.5','1,5'],['2','2,0'],['3','3,0']],64,'Spasi baris',1)+C('shade','#d9d9d9','Pengarsiran paragraf','▧')))+
+  S('lh',[['','↕ Spasi'],['1','1,0'],['1.15','1,15'],['1.5','1,5'],['2','2,0'],['3','3,0']],64,'Spasi baris',1)+C('shade','#d9d9d9','Pengarsiran paragraf',WI.shade)))+
  G('Gaya',`<div class="gal">${STY.map((s,i)=>`<button class="sty" data-a="style:${i}"><span class="${s[2]||(s[1]==='h1'?'g1':s[1]==='h2'?'g2':'')}">AaBbCcDd</span><small>${s[0]}</small></button>`).join('')}</div>`)+
- G('Penyuntingan',`<div class="rows">${B('🔍','Cari','find','rw')}${B(ICS('<path d="M4 7h11M12 4l3 3-3 3M20 17H9M12 14l-3 3 3 3"/>'),'Ganti','replace','rw')}${B('⬚','Pilih semua','selectAll','rw')}</div>`),
+ G('Penyuntingan',`<div class="rows">${B(WI.find,'Cari','find','rw')}${B(WI.repl,'Ganti','replace','rw')}${B(WI.sall,'Pilih semua','selectAll','rw')}</div>`),
 insert:
- G('Halaman',B('⤓','Pemisah halaman','pagebreak','big'))+G('Tabel',B('▦','Tabel','table','big'))+
- G('Ilustrasi',B('🖼','Gambar','image','big'))+G('Tautan',B('🔗','Tautan','link','big'))+
- G('Simbol',B('―','Garis horizontal','insertHorizontalRule','big')+S('sym',[['','Ω Simbol'],'©','®','™','°','±','×','÷','€','£','→','←','✓'],80,'Sisipkan simbol',1))+
- G('Teks',B('📅','Tanggal & waktu','date','big'))+
- G('Header & Footer',R2(S('hdrs',[['','Header ▾'],['blank','Header kosong'],['title','Judul dokumen'],['three','Tiga kolom'],['rm','Hapus header']],118,'Header',1)+S('ftrs',[['','Footer ▾'],['blank','Footer kosong'],['title','Judul dokumen'],['three','Tiga kolom'],['rm','Hapus footer']],118,'Footer',1),
-  S('pnum',[['','Nomor Halaman ▾'],['bc','Bawah – tengah'],['br','Bawah – kanan'],['bl','Bawah – kiri'],['tr','Atas – kanan'],['pc','Halaman X dari Y'],['rm','Hapus nomor halaman']],140,'Nomor halaman',1))),
+ G('Halaman',B(WI.pgbrk,'Pemisah halaman','pagebreak','big','Pemisah<br>Halaman'))+G('Tabel',B(WI.table,'Tabel','table','big'))+
+ G('Ilustrasi',B(WI.image,'Gambar','image','big'))+G('Tautan',B(WI.link,'Tautan','link','big'))+
+ G('Simbol',B(WI.hr,'Garis horizontal','insertHorizontalRule','big','Garis<br>Horizontal')+S('sym',[['','Ω Simbol'],'©','®','™','°','±','×','÷','€','£','→','←','✓'],80,'Sisipkan simbol',1,'Simbol','big'))+
+ G('Teks',B(WI.date,'Tanggal & waktu','date','big','Tanggal &<br>Waktu'))+
+ G('Header & Footer',`<div class="rows">${
+  S('hdrs',[['','Header ▾'],['blank','Header kosong'],['title','Judul dokumen'],['three','Tiga kolom'],['rm','Hapus header']],118,'Header',1,'Header')+
+  S('ftrs',[['','Footer ▾'],['blank','Footer kosong'],['title','Judul dokumen'],['three','Tiga kolom'],['rm','Hapus footer']],118,'Footer',1,'Footer')+
+  S('pnum',[['','Nomor Halaman ▾'],['bc','Bawah – tengah'],['br','Bawah – kanan'],['bl','Bawah – kiri'],['tr','Atas – kanan'],['pc','Halaman X dari Y'],['rm','Hapus nomor halaman']],140,'Nomor halaman',1,'Nomor Halaman')}</div>`),
 design:
- G('Pemformatan dokumen',R2(
-  S('thm',[['','Tema: Office'],['ion','Tema: Ion'],['facet','Tema: Facet'],['retro','Tema: Retrospect'],['serif','Tema: Serif'],['mono','Tema: Mono']],110,'Tema')+
-  S('hcol',[['#2f5496','Warna: Biru'],['#385723','Warna: Hijau'],['#c00000','Warna: Merah'],['#c55a11','Warna: Oranye'],['#7030a0','Warna: Ungu'],['#7f7f7f','Warna: Abu-abu'],['#000000','Warna: Hitam']],110,'Warna tema'),
-  S('fpair',[['Calibri Light|Calibri','Font: Office'],['Arial|Arial','Font: Arial'],['Cambria|Calibri','Font: Cambria-Calibri'],['Georgia|Verdana','Font: Georgia-Verdana'],['Times New Roman|Times New Roman','Font: Times New Roman'],['Trebuchet MS|Segoe UI','Font: Trebuchet-Segoe']],110,'Font tema')+
-  S('pspace',[['','Spasi: Default'],['none','Tanpa spasi'],['compact','Kompak'],['tight','Ketat'],['open','Terbuka'],['relaxed','Santai'],['double','Dobel']],110,'Spasi paragraf')))+
- G('Efek',`<div class="rows">${S('fx',[['','Efek: Tanpa'],['fx1','Efek: Bayangan'],['fx2','Efek: Garis bawah']],110,'Efek judul')}${B('✔','Atur sebagai default','setdef','rw')}</div>`)+
- G('Latar halaman',R2(
-  S('wmk',[['','Watermark: Tanpa'],['DRAF','DRAF'],['RAHASIA','RAHASIA'],['CONTOH','CONTOH'],['JANGAN DISALIN','JANGAN DISALIN'],['*','Kustom…']],118,'Watermark')+C('pagecolor','#ffffff','Warna halaman','🎨'),
-  S('bsty',[['','Batas: Tanpa'],['solid','Garis'],['double','Ganda'],['dashed','Putus-putus'],['groove','Alur']],100,'Batas halaman')+S('bw',[['1','1 px'],['2','2 px'],['4','4 px'],['6','6 px']],54,'Tebal batas')+C('bcol','#2b579a','Warna batas','▢'))),
+ G('Pemformatan dokumen',
+  S('thm',[['','Tema: Office'],['ion','Tema: Ion'],['facet','Tema: Facet'],['retro','Tema: Retrospect'],['serif','Tema: Serif'],['mono','Tema: Mono']],110,'Tema',0,'Tema','big')+
+  S('hcol',[['#2f5496','Warna: Biru'],['#385723','Warna: Hijau'],['#c00000','Warna: Merah'],['#c55a11','Warna: Oranye'],['#7030a0','Warna: Ungu'],['#7f7f7f','Warna: Abu-abu'],['#000000','Warna: Hitam']],110,'Warna tema',0,'Warna','big')+
+  S('fpair',[['Calibri Light|Calibri','Font: Office'],['Arial|Arial','Font: Arial'],['Cambria|Calibri','Font: Cambria-Calibri'],['Georgia|Verdana','Font: Georgia-Verdana'],['Times New Roman|Times New Roman','Font: Times New Roman'],['Trebuchet MS|Segoe UI','Font: Trebuchet-Segoe']],110,'Font tema',0,'Font','big')+
+  S('pspace',[['','Spasi: Default'],['none','Tanpa spasi'],['compact','Kompak'],['tight','Ketat'],['open','Terbuka'],['relaxed','Santai'],['double','Dobel']],110,'Spasi paragraf',0,'Spasi<br>Paragraf','big'))+
+ G('Efek',S('fx',[['','Efek: Tanpa'],['fx1','Efek: Bayangan'],['fx2','Efek: Garis bawah']],110,'Efek judul',0,'Efek','big')+`<div class="rows">${B(WI.chk,'Atur sebagai default','setdef','rw','Atur default')}</div>`)+
+ G('Latar halaman',
+  S('wmk',[['','Watermark: Tanpa'],['DRAF','DRAF'],['RAHASIA','RAHASIA'],['CONTOH','CONTOH'],['JANGAN DISALIN','JANGAN DISALIN'],['*','Kustom…']],118,'Watermark',0,'Watermark','big')+
+  CB('pagecolor','#ffffff','Warna halaman',ICS('<rect x="4.5" y="3" width="15" height="18" rx="1.5" fill="#fff"/><path d="M4.5 12.5l7-7M4.5 17l11.5-11.5M9 21l10.5-10.5" stroke="#9db7dd"/>'),'Warna<br>Halaman')+
+  S('bsty',[['','Batas: Tanpa'],['solid','Garis'],['double','Ganda'],['dashed','Putus-putus'],['groove','Alur']],100,'Batas halaman',0,'Batas<br>Halaman','big')+
+  `<div class="rows">${S('bw',[['1','1 px'],['2','2 px'],['4','4 px'],['6','6 px']],54,'Tebal batas',0,'Tebal Batas')}${C('bcol','#2b579a','Warna batas',WI.bsq,'Warna Batas')}</div>`),
 layout:
- G('Penataan halaman',R2(
-  S('margin',[['normal','Margin: Normal'],['narrow','Margin: Sempit'],['moderate','Margin: Sedang'],['wide','Margin: Lebar']],120,'Margin')+S('orient',[['p','Tegak'],['l','Mendatar']],80,'Orientasi')+S('pgsize',[['a4','A4'],['letter','Letter'],['legal','Legal']],70,'Ukuran kertas')+S('cols',[['1','1 Kolom'],['2','2 Kolom'],['3','3 Kolom']],90,'Kolom'),
-  S('dir',[['ltr','Arah: Kiri-Kanan'],['rtl','Arah: Kanan-Kiri']],120,'Arah teks')+S('brk',[['','Pemisah…'],['p','Halaman'],['c','Kolom']],90,'Pemisah',1)+S('ln',[['','Nomor baris: Tidak'],['1','Nomor baris: Kontinu']],130,'Nomor baris')+S('hyph',[['','Tanpa tanda hubung'],['1','Hubung otomatis']],120,'Pemenggalan kata')))+
- G('Paragraf',R2(N('indl',0,'Indentasi kiri (cm)','0.5',ICS('<path d="M4 4h16M10 9h10M10 14h10M4 19h16M4 9l4 2.5L4 14z"/>'))+N('indr',0,'Indentasi kanan (cm)','0.5',ICS('<path d="M4 4h16M4 9h10M4 14h10M4 19h16M20 9l-4 2.5 4 2.5z"/>')),N('spb',0,'Spasi sebelum (pt)','6',ICS('<path d="M5 4h14M12 20V8M8.5 11.5L12 8l3.5 3.5"/>'))+N('spa',8,'Spasi sesudah (pt)','6',ICS('<path d="M5 20h14M12 4v12M8.5 12.5L12 16l3.5-3.5"/>'))))+
- G('Susun (pilih gambar/tabel)',R2(
-  S('pos',[['','Posisi'],['i','Sebaris'],['l','Kiri (membungkus)'],['c','Tengah'],['r','Kanan (membungkus)']],118,'Posisi objek',1)+S('wrap',[['','Bungkus Teks'],['in','Sebaris dengan teks'],['sq','Persegi'],['tb','Atas dan bawah']],118,'Bungkus teks',1)+B('▲','Majukan','fwd')+B('▼','Mundurkan','bwd'),
-  B('☰','Panel Seleksi','selpane')+S('algn',[['','Rata'],['l','Kiri'],['c','Tengah'],['r','Kanan']],70,'Ratakan objek / paragraf',1)+S('rot',[['','Putar'],['cw','Kanan 90°'],['ccw','Kiri 90°'],['fh','Balik horizontal'],['fv','Balik vertikal']],90,'Putar objek',1))),
+ G('Penataan halaman',
+  S('margin',[['normal','Margin: Normal'],['narrow','Margin: Sempit'],['moderate','Margin: Sedang'],['wide','Margin: Lebar']],120,'Margin',0,'Margin','big')+
+  S('orient',[['p','Tegak'],['l','Mendatar']],80,'Orientasi',0,'Orientasi','big')+
+  S('pgsize',[['a4','A4'],['letter','Letter'],['legal','Legal']],70,'Ukuran kertas',0,'Ukuran','big')+
+  S('cols',[['1','1 Kolom'],['2','2 Kolom'],['3','3 Kolom']],90,'Kolom',0,'Kolom','big')+
+  S('dir',[['ltr','Arah: Kiri-Kanan'],['rtl','Arah: Kanan-Kiri']],120,'Arah teks',0,'Arah<br>Teks','big')+
+  `<div class="rows">${
+   S('brk',[['','Pemisah…'],['p','Halaman'],['c','Kolom']],90,'Pemisah',1,'Pemisah')+
+   S('ln',[['','Nomor baris: Tidak'],['1','Nomor baris: Kontinu']],130,'Nomor baris',0,'Nomor Baris')+
+   S('hyph',[['','Tanpa tanda hubung'],['1','Hubung otomatis']],120,'Pemenggalan kata',0,'Pemenggalan')}</div>`)+
+ G('Paragraf',R2(N('indl',0,'Indentasi kiri (cm)','0.5',ICS('<path d="M4 4h16M10 9h10M10 14h10M4 19h16M4 9l4 2.5L4 14z"/>'),'Kiri')+N('indr',0,'Indentasi kanan (cm)','0.5',ICS('<path d="M4 4h16M4 9h10M4 14h10M4 19h16M20 9l-4 2.5 4 2.5z"/>'),'Kanan'),N('spb',0,'Spasi sebelum (pt)','6',ICS('<path d="M5 4h14M12 20V8M8.5 11.5L12 8l3.5 3.5"/>'),'Sebelum')+N('spa',8,'Spasi sesudah (pt)','6',ICS('<path d="M5 20h14M12 4v12M8.5 12.5L12 16l3.5-3.5"/>'),'Sesudah')))+
+ G('Susun (pilih gambar/tabel)',
+  S('pos',[['','Posisi'],['i','Sebaris'],['l','Kiri (membungkus)'],['c','Tengah'],['r','Kanan (membungkus)']],118,'Posisi objek',1,'Posisi','big')+
+  S('wrap',[['','Bungkus Teks'],['in','Sebaris dengan teks'],['sq','Persegi'],['tb','Atas dan bawah']],118,'Bungkus teks',1,'Bungkus<br>Teks','big')+
+  B(WI.fwd,'Majukan','fwd','big')+B(WI.bwd,'Mundurkan','bwd','big')+B(WI.selp,'Panel Seleksi','selpane','big','Panel<br>Seleksi')+
+  S('algn',[['','Rata'],['l','Kiri'],['c','Tengah'],['r','Kanan']],70,'Ratakan objek / paragraf',1,'Ratakan','big')+
+  S('rot',[['','Putar'],['cw','Kanan 90°'],['ccw','Kiri 90°'],['fh','Balik horizontal'],['fv','Balik vertikal']],90,'Putar objek',1,'Putar','big')),
 ref:
- G('Daftar isi',B('📑','Daftar isi','toc','big')+`<div class="rows">${S('addtxt',[['','Tambah Teks'],['h1','Level 1'],['h2','Level 2'],['h3','Level 3'],['p','Tidak ditampilkan']],96,'Tambah Teks',1)}${B('⟳','Perbarui Tabel','tocup','rw')}</div>`)+
- G('Catatan kaki',B('ab¹','Sisipkan catatan kaki','footnote','big')+`<div class="rows">${B('ⅰ','Sisipkan catatan akhir','endnote','rw')}${B('↓','Catatan kaki berikutnya','nextfn','rw')}${B('👁','Tampilkan catatan','shownotes','rw')}</div>`)+
- G('Kutipan & Daftar Pustaka',B('❝','Sisipkan kutipan','cite','big')+`<div class="rows">${B('📚','Kelola sumber','sources','rw')}<div class="row"><em class="ri" title="Gaya sitasi">${ICS('<path d="M7 7h4v4c0 3-1.5 5-4 6M15 7h4v4c0 3-1.5 5-4 6"/>')}</em>${S('cstyle',['APA','MLA','Chicago','IEEE'],70,'Gaya sitasi')}</div>${B('📖','Daftar pustaka','bib','rw')}</div>`)+
- G('Keterangan',B('🏷','Sisipkan keterangan','caption','big')+`<div class="rows">${B('▤','Sisipkan tabel gambar','tof','rw')}${B('⟳','Perbarui tabel','capup','rw')}${B('⌗','Referensi silang','xref','rw')}</div>`)+
- G('Indeks',B('✚','Tandai entri','markxe','big')+`<div class="rows">${B('☷','Sisipkan indeks','idx','rw')}${B('⟳','Perbarui indeks','idxup','rw')}</div>`)+
- G('Daftar kutipan hukum',B('⚖','Tandai kutipan','markta','big')+`<div class="rows">${B('☷','Sisipkan daftar kutipan','toa','rw')}${B('⟳','Perbarui tabel','toaup','rw')}</div>`),
+ G('Daftar isi',B(WI.toc,'Daftar isi','toc','big')+`<div class="rows">${S('addtxt',[['','Tambah Teks'],['h1','Level 1'],['h2','Level 2'],['h3','Level 3'],['p','Tidak ditampilkan']],96,'Tambah Teks',1,'Tambah Teks')}${B(WI.upd,'Perbarui Tabel','tocup','rw')}</div>`)+
+ G('Catatan kaki',B(WI.fn,'Sisipkan catatan kaki','footnote','big','Sisipkan<br>Catatan Kaki')+`<div class="rows">${B(WI.en,'Sisipkan catatan akhir','endnote','rw','Catatan Akhir')}${B(WI.nfn,'Catatan kaki berikutnya','nextfn','rw','Catatan Berikutnya')}${B(WI.snotes,'Tampilkan catatan','shownotes','rw','Tampilkan Catatan')}</div>`)+
+ G('Kutipan & Daftar Pustaka',B(WI.cite,'Sisipkan kutipan','cite','big','Sisipkan<br>Kutipan')+`<div class="rows">${B(WI.src,'Kelola sumber','sources','rw','Kelola Sumber')}<div class="row" style="height:22px"><em class="ri" title="Gaya sitasi">${ICS('<path d="M7 7h4v4c0 3-1.5 5-4 6M15 7h4v4c0 3-1.5 5-4 6"/>')}</em><span class="nlt">Gaya:</span>${S('cstyle',['APA','MLA','Chicago','IEEE'],70,'Gaya sitasi')}</div>${B(WI.bib,'Daftar pustaka','bib','rw','Daftar Pustaka')}</div>`)+
+ G('Keterangan',B(WI.cap,'Sisipkan keterangan','caption','big','Sisipkan<br>Keterangan')+`<div class="rows">${B(WI.tof,'Sisipkan tabel gambar','tof','rw','Tabel Gambar')}${B(WI.upd,'Perbarui tabel','capup','rw','Perbarui Tabel')}${B(WI.xref,'Referensi silang','xref','rw','Referensi Silang')}</div>`)+
+ G('Indeks',B(WI.mxe,'Tandai entri','markxe','big','Tandai<br>Entri')+`<div class="rows">${B(WI.idx,'Sisipkan indeks','idx','rw','Sisipkan Indeks')}${B(WI.upd,'Perbarui indeks','idxup','rw','Perbarui Indeks')}</div>`)+
+ G('Daftar kutipan hukum',B(WI.mta,'Tandai kutipan','markta','big','Tandai<br>Kutipan')+`<div class="rows">${B(WI.toa,'Sisipkan daftar kutipan','toa','rw','Sisipkan Daftar')}${B(WI.upd,'Perbarui tabel','toaup','rw','Perbarui Tabel')}</div>`),
 
 review:
- G('Pemeriksaan',B('✔','Ejaan','spell','big')+B('123','Hitung kata','wordcount','big'))+G('Mode',B('📖','Mode baca','read','big')),
+ G('Pemeriksaan',B(WI.spell,'Ejaan','spell','big')+B(WI.wc,'Hitung kata','wordcount','big','Hitung<br>Kata'))+G('Mode',B(WI.read,'Mode baca','read','big')),
 view:
- G('Tampilan',B('📖','Mode baca','read','big'))+G('Tampilkan',B('📏','Penggaris','ruler','big')+B('¶','Tanda paragraf','marks','big'))+
- G('Zoom',B('🔍','100%','zoom:100','big')+B('🔎','75%','zoom:75','big')+B('🔬','150%','zoom:150','big')+B('↔','Lebar halaman','zoom:fit','big'))
+ G('Tampilan',B(WI.read,'Mode baca','read','big'))+G('Tampilkan',B(WI.ruler,'Penggaris','ruler','big')+B(WI.marks,'Tanda paragraf','marks','big','Tanda<br>Paragraf'))+
+ G('Zoom',B(WI.z100,'100%','zoom:100','big')+B(WI.zout,'75%','zoom:75','big')+B(WI.zin,'150%','zoom:150','big')+B(WI.zfit,'Lebar halaman','zoom:fit','big','Lebar<br>Halaman'))
 };
 
 function mount(root,opts={}){
@@ -297,7 +428,7 @@ function mount(root,opts={}){
   let name='Dokumen1.docx',zoom=100,lastRange=null,painting=null,autoFit=true;
   const cfg={size:'a4',land:false,m:[...MG.normal],cols:1};
   root.innerHTML=`<div class="wd">
-    <div class="qat"><div class="l"><span class="w">W</span><button data-a="save" title="Simpan (Ctrl+S)">💾</button><button data-a="undo" title="Urungkan (Ctrl+Z)">↶</button><button data-a="redo" title="Ulangi (Ctrl+Y)">↷</button></div><span class="fn"></span></div>
+    <div class="qat"><div class="l"><span class="w">W</span><button data-a="save" title="Simpan (Ctrl+S)">${WI.save}</button><button data-a="undo" title="Urungkan (Ctrl+Z)">${WI.undo}</button><button data-a="redo" title="Ulangi (Ctrl+Y)">${WI.redo}</button></div><span class="fn"></span></div>
     <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div>
     ${TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${RIB[t[0]]}</div>`).join('')}
     <div class="rbar"><div class="ruler"></div></div>
@@ -307,12 +438,12 @@ function mount(root,opts={}){
       <div class="fb"><button data-a="fnext">Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti semua</button><button data-a="fclose">Tutup</button></div></div>
     <div class="sp" hidden></div>
     <div class="status"><div class="s"><span class="pg">Halaman 1 dari 1</span><span class="wc">0 kata</span><span>Bahasa Indonesia</span></div>
-      <div class="s"><button class="on" data-a="edit" data-m="edit" title="Mode edit (tata letak cetak)">▭</button><button data-a="read" data-m="read" title="Mode baca">📖</button>
+      <div class="s"><button class="on" data-a="edit" data-m="edit" title="Mode edit (tata letak cetak)">${WM.edit}</button><button data-a="read" data-m="read" title="Mode baca">${WM.read}</button>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="20" max="200" value="100" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">100%</span></span></div></div>
     <div class="menu" hidden>
-      <button data-a="new">📄  Dokumen kosong baru</button><button data-a="open">📂  Buka…</button>
-      <button data-a="save">💾  Simpan sebagai .docx</button><button data-a="print">🖨  Cetak / simpan PDF</button>
-      <hr><button data-a="home">⬅  Kembali ke menu utama</button></div>
+      <button data-a="new">${WM.mnew}<span>Dokumen kosong baru</span></button><button data-a="open">${WM.mopen}<span>Buka…</span></button>
+      <button data-a="save">${WM.msave}<span>Simpan sebagai .docx</span></button><button data-a="print">${WM.mprint}<span>Cetak / simpan PDF</span></button>
+      <hr><button data-a="home">${WM.mback}<span>Kembali ke menu utama</span></button></div>
     <input type="file" class="fin" accept=".docx,.html,.htm,.txt" hidden><input type="file" class="img" accept="image/*" hidden>
   </div>`;
 
@@ -688,6 +819,33 @@ function bib(){
 
   /* aksi */
   const showFind=()=>{fd.hidden=false;f1.focus();f1.select();};
+  /* tabel: grid pemilih + dialog (sama seperti PowerPoint) */
+  function insertTable(r,c){
+    r=Math.max(1,Math.min(100,r|0));c=Math.max(1,Math.min(20,c|0));
+    const before=new Set(page.querySelectorAll('table'));
+    exec('insertHTML','<table style="width:100%;table-layout:fixed">'+('<tr>'+'<td><br></td>'.repeat(c)+'</tr>').repeat(r)+'</table><p><br></p>');
+    const t=[...page.querySelectorAll('table')].find(x=>!before.has(x)),td=t&&t.querySelector('td');
+    if(td){const rg=document.createRange();rg.selectNodeContents(td);rg.collapse(true);const g=getSelection();g.removeAllRanges();g.addRange(rg);}
+  }
+  function tablePicker(){
+    const a=curAnchor;if(!a)return;let g='';
+    for(let i=0;i<80;i++)g+=`<i data-r="${Math.floor(i/10)+1}" data-c="${i%10+1}"></i>`;
+    openWP(a,`<div class="tbg"><div class="lb">Sisipkan Tabel</div><div class="gr">${g}</div></div><hr><div class="mi" data-tb="dlg"><span>${WI.table.replace('class="ic"','class="ic" style="width:16px;height:16px"')} Sisipkan Tabel…</span></div>`,e=>{
+      const i=e.target.closest('i[data-r]');if(i){closeWP();insertTable(+i.dataset.r,+i.dataset.c);return;}
+      if(e.target.closest('[data-tb]')){closeWP();tableDlg();}});
+    if(!wp||wp._o!==a)return;
+    const cells=[...wp.querySelectorAll('i[data-r]')],lb=wp.querySelector('.lb');
+    const hov=e=>{const i=e.target.closest('i[data-r]');if(!i)return;const r=+i.dataset.r,c=+i.dataset.c;
+      cells.forEach(x=>x.classList.toggle('on',+x.dataset.r<=r&&+x.dataset.c<=c));lb.textContent=c+' x '+r+' Tabel';};
+    wp.addEventListener('mouseover',hov);wp.addEventListener('pointerdown',hov);
+  }
+  function tableDlg(){
+    const d=dlg('Sisipkan Tabel','<label>Jumlah kolom (1–20): <input type="text" inputmode="numeric" class="tc" value="5"></label><label>Jumlah baris (1–100): <input type="text" inputmode="numeric" class="tr" value="4"></label>',d=>{
+      const c=parseInt(d.querySelector('.tc').value,10),r=parseInt(d.querySelector('.tr').value,10);
+      if(!(c>=1&&r>=1)){toast('Masukkan angka yang valid');return false;}insertTable(r,c);});
+    d.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();d.querySelector('.ok').click();}else if(e.key==='Escape')d.remove();});
+    const f=d.querySelector('.tc');f.focus();f.select();
+  }
   const acts={
     menu(){menu.hidden=!menu.hidden;},
     new(){setName('Dokumen1.docx');hdr=ftr='';setContent('');focus();},
@@ -705,8 +863,7 @@ function bib(){
     frep(){const s=getSelection();if(s.toString().toLowerCase()===f1.value.toLowerCase()&&page.contains(s.anchorNode)){focus();document.execCommand('insertText',false,f2.value);}findNext();},
     frall:replaceAll,
     pagebreak(){exec('insertHTML','<div class="pb" style="page-break-after:always;border-top:1px dashed #999;text-align:center;color:#999;font-size:9pt" contenteditable="false">Pemisah halaman</div><p><br></p>');},
-    table(){const r=parseInt(prompt('Jumlah baris','3')),c=parseInt(prompt('Jumlah kolom','3'));if(!r||!c)return;
-      exec('insertHTML','<table>'+('<tr>'+'<td><br></td>'.repeat(c)+'</tr>').repeat(r)+'</table><p><br></p>');},
+    table:tablePicker,
     image(){$('.img').click();},
     link(){const u=prompt('Alamat tautan (URL)','https://');if(u)exec('createLink',u);},
     date(){exec('insertText',new Date().toLocaleString('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}));},
