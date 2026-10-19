@@ -74,3 +74,21 @@ cd android && ./gradlew assembleDebug
 ```
 
 Ubah `appId` / nama aplikasi di `capacitor.config.json` dan `android/app/build.gradle` bila perlu.
+
+## Menu "Format" kontekstual di Excel
+
+Seperti *Format Tabel/Gambar/Garis* di Word, Excel kini punya tab oranye yang muncul otomatis saat objek di lembar dipilih
+(dan kembali ke tab sebelumnya saat objek tidak lagi dipilih):
+
+| Objek terpilih | Tab | Fitur utama |
+|---|---|---|
+| Gambar | FORMAT GAMBAR | kecerahan, kontras, efek warna, gaya cepat, garis tepi, sudut membulat, bayangan, ukuran (cm), kunci rasio, skala %, ukuran asli, atur ulang |
+| Bentuk / Kotak Teks | FORMAT BENTUK | ubah jenis bentuk, gaya cepat, isi, garis tepi (warna/tebal/jenis), opasitas, bayangan, font teks, rata teks |
+| Bagan | FORMAT BAGAN | pilih data, tukar baris/kolom, jenis, skema warna, judul, judul sumbu, legenda, label data, garis kisi, latar & tepi |
+| Sel ber-sparkline | FORMAT SPARKLINE | jenis, titik tertinggi/terendah/negatif, penanda, sumbu, warna, tebal, edit data |
+
+Semua tab objek juga punya: ukuran & rotasi, **Pas ke Sel**, **Pindah ke Sel…**, susunan (majukan/mundurkan/ratakan/putar),
+Panel Seleksi, nama objek, teks alternatif, gandakan, dan hapus. Perubahan berlaku ke semua objek yang dipilih (Shift+klik) dan bisa di-*Undo*.
+
+Catatan: gambar dengan efek/bingkai, bagan, bentuk, kotak teks, dan sparkline hanya tersimpan penuh di sesi aplikasi; saat disimpan ke `.xlsx`
+hanya gambar (tanpa efek/bingkai) yang ikut tersimpan.
