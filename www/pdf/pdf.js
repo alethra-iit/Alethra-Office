@@ -953,7 +953,7 @@ const XI={
       <div class="s"><span><button data-a="zout">−</button><input type="range" min="10" max="400" value="100" class="zs"><button data-a="zin">+</button> <span class="zv">100%</span></span></div></div>
     <div class="menu" hidden>
       <button data-a="blank">${XI.mnew}<span>New blank PDF</span></button><button data-a="open">${XI.mopen}<span>Open…</span></button>
-      <button data-a="save">${XI.msave}<span>Save as .pdf</span></button><button data-a="print">${XI.mprint}<span>Print</span></button>
+      <button data-a="save">${XI.msave}<span>Simpan</span></button><button data-a="save" data-saveas="1">${XI.msave}<span>Simpan Sebagai…</span></button><button data-a="print">${XI.mprint}<span>Print</span></button>
       <hr><button data-a="home">${XI.mback}<span>Back to main menu</span></button><div class="ofl"></div></div>
   </div>`;
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
@@ -962,6 +962,7 @@ const XI={
   const note=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;pd.appendChild(t);return{set:x=>t.textContent=x,end:()=>t.remove()};};
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const setName=n=>{name=n;$('.fn').textContent=n+' - PDF';document.title=$('.fn').textContent;};
+  window.addEventListener('office:renamed',function f(e){if(!root.isConnected){removeEventListener('office:renamed',f);return;}const d=e.detail||{};if(d.from===name)setName(d.to);});
   const base=()=>name.replace(/\.pdf$/i,'');
   const dl=(blob,fn)=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);};
   const pickFiles=(accept,multi)=>new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept=accept;i.multiple=!!multi;i.onchange=()=>res([...i.files]);i.oncancel=()=>res([]);i.click();});

@@ -119,3 +119,11 @@ tetapi tidak memindahkan tab Beranda saat Anda mengetik.
 
 Catatan penyimpanan `.pptx`: efek gambar (kecerahan, kontras, efek warna, pangkas, sudut, garis tepi, balik) "dipanggang" ke dalam gambar;
 opasitas gambar/isian tersimpan; opsi media dan bayangan/efek bentuk khusus tersimpan penuh hanya di sesi aplikasi.
+
+## Nama berkas saat menyimpan
+
+- **Simpan pertama** dokumen baru (Word, Excel, PowerPoint, PDF) kini menampilkan dialog **"Simpan sebagai"** untuk mengisi nama
+  (ekstensi otomatis). Judul dokumen ikut berubah ke nama yang dipilih.
+- Menu **Berkas** punya dua tombol: **Simpan** (menimpa berkas yang sama tanpa bertanya) dan **Simpan Sebagai…** (selalu minta nama baru,
+  hasilnya berkas baru di folder Download; simpan berikutnya menimpa berkas baru itu).
+- Berkas yang dibuka dari daftar tetap ditimpa di lokasi aslinya. Jika nama sudah dipakai, Android menambahkan `(1)` agar tidak menimpa berkas lain.

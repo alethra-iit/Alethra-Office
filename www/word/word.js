@@ -531,7 +531,7 @@ function mount(root,opts={}){
       <span><button data-a="zoomd:-10">−</button><input type="range" min="20" max="200" value="100" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">100%</span></span></div></div>
     <div class="menu" hidden>
       <button data-a="new">${WM.mnew}<span>Dokumen kosong baru</span></button><button data-a="open">${WM.mopen}<span>Buka…</span></button>
-      <button data-a="save">${WM.msave}<span>Simpan sebagai .docx</span></button><button data-a="print">${WM.mprint}<span>Cetak / simpan PDF</span></button>
+      <button data-a="save">${WM.msave}<span>Simpan</span></button><button data-a="save" data-saveas="1">${WM.msave}<span>Simpan Sebagai…</span></button><button data-a="print">${WM.mprint}<span>Cetak / simpan PDF</span></button>
       <hr><button data-a="home">${WM.mback}<span>Kembali ke menu utama</span></button></div>
     <input type="file" class="fin" accept=".docx,.html,.htm,.txt" hidden><input type="file" class="img" accept="image/*" hidden>
   </div>`;
@@ -540,6 +540,7 @@ function mount(root,opts={}){
   const page=$('.page'),paper=$('.paper'),ruler=$('.ruler'),sheet=$('.wsheet'),menu=$('.menu'),fin=$('.fin'),fd=$('.find');
   const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;$('.wd').appendChild(t);setTimeout(()=>t.remove(),3000);};
   const setName=n=>{name=n;$('.fn').textContent=n.replace(/\.docx$/i,'')+' - Word';document.title=$('.fn').textContent;};
+  window.addEventListener('office:renamed',function f(e){if(!root.isConnected){removeEventListener('office:renamed',f);return;}const d=e.detail||{};if(d.from===name)setName(d.to);});
   const dims=()=>{const[w,h]=SZ[cfg.size];return cfg.land?[h,w]:[w,h];};
 
   /* seleksi & perintah */

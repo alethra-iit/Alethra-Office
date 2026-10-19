@@ -950,13 +950,14 @@ function mount(root,opts={}){
       <button data-a="vnormal" class="on vb" title="Normal">${PX.sb_normal}</button><button data-a="vsorter" class="vb" title="Penyortir Slide">${PX.sb_sorter}</button><button data-a="show" title="Slide Show">${PX.sb_show}</button>
       <span><button data-a="zoomd:-10">−</button><input type="range" min="10" max="200" value="80" class="zr"><button data-a="zoomd:10">+</button> <span class="zv">80%</span> <button data-a="fit" title="Sesuaikan ke jendela">${PX.sb_fit}</button></span></div></div>
     <input type="file" class="fin" accept=".pptx" hidden>
-    <div class="menu" hidden><button data-a="new">${PX.mnew}<span>Presentasi kosong baru</span></button><button data-a="open">${PX.mopen}<span>Buka…</span></button><button data-a="save">${PX.msave}<span>Simpan sebagai .pptx</span></button><button data-a="print">${PX.mprint}<span>Cetak / simpan PDF</span></button><hr><button data-a="home">${PX.mback}<span>Kembali ke menu utama</span></button></div>
+    <div class="menu" hidden><button data-a="new">${PX.mnew}<span>Presentasi kosong baru</span></button><button data-a="open">${PX.mopen}<span>Buka…</span></button><button data-a="save">${PX.msave}<span>Simpan</span></button><button data-a="save" data-saveas="1">${PX.msave}<span>Simpan Sebagai…</span></button><button data-a="print">${PX.mprint}<span>Cetak / simpan PDF</span></button><hr><button data-a="home">${PX.mback}<span>Kembali ke menu utama</span></button></div>
   </div>`;
 
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
   const pp=$('.pp'),stg=$('.stg'),hold=$('.holder'),desk=$('.desk'),notes=$('.notes'),thumbsEl=$('.thumbs'),sorter=$('.sorter'),fm=$('.menu'),fd=$('.find'),f1=$('.f1'),f2=$('.f2'),zr=$('.zr'),zv=$('.zv'),fin=$('.fin');
   const toast=(m,ms)=>{$$('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.textContent=m;pp.appendChild(t);setTimeout(()=>t.remove(),ms||3000);};
   const setName=()=>{$('.fn').textContent=name.replace(/\.pptx$/i,'')+' - PowerPoint';document.title=$('.fn').textContent;};
+  window.addEventListener('office:renamed',function f(e){if(!root.isConnected){removeEventListener('office:renamed',f);return;}const d=e.detail||{};if(d.from===name)(name=d.to,setName());});
   const S0=()=>slides[cur],objs=()=>S0().objs,byId=id=>objs().find(o=>o.id===id),selObjs=()=>sel.map(byId).filter(Boolean);
   const elOf=id=>stg.querySelector(`.ob[data-id="${id}"]`);
   const txOf=n=>{const e=n&&(n.nodeType===3?n.parentElement:n);const t=e&&e.closest&&e.closest('.tx');return t&&stg.contains(t)?t:null;};

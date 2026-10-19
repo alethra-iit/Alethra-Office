@@ -1507,7 +1507,7 @@ function mount(root,opts={}){
       <div class="fb"><button data-a="fnext">Cari Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti Semua</button><button data-a="fclose">Tutup</button></div></div>
     <div class="menu" hidden>
       <button data-a="new">${XI.mnew}<span>Buku kerja kosong baru</span></button><button data-a="open">${XI.mopen}<span>Buka…</span></button>
-      <button data-a="save">${XI.msave}<span>Simpan sebagai .xlsx</span></button><button data-a="savecsv">${XI.mcsv}<span>Simpan lembar sebagai .csv</span></button><button data-a="print">${XI.mprint}<span>Cetak / simpan PDF</span></button>
+      <button data-a="save">${XI.msave}<span>Simpan</span></button><button data-a="save" data-saveas="1">${XI.msave}<span>Simpan Sebagai…</span></button><button data-a="savecsv">${XI.mcsv}<span>Simpan lembar sebagai .csv</span></button><button data-a="print">${XI.mprint}<span>Cetak / simpan PDF</span></button>
       <hr><button data-a="home">${XI.mback}<span>Kembali ke menu utama</span></button></div>
     <input type="file" class="fin" accept=".xlsx,.csv,.tsv,.txt" hidden><input type="file" class="imgin" accept="image/*" hidden><input type="file" class="txtin" accept=".txt,.csv,.tsv,.prn" hidden><input type="file" class="bgin" accept="image/*" hidden>
   </div>`;
@@ -1527,6 +1527,7 @@ function mount(root,opts={}){
   const DF=()=>wb.font||'Calibri';
   const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;X.appendChild(t);setTimeout(()=>t.remove(),3200);};
   const setName=n=>{name=n;$('.fn').textContent=n.replace(/\.(xlsx|csv)$/i,'')+' - Excel';document.title=$('.fn').textContent;};
+  window.addEventListener('office:renamed',function f(e){if(!root.isConnected){removeEventListener('office:renamed',f);return;}const d=e.detail||{};if(d.from===name)setName(d.to);});
 
   const cellAt=(sh,r,c)=>sh.cells.get(key(r,c));
   const cellVal=(sh,r,c)=>rawVal(wb,sh,r,c);
