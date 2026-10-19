@@ -58,7 +58,7 @@ const CSS=`
 .wd .ruler b{position:absolute;top:3px;transform:translateX(-50%);font-weight:400}
 .wd .ruler .mk{position:absolute;top:12px;width:0;height:0;border:5px solid transparent;border-bottom:7px solid #777;cursor:ew-resize}
 .wd .desk{flex:1;overflow:auto;padding:12px 0 24px;background:linear-gradient(#f8f8f8,#ececec)}
-.wd .sheet{width:max-content;min-width:100%;display:flex;justify-content:center}
+.wd .wsheet{width:max-content;min-width:100%;display:flex;justify-content:center}
 .wd .paper{position:relative;background:#fff;border:1px solid #ababab;flex:none}
 .wd .paper.bd{outline-offset:-24px}
 .wd .paper.wm::after{content:var(--wmt,"DRAF");position:absolute;inset:0;display:grid;place-items:center;font:700 var(--wms,110px) Calibri,sans-serif;color:rgba(0,0,0,.08);transform:rotate(-45deg);pointer-events:none}
@@ -102,14 +102,14 @@ const CSS=`
 @media (max-width:700px){
  .wd .qat .fn{max-width:calc(100% - 150px)}
  .wd .menu{width:min(260px,86vw)}
- .wd .status .s{gap:10px}.wd .status .s>span:nth-child(3){display:none}.wd .zr{width:70px!important}
+ .wd .status .s{gap:10px}.wd .status{font-size:10px;white-space:nowrap}.wd .status .s{white-space:nowrap;flex:none}.wd .status .s:first-child>span:nth-child(n+2){display:none}.wd .zr{width:56px!important;vertical-align:middle}.wd .status button{width:26px}.wd .status .zv{display:inline-block;min-width:28px;text-align:right}
  .wd .find{left:8px;right:8px;top:auto;bottom:40px;grid-template-columns:auto 1fr}
  .wd .find .fb{flex-wrap:wrap}
  .wd .sp{right:8px;top:80px;width:min(220px,80vw)}
  .wd .desk{padding:8px 0 16px}
 }
 @media (max-height:500px){.wd .desk{padding:6px 0 12px}}
-@media print{.wd .hf{outline:none!important;background:none!important;color:#555!important}.wd .hf:empty::before{content:none!important}.wd .pgap{background:none!important}.wd .sheet{zoom:1!important}}
+@media print{.wd .hf{outline:none!important;background:none!important;color:#555!important}.wd .hf:empty::before{content:none!important}.wd .pgap{background:none!important}.wd .wsheet{zoom:1!important}}
 .wd .page p{margin:0 0 var(--ps,8pt)}
 .wd .page h1,.wd .g1{font:400 16pt var(--hf);color:var(--hc);margin:12pt 0 0}
 .wd .page h2,.wd .g2{font:400 13pt var(--hf);color:var(--hc);margin:2pt 0 0}
@@ -252,7 +252,7 @@ function mount(root,opts={}){
     <div class="tabs"><button class="tab file" data-a="menu">BERKAS</button>${TABS.map((t,i)=>`<button class="tab${i?'':' on'}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div>
     ${TABS.map((t,i)=>`<div class="ribbon" data-pane="${t[0]}"${i?' hidden':''}>${RIB[t[0]]}</div>`).join('')}
     <div class="rbar"><div class="ruler"></div></div>
-    <div class="desk"><div class="sheet"><div class="paper"><div class="hfl"></div>
+    <div class="desk"><div class="wsheet"><div class="paper"><div class="hfl"></div>
       <div class="page" contenteditable="true" spellcheck="true"></div></div></div></div>
     <div class="find" hidden><span>Cari:</span><input type="text" class="f1"><span>Ganti:</span><input type="text" class="f2">
       <div class="fb"><button data-a="fnext">Berikutnya</button><button data-a="frep">Ganti</button><button data-a="frall">Ganti semua</button><button data-a="fclose">Tutup</button></div></div>
@@ -268,7 +268,7 @@ function mount(root,opts={}){
   </div>`;
 
   const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
-  const page=$('.page'),paper=$('.paper'),ruler=$('.ruler'),sheet=$('.sheet'),menu=$('.menu'),fin=$('.fin'),fd=$('.find');
+  const page=$('.page'),paper=$('.paper'),ruler=$('.ruler'),sheet=$('.wsheet'),menu=$('.menu'),fin=$('.fin'),fd=$('.find');
   const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;$('.wd').appendChild(t);setTimeout(()=>t.remove(),3000);};
   const setName=n=>{name=n;$('.fn').textContent=n.replace(/\.docx$/i,'')+' - Word';document.title=$('.fn').textContent;};
   const dims=()=>{const[w,h]=SZ[cfg.size];return cfg.land?[h,w]:[w,h];};
