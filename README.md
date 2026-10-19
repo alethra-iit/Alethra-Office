@@ -17,21 +17,39 @@ APK juga otomatis dipublikasikan di tab **Releases** pada setiap push.
 
 | Path | Isi |
 |---|---|
-| `www/` | Aplikasi web (index.html, `word/`, `excel/`, `ppt/`, `pdf/`) |
+| `www/` | Aplikasi web: `index.html`, `shell.js/css` (Beranda & daftar berkas), editor `word/ excel/ ppt/ pdf/` |
 | `www/lib/` | Semua library pihak ketiga (lokal, untuk offline) |
-| `www/native-bridge.js` | Jembatan WebView: simpan berkas ke Download, cetak, tombol Back |
-| `android/` | Proyek Android (Capacitor) + plugin native `FileSaverPlugin.java` |
+| `www/native-bridge.js` | Jembatan WebView: simpan berkas, cetak, akses plugin native |
+| `android/` | Proyek Android (Capacitor) + plugin native `FilesPlugin.java` (daftar/kelola berkas) dan `FileSaverPlugin.java` (simpan/cetak) |
 | `scripts/vendor-libs.js` | Menyalin ulang library dari `node_modules` ke `www/lib` |
 | `.github/workflows/build-apk.yml` | Workflow build APK |
 
+## Tampilan & fitur
+
+- **Beranda**: tab *Semua dokumen*, *Terbaru*, *Favorit*, dan filter *Lokasi*; navigasi bawah Beranda / Word / Excel / PPoint / PDF.
+- **Tab Word / Excel / PPoint / PDF**: header kiri berisi tombol **Baru** (dokumen kosong) dan **Buka** (pemilih berkas),
+  menggantikan logo; di bawahnya daftar berkas jenis itu.
+- **Menu titik tiga** pada tiap berkas: Buka dengan..., Ubah Nama, Favorit, Buat jalan pintas, Bagikan,
+  Bagikan melalui Bluetooth, Simpan ke Google Drive, Hapus, Detail.
+- Ikon cari, urutkan (nama / tanggal / ukuran), dan info aplikasi di pojok kanan header.
+
+## Izin akses berkas
+
+Agar daftar dokumen di HP tampil, aplikasi meminta **"Akses semua berkas"** (Android 11+) saat pertama dibuka:
+tekan *Izinkan akses*, aktifkan toggle, lalu kembali ke aplikasi. (Android 10 ke bawah: izin penyimpanan biasa.)
+Aplikasi memindai `.docx`, `.xlsx`, `.pptx`, `.pdf` di penyimpanan internal (kecuali `Android/` dan folder tersembunyi).
+Izin ini cocok untuk sideload; Google Play membatasi izin tersebut.
+
 ## Perilaku khusus di Android
 
-- **Simpan** (`.docx`, `.xlsx`, `.pptx`, `.pdf`, ...) -> tersimpan otomatis di folder **Download** perangkat
-  (Android 9 ke bawah: `Android/data/com.office.offline/files/Download`).
+- **Simpan**: berkas yang dibuka dari daftar **ditimpa di lokasi aslinya** (tidak lagi muncul `(1)`, `(2)`);
+  dokumen baru disimpan ke folder **Download** dan simpan berikutnya menimpa berkas yang sama.
+  Tanpa izin akses berkas, penyimpanan memakai folder Download biasa.
+- **Buka dari aplikasi lain**: file manager / WhatsApp / dsb. bisa membuka `.docx/.xlsx/.pptx/.pdf` langsung di aplikasi ini.
 - **Cetak** membuka dialog cetak Android (pilih *Simpan sebagai PDF* untuk membuat PDF).
-- **Buka berkas** memakai pemilih berkas bawaan Android.
-- Fitur yang memang butuh internet (gambar dari URL, video YouTube, *Dari Web* di Excel, pencarian
-  Wikipedia/terjemahan di PowerPoint) hanya jalan saat HP online; sisanya offline penuh.
+- Tombol Back: dari tab jenis kembali ke Beranda; di dalam editor gunakan menu Berkas > Kembali ke menu utama.
+- Fitur yang memang butuh internet (gambar dari URL, video YouTube, *Dari Web* di Excel, pencarian Wikipedia/terjemahan
+  di PowerPoint) hanya jalan saat HP online; sisanya offline penuh.
 
 ## Update APK tanpa uninstall
 
