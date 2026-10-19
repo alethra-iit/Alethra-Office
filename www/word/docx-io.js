@@ -263,6 +263,16 @@ async function toBlob(c){
 
   /* --- tabel --- */
   const BD={style:X.BorderStyle.SINGLE,size:4,color:'000000'};
+  /* garis tepi sel dibaca dari gaya yang tampil (jenis, tebal, warna) */
+  function cellBorders(cl){
+    if(!cl.isConnected)return{top:BD,bottom:BD,left:BD,right:BD};
+    const cs=getComputedStyle(cl),one=s=>{
+      const st=cs['border'+s+'Style'],w=parseFloat(cs['border'+s+'Width'])||0;
+      if(st==='none'||st==='hidden'||w<=0)return{style:X.BorderStyle.NONE,size:0,color:'auto'};
+      const ty={dashed:X.BorderStyle.DASHED,dotted:X.BorderStyle.DOTTED,double:X.BorderStyle.DOUBLE}[st]||X.BorderStyle.SINGLE;
+      return{style:ty,size:Math.max(2,Math.min(96,Math.round(w*6))),color:hex(cs['border'+s+'Color'])||'000000'};};
+    return{top:one('Top'),bottom:one('Bottom'),left:one('Left'),right:one('Right')};
+  }
   function table(el,c0){
     const rows=[...el.rows];if(!rows.length)return new X.Paragraph({});
     const grid=rows.map(r=>[...r.cells]);
@@ -289,7 +299,7 @@ async function toBlob(c){
         const o={children:ch,width:{size:cw,type:X.WidthType.DXA},columnSpan:cl.colSpan>1?cl.colSpan:undefined,rowSpan:cl.rowSpan>1?cl.rowSpan:undefined,
           shading:bg?{type:X.ShadingType.CLEAR,fill:bg,color:'auto'}:undefined,
           verticalAlign:cl.style.verticalAlign==='middle'?X.VerticalAlign.CENTER:cl.style.verticalAlign==='bottom'?X.VerticalAlign.BOTTOM:X.VerticalAlign.TOP,
-          borders:{top:BD,bottom:BD,left:BD,right:BD}};
+          borders:cellBorders(cl)};
         return new X.TableCell(o);
       })
     });
@@ -298,6 +308,8 @@ async function toBlob(c){
     });
     const o={rows:trs,columnWidths:widths,width:{size:widths.reduce((a,b)=>a+b,0),type:X.WidthType.DXA},layout:X.TableLayoutType.FIXED};
     if(el.style.marginLeft==='auto'&&el.style.marginRight==='auto')o.alignment=X.AlignmentType.CENTER;
+    else if(el.style.marginLeft==='auto')o.alignment=X.AlignmentType.RIGHT;
+    else{const ind=len(el.style.marginLeft);if(ind>0)o.indent={size:Math.round(ind*TW),type:X.WidthType.DXA};}
     return new X.Table(o);
   }
 
