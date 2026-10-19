@@ -857,6 +857,10 @@ const CSS=`
 .xl .pop .mi .ar{position:absolute;right:8px;font-size:9px}
 .xl .pop .mi .ck{margin-left:auto;color:var(--g)}
 .xl .pop hr{border:0;border-top:1px solid #e1e1e1;margin:2px 0}
+.xl .ddw{display:inline-flex}.xl .ddw select{display:none}
+.xl .dd.vl{justify-content:space-between;padding:0 6px;border-color:#ababab;background:#fff;height:23px;min-width:0}
+.xl .dd.vl .v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xl .dd.vl .car{font-style:normal;font-size:8px;color:#666}
 .xl .pop .mh{padding:4px 8px;font-weight:600;color:var(--g);font-size:11px;background:#f3f3f3}
 .xl .pal{padding:6px 8px}
 .xl .pal .pr{display:flex;gap:2px;margin-bottom:2px}
@@ -934,7 +938,7 @@ const CSS=`
  .xl .qat{height:36px}.xl .qat button{width:28px;height:32px;font-size:16px}
  .xl .tabs{height:36px}.xl .tab{height:36px;padding:0 16px;font-size:13px}.xl .tab.on{height:37px}
  .xl .ribbon{height:112px}.xl .row{height:34px}.xl .b{min-width:34px;height:34px}.xl .b.rw{height:30px}.xl .b.big{height:84px}
- .xl select{height:34px;font-size:16px}.xl .fbar{height:36px}.xl .nb,.xl .fx{height:30px;font-size:16px}
+ .xl select{height:34px;font-size:16px}.xl .fbar{height:36px}.xl .nb,.xl .fx{height:30px;font-size:16px}.xl .dd.vl{height:34px}
  .xl .stbar{height:30px}.xl .shbar{height:34px}.xl .pop .mi{padding:10px 24px 10px 10px}
  .xl .menu{top:72px;bottom:30px}.xl .menu button{padding:16px 24px}
 }
@@ -951,7 +955,7 @@ const CSS=`
 /* ---------- pita ---------- */
 const TABS=[['home','BERANDA'],['insert','SISIPKAN'],['layout','TATA LETAK HALAMAN'],['formulas','RUMUS'],['data','DATA'],['review','TINJAU'],['view','TAMPILAN']];
 const B=(ic,tip,a,m,lab,dd)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m?`<span>${lab||tip}${dd?(m==='big'?'<br>▾':' ▾'):''}</span>`:''}${dd&&!m?'<i class="car">▾</i>':''}</button>`;
-const S=(n,o,w,tip)=>`<select data-s="${n}" title="${tip||''}" style="width:${w}px">${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select>`;
+const S=(n,o,w,tip)=>`<span class="ddw"><select data-s="${n}" title="${tip||''}">${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select><button class="b dd vl" data-a="dd:${n}" title="${tip||''}" style="width:${w}px"><span class="v"></span><i class="car">▾</i></button></span>`;
 const G=(n,h,l)=>`<div class="grp"><div class="gb">${h}</div><div class="gn">${n}</div>${l?`<button class="gl" data-a="fmtcells:${l}" title="Format Sel">↘</button>`:''}</div>`;
 const R2=(a,b)=>`<div class="rows"><div class="row">${a}</div><div class="row">${b}</div></div>`;
 const SPL=(ic,tip,a,ma,lab)=>`<div class="row"><button class="b rw" title="${tip}" data-a="${a}" style="flex:1"><em>${ic}</em><span>${lab||tip}</span></button><button class="b" title="${tip}" data-a="${ma}" style="min-width:16px;padding:0 2px"><i class="car">▾</i></button></div>`;
@@ -1013,7 +1017,7 @@ RIB.layout=
  G('Tema',B('Aa','Tema','m:themes','big','Tema',1)+`<div class="rows t3">${B('◍','Warna','m:tcolors','rw','Warna',1)}${B('A','Font','m:tfonts','rw','Font',1)}<button class="b rw" disabled title="Efek (belum tersedia)"><em>◉</em><span>Efek ▾</span></button></div>`)+
  G('Penyiapan Halaman',B('▭','Margin','m:margins','big','Margin',1)+B('⬒','Orientasi','m:orient2','big','Orientasi',1)+B('▯','Ukuran','m:psize','big','Ukuran',1)+B('▦','Area Cetak','m:parea','big','Area<br>Cetak',1)+BD('⇥','Sela')+B('🖼','Latar Belakang','bg','big','Latar<br>Belakang')+B('⊞','Judul Cetak','ptitles','big','Judul<br>Cetak'),'page')+
  G('Skala agar Muat',`<div class="rows t3"><div class="row"><span style="width:46px">Lebar:</span>${S('fitw',FITO,98)}</div><div class="row"><span style="width:46px">Tinggi:</span>${S('fith',FITO,98)}</div><div class="row"><span style="width:46px">Skala:</span><input type="number" data-s="scale" min="10" max="400" value="100" style="width:60px;height:23px;border:1px solid #ababab"> %</div></div>`,'page')+
- G('Opsi Lembar',`<div class="rows t3" style="min-width:72px"><div class="row"><b>Garis Kisi</b></div><div class="row"><label><input type="checkbox" data-s="gview"> Tampilan</label></div><div class="row"><label><input type="checkbox" data-s="gprint"> Cetak</label></div></div><div class="rows t3" style="min-width:72px"><div class="row"><b>Tajuk</b></div><div class="row"><label><input type="checkbox" data-s="hview"> Tampilan</label></div><div class="row"><label><input type="checkbox" data-s="hprint"> Cetak</label></div></div>`,'page')+
+ G('Opsi Lembar',B('▦','Garis Kisi','m:gridopt','big','Garis Kisi',1)+B('☰','Tajuk','m:headopt','big','Tajuk',1),'page')+
  G('Susun',B('⬆','Majukan','m:fwd','big','Majukan',1)+B('⬇','Mundurkan','m:back','big','Mundurkan',1)+B('▤','Panel Seleksi','selpane','big','Panel<br>Seleksi')+B('⇤','Ratakan','m:align','big','Ratakan',1)+BD('▣','Grup')+B('⟳','Putar','m:rot','big','Putar',1));
 
 const FNL=`SUM|mt|SUM(angka1; [angka2]; …)|Menjumlahkan semua angka dalam rentang sel.
@@ -1179,7 +1183,7 @@ RIB.review=
    `<div class="rows t3"><button class="b rw" disabled title="Lindungi dan Bagikan Buku Kerja (belum tersedia)"><em>🔒</em><span>Lindungi dan Bagikan Buku Kerja</span></button>${B('▦','Izinkan Pengguna Mengedit Rentang','allowr','rw','Izinkan Pengguna Mengedit Rentang')}${B('✎','Lacak Perubahan','m:track','rw','Lacak Perubahan',1)}</div>`);
 RIB.view=
  G('Tampilan Buku Kerja',B('▦','Normal','view:normal','big','Normal')+B('▥','Pratinjau Sela Halaman','view:pbp','big','Pratinjau<br>Sela Halaman')+B('▭','Tata Letak Halaman','view:plv','big','Tata Letak<br>Halaman')+B('👁','Tampilan Kustom','cviews','big','Tampilan<br>Kustom'))+
- G('Tampilkan',`<div class="rows t3" style="min-width:84px"><div class="row"><label style="opacity:.45"><input type="checkbox" disabled> Penggaris</label></div><div class="row"><label><input type="checkbox" data-s="gview"> Garis Kisi</label></div></div><div class="rows t3" style="min-width:96px"><div class="row"><label><input type="checkbox" data-s="fbar"> Bilah Rumus</label></div><div class="row"><label><input type="checkbox" data-s="hview"> Tajuk</label></div></div>`)+
+ G('Tampilkan',B('☑','Tampilkan','m:showopt','big','Tampilkan',1))+
  G('Zoom',B('🔍','Zoom','zoomdlg','big','Zoom')+B('100','Zoom 100%','zoom100','big','100%')+B('⊡','Zoom ke Seleksi','zoomsel','big','Zoom ke<br>Seleksi'))+
  G('Jendela',BD('▤','Jendela Baru','Jendela<br>Baru')+BD('▦','Susun Semua','Susun<br>Semua')+B('❄','Bekukan Panel','m:freeze','big','Bekukan<br>Panel',1)+
    `<div class="rows t3"><button class="b rw" disabled title="Pisahkan (belum tersedia)"><em>▭</em><span>Pisahkan</span></button><button class="b rw" disabled title="Sembunyikan (belum tersedia)"><em>▭</em><span>Sembunyikan</span></button><button class="b rw" disabled title="Tampilkan (belum tersedia)"><em>▭</em><span>Tampilkan</span></button></div><div class="rows t3"><button class="b rw" disabled title="Tampilan Berdampingan (belum tersedia)"><em>▥</em><span>Tampilan Berdampingan</span></button><button class="b rw" disabled title="Gulir Sinkron (belum tersedia)"><em>⇅</em><span>Gulir Sinkron</span></button><button class="b rw" disabled title="Setel Ulang Posisi Jendela (belum tersedia)"><em>▦</em><span>Setel Ulang Posisi Jendela</span></button></div>`+B('▤','Beralih Jendela','m:switchw','big','Beralih<br>Jendela',1))+
@@ -2208,7 +2212,7 @@ function mount(root,opts={}){
     pops.slice(level).forEach(p=>p.remove());pops.length=level;
     const el=document.createElement('div');el.className='pop';
     el.innerHTML=items.map((it,i)=>it.sep?'<hr>':it.h?`<div class="mh">${it.h}</div>`:it.html!==undefined?`<div data-i="${i}">${it.html}</div>`:
-      `<div class="mi${it.dis?' dis':''}" data-i="${i}"><i>${it.i||''}</i><span>${it.l}</span>${it.sub?'<span class="ar">▶</span>':''}${it.ck?'<span class="ck">✓</span>':''}</div>`).join('');
+      `<div class="mi${it.dis?' dis':''}" data-i="${i}"><i>${it.i||''}</i><span${it.st?` style="${it.st}"`:''}>${it.l}</span>${it.sub?'<span class="ar">▶</span>':''}${it.ck?'<span class="ck">✓</span>':''}</div>`).join('');
     X.appendChild(el);el._owner=owner;
     const xr=X.getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight;
     let L=x,T=y;
@@ -2926,6 +2930,9 @@ function mount(root,opts={}){
   const BI=(l,k,i)=>I(l,()=>borderKind(k),i);
   const rowOrCol=()=>{const g=rg();return {r:g.r2-g.r1+1,c:g.c2-g.c1+1};};
   const menus={
+    gridopt:()=>[{l:'Tampilan',ck:cur.grid!==false,a:()=>sels.gview(cur.grid===false)},{l:'Cetak',ck:!!cur.page.pg,a:()=>sels.gprint(!cur.page.pg)}],
+    headopt:()=>[{l:'Tampilan',ck:cur.head!==false,a:()=>sels.hview(cur.head===false)},{l:'Cetak',ck:!!cur.page.ph,a:()=>sels.hprint(!cur.page.ph)}],
+    showopt:()=>[{l:'Penggaris',dis:true},{l:'Garis Kisi',ck:cur.grid!==false,a:()=>sels.gview(cur.grid===false)},{l:'Bilah Rumus',ck:wb.fbar!==false,a:()=>sels.fbar(wb.fbar===false)},{l:'Tajuk',ck:cur.head!==false,a:()=>sels.hview(cur.head===false)}],
     paste:()=>[I('Tempel',()=>pasteMode('all'),'📋'),I('Nilai',()=>pasteMode('values'),'123'),I('Rumus',()=>pasteMode('formulas'),'ƒ'),I('Pemformatan',()=>pasteMode('formats'),'🖌'),I('Transpose',()=>pasteMode('transpose'),'⇄')].map(x=>({...x,dis:!clip&&x.l!=='Tempel'})),
     ul:()=>[I('Garis Bawah',()=>applyStyle({u:1}),'U'),I('Garis Bawah Ganda',()=>applyStyle({u:2}),'U̳'),I('Tanpa Garis Bawah',()=>applyStyle({u:null}),'')],
     border:()=>[{h:'Tepi'},BI('Tepi Bawah','bottom','▁'),BI('Tepi Atas','top','▔'),BI('Tepi Kiri','left','▏'),BI('Tepi Kanan','right','▕'),{sep:1},BI('Tanpa Tepi','none','☐'),BI('Semua Tepi','all','▦'),BI('Tepi Luar','outer','▢'),BI('Tepi Luar Tebal','thickOuter','■'),{sep:1},
@@ -4393,6 +4400,16 @@ function mount(root,opts={}){
     const done=()=>{removeEventListener('afterprint',done);p.remove();pst.remove();};addEventListener('afterprint',done);window.print();
   }
 
+  /* dropdown ribbon: label tombol selalu mengikuti <select> tersembunyi (kode mana pun yang mengubah .value / .selectedIndex) */
+  (function(){
+    const P=HTMLSelectElement.prototype,dv=Object.getOwnPropertyDescriptor(P,'value'),di=Object.getOwnPropertyDescriptor(P,'selectedIndex');
+    $$('.ddw select').forEach(sl=>{
+      const lab=()=>{const v=root.querySelector(`.dd[data-a="dd:${sl.dataset.s}"] .v`);if(v){const o=sl.options[sl.selectedIndex];v.textContent=o?o.text:'';}};
+      Object.defineProperty(sl,'value',{configurable:true,get(){return dv.get.call(sl);},set(x){dv.set.call(sl,x);lab();}});
+      Object.defineProperty(sl,'selectedIndex',{configurable:true,get(){return di.get.call(sl);},set(x){di.set.call(sl,x);lab();}});
+      sl.addEventListener('change',lab);lab();
+    });
+  })();
   /* ===== event ===== */
   root.addEventListener('mousedown',e=>{if(e.target.closest('.b,.tab,.stbar button,.gal button,.gmore button,.fb,.shbar button,.shadd')){e.preventDefault();}});
   root.addEventListener('click',e=>{
@@ -4406,6 +4423,8 @@ function mount(root,opts={}){
       $$('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t.dataset.tab);return;}
     const a=t.dataset.a;
     if(a.startsWith('m:')){const n=a.slice(2);if(menus[n])openMenu(t,menus[n]());return;}
+    if(a.startsWith('dd:')){const n=a.slice(3),sl=$(`[data-s=${n}]`);if(!sl)return;
+      openMenu(t,[...sl.options].map((o,i)=>({l:o.text,ck:i===sl.selectedIndex,st:n==='font'?`font-family:'${o.text}'`:'',a:()=>{sl.selectedIndex=i;sl.dispatchEvent(new Event('change',{bubbles:true}));}})));return;}
     const i=a.indexOf(':'),k=i<0?a:a.slice(0,i),v=i<0?undefined:a.slice(i+1);
     if(acts[k])acts[k](v);
     if(k!=='menu')menu.hidden=true;

@@ -60,7 +60,14 @@ const CSS=`
 .pp .clr{position:relative;width:26px;height:22px;display:grid;place-items:center;cursor:pointer}
 .pp .clr:hover{background:#fdeee8}
 .pp .clr span{padding:0 3px;line-height:1.1}
-.pp .clr input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pp .clr input{position:absolute;left:0;bottom:0;width:0;height:0;opacity:0;pointer-events:none;border:0;padding:0}
+.pp .ddw{display:inline-flex}.pp .ddw select,.pp .ddw input[type=checkbox]{display:none}
+.pp .dd.vl{justify-content:space-between;padding:0 6px;border-color:#ababab;background:#fff;height:22px;min-width:0}
+.pp .dd.vl .v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp .dd.vl .car{font-style:normal;font-size:8px;color:#666}
+.pp .pm.pal{padding:6px;min-width:0}.pp .pm .pr{display:flex;gap:3px;margin-bottom:3px}
+.pp .pm .sw{width:20px;height:20px;border:1px solid #bbb;cursor:pointer;display:inline-block}.pp .pm .sw:hover{outline:2px solid #c43e1c;outline-offset:1px}
+.pp .pm .mo{padding:6px 4px 2px;cursor:pointer;white-space:nowrap}.pp .pm .mo:hover{background:#fbe3da}
 .pp .clr.lb{width:112px;display:flex;align-items:center;justify-content:flex-start;gap:5px;padding:0 4px}
 .pp .shg{display:grid;grid-template-columns:repeat(6,24px);grid-auto-rows:22px;border:1px solid var(--ln);width:150px;height:70px;overflow:hidden;padding:1px}
 .pp .shg .b{min-width:0;width:24px;height:22px;padding:0}
@@ -135,7 +142,7 @@ const CSS=`
  .pp .qat{height:36px}.pp .qat button{width:28px;height:32px;font-size:16px}
  .pp .tabs{height:36px}.pp .tab{height:36px;padding:0 16px;font-size:13px}.pp .tab.on{height:37px}
  .pp .ribbon{height:148px}.pp .row{height:36px}.pp .b{min-width:34px;height:34px}.pp .b.rw{height:34px}
- .pp select{height:34px;font-size:16px}.pp .clr{height:34px;width:36px}.pp .clr.lb{width:120px}
+ .pp select{height:34px;font-size:16px}.pp .dd.vl{height:34px}.pp .pm .sw{width:28px;height:28px}.pp .clr{height:34px;width:36px}.pp .clr.lb{width:120px}
  .pp .shg{grid-template-columns:repeat(6,34px);grid-auto-rows:34px;width:210px;height:106px}.pp .shg .b{width:34px;height:34px}
  .pp .status{height:30px}.pp .menu button{padding:16px 24px}
 }
@@ -346,9 +353,10 @@ const VERT={v90:'writing-mode:vertical-rl;height:100%;width:auto;',v270:'writing
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const B=(ic,tip,a,m)=>`<button class="b ${m||''}" title="${tip}" data-a="${a}"><em>${ic}</em>${m?`<span>${tip}</span>`:''}</button>`;
 const BM=(ic,tip,m)=>`<button class="b rw" title="${tip}" data-m="${m}"><em>${ic}</em><span>${tip} ▾</span></button>`;
-const S=(n,o,w,tip,r)=>`<select data-s="${n}" title="${tip||''}" style="width:${w}px"${r?' data-r':''}>${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select>`;
-const C=(n,v,t,ic)=>`<label class="clr" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"></label>`;
-const CL=(n,v,t,ic)=>`<label class="clr lb" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><span>${t}</span><input type="color" data-s="${n}" value="${v}"></label>`;
+const S=(n,o,w,tip,r)=>`<span class="ddw"><select data-s="${n}" title="${tip||''}"${r?' data-r':''}>${o.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join('')}</select><button class="b dd vl" data-dd="${n}" title="${tip||''}" style="width:${w}px"><span class="v"></span><i class="car">▾</i></button></span>`;
+const C=(n,v,t,ic)=>`<span class="clr" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><input type="color" data-s="${n}" value="${v}"></span>`;
+const CL=(n,v,t,ic)=>`<span class="clr lb" title="${t}"><span style="border-bottom:3px solid ${v}">${ic}</span><span>${t}</span><input type="color" data-s="${n}" value="${v}"></span>`;
+const CKM=(lab,l,w)=>`<span class="ddw">${l.map(x=>`<input type="checkbox" data-${x[0]}="${x[1]}"${x[3]?' checked':''}>`).join('')}<button class="b dd vl" data-ckm="${l.map(x=>x[0]+'='+x[1]+'='+x[2]).join('|')}" title="${lab}" style="width:${w||120}px"><span class="v">${lab}</span><i class="car">▾</i></button></span>`;
 const G=(n,h)=>`<div class="grp"><div class="gb">${h}</div><div class="gn">${n}</div></div>`;
 const R=(...r)=>`<div class="rows">${r.map(x=>`<div class="row">${x}</div>`).join('')}</div>`;
 const AL=t=>{const w=[14,9,14,9],x=i=>t==='L'||t==='J'?0:t==='C'?(14-w[i])/2:14-w[i];if(t==='J')w.fill(14);return `<svg width="16" height="14">${w.map((v,i)=>`<rect x="${1+x(i)}" y="${1+i*3.5}" width="${v}" height="1.6" fill="#444"/>`).join('')}</svg>`;};
@@ -585,8 +593,8 @@ const RIB_TRANS=
  G('Pengaturan Waktu',`<div class="rows tmw"><div class="row">Suara: ${S('trsnd',[['','Tanpa Suara'],['click','Klik'],['chime','Denting'],['whoosh','Whoosh'],['pop','Pop']],112,'Suara')}</div>`+
    `<div class="row">Durasi: <input type="number" data-s="trdur" step="0.25" min="0.25" max="60" value="1" title="Durasi (detik)"> dtk</div>`+
    `<div class="row"><button class="b" data-a="trall" title="Terapkan transisi ke semua slide">⧉ Terapkan ke Semua</button></div></div>`+
-   `<div class="rows tmw"><div class="row"><b>Maju Slide</b></div><div class="row"><label><input type="checkbox" data-s="trclk" checked> Saat Klik Mouse</label></div>`+
-   `<div class="row"><label><input type="checkbox" data-s="traft"> Setelah:</label><input type="number" data-s="traftv" step="1" min="0" value="0" title="Detik"> dtk</div></div>`);
+   `<div class="rows tmw"><div class="row"><b>Maju Slide</b></div><div class="row">${CKM('Opsi Maju Slide',[['s','trclk','Saat Klik Mouse',1],['s','traft','Setelah (detik di bawah)']],130)}</div>`+
+   `<div class="row">Setelah: <input type="number" data-s="traftv" step="1" min="0" value="0" title="Detik"> dtk</div></div>`);
 
 /* ---- tab DESAIN: tema, varian, latar belakang ---- */
 const THEMES=[
@@ -640,8 +648,8 @@ const RIB_SHOW=
    SM(SHI.online,'Presentasikan Online','online','Presentasikan<br>Online')+SM(SHI.cust,'Slide Show Kustom','cshow','Slide Show<br>Kustom'))+
  G('Siapkan',SB(SHI.setup,'Siapkan Slide Show','shsetup','Siapkan<br>Slide Show')+SB(SHI.hide,'Sembunyikan slide yang dipilih','hideslide','Sembunyikan<br>Slide')+
    SB(SHI.reh,'Latih Pengaturan Waktu','rehearse','Latih Pengaturan<br>Waktu')+SM(SHI.rec,'Rekam Slide Show','rec','Rekam Slide<br>Show')+
-   `<div class="rows tmw"><div class="row"><label><input type="checkbox" data-s="shnarr" checked> Putar Narasi</label></div><div class="row"><label><input type="checkbox" data-s="shtim" checked> Gunakan Pengaturan Waktu</label></div><div class="row"><label><input type="checkbox" data-s="shmed" checked> Tampilkan Kontrol Media</label></div></div>`)+
- G('Monitor',`<div class="rows tmw"><div class="row">Monitor: <select data-s="shmon" class="shsel" title="Pilih monitor untuk slide show"><option value="auto">Otomatis</option><option value="main">Monitor Utama</option></select></div><div class="row"><label><input type="checkbox" data-s="shpv"> Gunakan Tampilan Presenter</label></div></div>`);
+   `<div class="rows tmw"><div class="row">${CKM('Opsi Slide Show',[['s','shnarr','Putar Narasi',1],['s','shtim','Gunakan Pengaturan Waktu',1],['s','shmed','Tampilkan Kontrol Media',1]],150)}</div></div>`)+
+ G('Monitor',`<div class="rows tmw"><div class="row">Monitor: ${S('shmon',[['auto','Otomatis'],['main','Monitor Utama']],130,'Pilih monitor untuk slide show')}</div><div class="row">${CKM('Opsi Monitor',[['s','shpv','Gunakan Tampilan Presenter']],150)}</div></div>`);
 
 const RV_IC={
  spell:'<span style="display:block;font-size:9px;line-height:9px;font-weight:700;color:#444">ABC</span><span style="color:#2b6cb0;font-size:20px;line-height:18px">✔</span>',
@@ -685,7 +693,7 @@ const VCK=(lab,k)=>`<div class="row"><label><input type="checkbox" data-vc="${k}
 const RIB_VIEW=
  G('Tampilan Presentasi',VB(VWI.normal,'Normal','vnormal','normal')+VB(VWI.outline,'Tampilan<br>Outline','vwoutline','outline')+VB(VWI.sorter,'Penyortir<br>Slide','vsorter','sorter')+VB(VWI.notes,'Halaman<br>Catatan','vwnotes','notes')+VB(VWI.read,'Tampilan<br>Baca','vwread'))+
  G('Tampilan Master',VB(VWI.sm,'Master<br>Slide','vwsm')+VB(VWI.hm,'Master<br>Handout','vwhm')+VB(VWI.nm,'Master<br>Catatan','vwnm'))+
- G('Tampilkan<button class="gl" data-a="vwgrid" title="Pengaturan Kisi dan Panduan">⌟</button>',`<div class="rows tmw">${VCK('Penggaris','ruler')}${VCK('Garis Kisi','grid')}${VCK('Panduan','guide')}</div>`+VB(VWI.notesb,'Catatan','notes','notespane'))+
+ G('Tampilkan<button class="gl" data-a="vwgrid" title="Pengaturan Kisi dan Panduan">⌟</button>',`<div class="rows tmw"><div class="row">${CKM('Tampilkan',[['vc','ruler','Penggaris'],['vc','grid','Garis Kisi'],['vc','guide','Panduan']],110)}</div></div>`+VB(VWI.notesb,'Catatan','notes','notespane'))+
  G('Zoom',VB(VWI.zoom,'Zoom','vwzoom')+VB(VWI.fit,'Sesuaikan ke<br>Jendela','fit'))+
  G('Warna/Skala Abu-abu',`<div class="rows">${VRW(VWC.color,'Warna','vwcolor:color','c-color')}${VRW(VWC.gray,'Skala Abu-abu','vwcolor:gray','c-gray')}${VRW(VWC.bw,'Hitam Putih','vwcolor:bw','c-bw')}</div>`)+
  G('Jendela',VB(VWI.neww,'Jendela<br>Baru','vwnew')+`<div class="rows">${VRW('▤','Susun Semua','vwarr','',' data-vwd="win" disabled')}${VRW('❐','Cascade','vwcas','',' data-vwd="win" disabled')}${VRW('⇔','Pindahkan Pemisah','vwsplit','')}</div>`+VBM(VWI.sw,'Beralih<br>Jendela','vwwin'))+
@@ -1104,7 +1112,40 @@ function mount(root,opts={}){
   fin.addEventListener('change',()=>{const f=fin.files[0];fin.value='';if(f)openFile(f);});
 
   /* ===== aksi ===== */
+  /* dropdown ribbon: label tombol selalu mengikuti <select> tersembunyi (apa pun yang mengubah .value / .selectedIndex) */
+  (function(){
+    const P=HTMLSelectElement.prototype,dv=Object.getOwnPropertyDescriptor(P,'value'),di=Object.getOwnPropertyDescriptor(P,'selectedIndex');
+    $$('.ddw select').forEach(sl=>{
+      const lab=()=>{const v=root.querySelector(`.dd[data-dd="${sl.dataset.s}"] .v`);if(v){const o=sl.options[sl.selectedIndex];v.textContent=o?o.text.replace(/\s*▾\s*$/,''):'';}};
+      Object.defineProperty(sl,'value',{configurable:true,get(){return dv.get.call(sl);},set(x){dv.set.call(sl,x);lab();}});
+      Object.defineProperty(sl,'selectedIndex',{configurable:true,get(){return di.get.call(sl);},set(x){di.set.call(sl,x);lab();}});
+      sl.addEventListener('change',lab);lab();
+    });
+  })();
+  const PPAL=[['#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff'],['#980000','#ff0000','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff'],['#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc'],['#dd7e6b','#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd'],['#a61c00','#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3c78d8','#3d85c6','#674ea7','#a64d79']];
+  const ckMark=on=>`<b style="width:14px;display:inline-block">${on?'✓':''}</b>`;
+  function openDD(btn){
+    const n=btn.dataset.dd,sl=$(`[data-s=${n}]`);if(!sl)return;if(n==='shmon')loadScreens();
+    const rs=sl.hasAttribute('data-r'),cur=sl.selectedIndex;
+    const items=[...sl.options].map((o,i)=>rs&&i===0?null:[n==='font'?`<span style="font-family:'${o.text}'">${o.text}</span>`:o.text,`dd:${n}:${i}`,ckMark(!rs&&i===cur)]).filter(Boolean);
+    const r=btn.getBoundingClientRect();pop(items,r.left,r.bottom);
+  }
+  function openCK(btn){
+    const items=btn.dataset.ckm.split('|').map(x=>{const[t,k,nm]=x.split('=');const c=$(`[data-${t}="${k}"]`);return[nm,`ck:${t}=${k}`,ckMark(c&&c.checked)];});
+    const r=btn.getBoundingClientRect();pop(items,r.left,r.bottom);
+  }
+  function openCP(el){
+    const inp=el.querySelector('input');closePop();
+    const m=document.createElement('div');m.className='pm pal';
+    m.innerHTML=PPAL.map(r=>`<div class="pr">${r.map(c=>`<span class="sw" data-c="${c}" style="background:${c}" title="${c}"></span>`).join('')}</div>`).join('')+'<div class="mo" data-more="1">🎨 Warna lainnya…</div>';
+    pp.appendChild(m);const r=el.getBoundingClientRect(),rr=pp.getBoundingClientRect();
+    m.style.left=Math.max(0,Math.min(r.left-rr.left,rr.width-m.offsetWidth-4))+'px';m.style.top=Math.max(0,Math.min(r.bottom-rr.top,rr.height-m.offsetHeight-4))+'px';
+    m.addEventListener('click',e=>{const b=e.target.closest('[data-c],[data-more]');if(!b)return;closePop();
+      if(b.dataset.c){inp.value=b.dataset.c;inp.dispatchEvent(new Event('change',{bubbles:true}));}else inp.click();});
+  }
   const acts={
+    dd:v=>{const j=v.indexOf(':'),sl=$(`[data-s=${v.slice(0,j)}]`);if(!sl)return;sl.selectedIndex=+v.slice(j+1);sl.dispatchEvent(new Event('change',{bubbles:true}));},
+    ck:v=>{const[t,k]=v.split('=');const c=$(`[data-${t}="${k}"]`);if(!c)return;c.checked=!c.checked;c.dispatchEvent(new Event('change',{bubbles:true}));},
     menu(){fm.hidden=!fm.hidden;},
     new(){hfs.all=0;customShows=[];slides=[mkSlide('title')];cur=0;sel=[];name='Presentasi1.pptx';setName();hist=[];hi=-1;draw();thumbs();notes.innerHTML='';commit();},
     open(){fin.click();},
@@ -1716,9 +1757,12 @@ function mount(root,opts={}){
   /* ===== event ===== */
   root.addEventListener('mousedown',e=>{
     if(!e.target.closest('.pm'))closePop();
-    if(e.target.closest('.b,.tab,.status button,.pm button,.menu button,.clr span'))e.preventDefault();
+    if(e.target.closest('.b,.tab,.status button,.pm button,.menu button,.clr,.pm .sw,.pm .mo'))e.preventDefault();
   });
   root.addEventListener('click',e=>{
+    const dd=e.target.closest('[data-dd]');if(dd){openDD(dd);return;}
+    const ckb=e.target.closest('[data-ckm]');if(ckb){openCK(ckb);return;}
+    const cl=e.target.closest('.clr');if(cl&&!e.target.closest('input')){openCP(cl);return;}
     const m=e.target.closest('[data-m]');if(m){if(m.dataset.m==='table')tablePicker(m);else openMenu(m,m.dataset.m);return;}
     const t=e.target.closest('[data-a],[data-tab]');if(!t)return;
     if(t.dataset.tab){
