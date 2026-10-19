@@ -36,7 +36,7 @@ const LS = {
 const svg = (body, vb) => `<svg viewBox="${vb || '0 0 24 24'}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 const S1 = 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
 const IC = {
-  logo: svg('<path d="M12 2 22 7 12 12 2 7z" fill="#4277c9"/><path d="M2 9.6 12 14.6 22 9.6V12.2L12 17.2 2 12.2z" fill="#3aa66b"/><path d="M2 14.6 12 19.6 22 14.6V17.2L12 22.2 2 17.2z" fill="#e5694a"/>'),
+  logo: svg('<path d="M12 1.5 22 6 12 10.5 2 6z" fill="#4277c9"/><path d="M2 7.4 12 11.9 22 7.4V9.6L12 14.1 2 9.6z" fill="#3aa66b"/><path d="M2 11 12 15.5 22 11V13.2L12 17.7 2 13.2z" fill="#e5694a"/><path d="M2 14.6 12 19.1 22 14.6V16.8L12 21.3 2 16.8z" fill="#c4262e"/>'),
   home: svg('<path d="M12 3.2 2.8 11.4h2.6V20h5.1v-5.6h3V20h5.1v-8.6h2.6z" fill="currentColor"/>'),
   word: svg('<rect x="9.5" y="3.5" width="11" height="17" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 8.5h5M13 12h5M13 15.5h5" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="7" width="10" height="10" rx="1.4" fill="currentColor"/><text x="7.5" y="14.6" font-size="7.6" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">W</text>'),
   excel: svg('<rect x="9.5" y="3.5" width="11" height="17" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 8.5h5M13 12h5M13 15.5h5" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="7" width="10" height="10" rx="1.4" fill="currentColor"/><text x="7.5" y="14.6" font-size="7.6" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">X</text>'),
@@ -47,7 +47,7 @@ const IC = {
   back: svg(`<path d="M15 5 8 12l7 7" ${S1} stroke-width="2.2"/>`),
   plus: svg(`<path d="M12 5v14M5 12h14" ${S1} stroke-width="2.4"/>`),
   folder: svg(`<path d="M3.5 7.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2.2h8A1.5 1.5 0 0 1 20.5 9.7V17A1.5 1.5 0 0 1 19 18.5H5A1.5 1.5 0 0 1 3.5 17z" ${S1}/>`),
-  gift: svg('<g transform="rotate(-32 22 14)"><rect x="12" y="11.5" width="23" height="7" rx="1.5" fill="#f2a93b"/><rect x="21" y="11.5" width="5" height="7" fill="#c62828"/></g><rect x="13" y="23" width="24" height="18" rx="1.8" fill="#e29a26"/><rect x="23" y="23" width="5" height="18" fill="#b71c1c"/><rect x="11" y="22" width="28" height="6.5" rx="1.5" fill="#f0b43a"/><circle cx="36" cy="9" r="2" fill="#3aa66b"/><circle cx="41" cy="16" r="1.7" fill="#4277c9"/><circle cx="31" cy="6" r="1.6" fill="#e5694a"/><path d="m39 4 .8 2.2L42 7l-2.2.8L39 10l-.8-2.2L36 7l2.2-.8z" fill="#f2a93b"/>', '0 0 48 48'),
+  appicon: svg('<rect x="2" y="2" width="9.6" height="9.6" rx="2" fill="#2b579a"/><text x="6.8" y="9.3" font-size="7.2" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">W</text><rect x="12.4" y="2" width="9.6" height="9.6" rx="2" fill="#217346"/><text x="17.2" y="9.3" font-size="7.2" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">X</text><rect x="2" y="12.4" width="9.6" height="9.6" rx="2" fill="#d24726"/><text x="6.8" y="19.9" font-size="7.2" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">P</text><rect x="12.4" y="12.4" width="9.6" height="9.6" rx="2" fill="#c4262e"/><text x="17.2" y="19.9" font-size="7.2" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">A</text>'),
   docs: svg(`<circle cx="12" cy="12" r="9.2" ${S1} stroke-width="2"/><text x="12" y="16.6" font-size="12.5" font-weight="500" fill="currentColor" text-anchor="middle" font-family="Arial,sans-serif">D</text>`),
   history: svg(`<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" ${S1} stroke-width="2.1"/><path d="M3.2 3.8v4.9h4.9" ${S1} stroke-width="2.1"/><path d="M12 7.6V12l3.2 2" ${S1} stroke-width="2.1"/>`),
   star: svg('<path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z" fill="currentColor"/>'),
@@ -145,7 +145,7 @@ function renderHeader(){
   hdr.innerHTML = left + '<div class="sp"></div>' +
     `<button class="ib" data-a="search" aria-label="Cari">${IC.search}</button>` +
     `<button class="ib" data-a="sort" aria-label="Urutkan">${IC.sort}</button>` +
-    `<button class="ib" data-a="gift" aria-label="Tentang">${IC.gift}</button>`;
+    `<button class="ib" data-a="about" aria-label="Tentang">${IC.appicon}</button>`;
 }
 
 function renderSubtabs(){
@@ -211,7 +211,7 @@ function act(a){
     case 'search': S.search = true; renderHeader(); { const i = $('#q'); if (i) i.focus(); } break;
     case 'search-close': closeSearch(); break;
     case 'sort': sortSheet(); break;
-    case 'gift': aboutDialog(); break;
+    case 'about': aboutDialog(); break;
     case 'folder': folderSheet(); break;
     case 'more': S.limit += PAGE; renderList(); break;
     case 'grant':
@@ -288,7 +288,7 @@ async function aboutDialog(){
   let ver = '';
   try { const i = await N.App.getInfo(); ver = `${i.version} (${i.build})`; } catch(e){}
   dialog({
-    title:'Office Offline',
+    title:'Alethra Office',
     html:'<p>Word, Excel, PowerPoint, dan PDF yang berjalan sepenuhnya <b>offline</b> di perangkat Anda.</p>' +
          (ver ? `<p class="mut">Versi ${esc(ver)}</p>` : ''),
     ok:'Tutup', cancel:null
@@ -421,7 +421,7 @@ async function start(id, file){
 
 function goHome(){
   app.hidden = true; app.innerHTML = ''; shell.hidden = false; S.inEditor = false;
-  document.title = 'Office Offline';
+  document.title = 'Alethra Office';
   history.replaceState(null, '', location.pathname);
   render(); rescan();
 }

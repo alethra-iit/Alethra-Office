@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Office Offline</string>
-    <string name="title_activity_main">Office Offline</string>
+    <string name="app_name">Alethra Office</string>
+    <string name="title_activity_main">Alethra Office</string>
     <string name="package_name">com.office.offline</string>
     <string name="custom_url_scheme">com.office.offline</string>
 </resources>

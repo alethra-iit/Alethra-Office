@@ -1,6 +1,6 @@
 {
   "appId": "com.office.offline",
-  "appName": "Office Offline",
+  "appName": "Alethra Office",
   "webDir": "www",
   "server": {
     "androidScheme": "https"

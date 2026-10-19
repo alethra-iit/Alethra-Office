@@ -60,19 +60,19 @@ jobs:
       - name: Ganti nama APK
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/Office-Offline.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/Alethra-Office.apk
           ls -lh dist
 
       - name: Upload artifact APK
         uses: actions/upload-artifact@v4
         with:
-          name: Office-Offline-APK
-          path: dist/Office-Offline.apk
+          name: Alethra-Office-APK
+          path: dist/Alethra-Office.apk
           if-no-files-found: error
 
       - name: Buat GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
-          name: Office Offline v1.${{ github.run_number }}
-          files: dist/Office-Offline.apk
+          name: Alethra Office v1.${{ github.run_number }}
+          files: dist/Alethra-Office.apk

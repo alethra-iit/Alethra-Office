@@ -1,4 +1,4 @@
-# Office Offline (Android)
+# Alethra Office (Android)
 
 Aplikasi **Office Web** (Word, Excel, PowerPoint, PDF) yang dibungkus menjadi **APK Android** dengan
 [Capacitor](https://capacitorjs.com). Seluruh kode dan library dimasukkan ke dalam APK, jadi aplikasi
@@ -8,7 +8,7 @@ Aplikasi **Office Web** (Word, Excel, PowerPoint, PDF) yang dibungkus menjadi **
 
 1. Buat repo baru di GitHub, lalu push seluruh isi folder ini ke branch `main`.
 2. Buka tab **Actions** -> workflow **Build Android APK** (jalan otomatis tiap push; atau klik *Run workflow*).
-3. Setelah selesai (± 5-8 menit), buka tab **Releases** dan unduh `Office-Offline.apk` (atau dari **Artifacts** pada run tersebut).
+3. Setelah selesai (± 5-8 menit), buka tab **Releases** dan unduh `Alethra-Office.apk` (atau dari **Artifacts** pada run tersebut).
 4. Kirim APK ke HP, lalu pasang (izinkan "Pasang dari sumber tidak dikenal").
 
 APK juga otomatis dipublikasikan di tab **Releases** pada setiap push.
@@ -57,7 +57,7 @@ Key penandatangan tetap: file `android/app/office.jks` ikut di repo (password ad
 dan `versionCode` otomatis naik mengikuti nomor run GitHub. Jadi setiap APK baru dari repo ini
 **bisa langsung dipasang menimpa versi lama** tanpa uninstall dan tanpa kehilangan data.
 
-- Setiap push ke `main` membuat **GitHub Release** baru (`v1.<nomor run>`) berisi `Office-Offline.apk`.
+- Setiap push ke `main` membuat **GitHub Release** baru (`v1.<nomor run>`) berisi `Alethra-Office.apk`.
 - Jangan hapus/ganti `office.jks`; kalau key berubah, update tidak bisa lagi menimpa dan harus uninstall.
 - Karena keystore ada di repo, jaga agar repo tetap **private** (cukup untuk dipakai sendiri/sideload).
   Untuk Google Play, gunakan keystore rahasia lewat env `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
