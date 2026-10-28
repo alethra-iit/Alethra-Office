@@ -12,9 +12,9 @@
   if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
 
   const reg = n => (C.registerPlugin ? C.registerPlugin(n) : (C.Plugins && C.Plugins[n]));
-  const FileSaver = reg('FileSaver'), Files = reg('Files'), App = reg('App');
+  const FileSaver = reg('FileSaver'), Files = reg('Files'), App = reg('App'), Updater = reg('Updater');
   if (!FileSaver || !Files) return;
-  N.isNative = true; N.FileSaver = FileSaver; N.Files = Files; N.App = App;
+  N.isNative = true; N.FileSaver = FileSaver; N.Files = Files; N.App = App; N.Updater = Updater;
 
   function toast(msg){
     let t = document.getElementById('nb-toast');

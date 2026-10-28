@@ -10,6 +10,10 @@ android {
         versionCode (System.getenv("GITHUB_RUN_NUMBER") ? System.getenv("GITHUB_RUN_NUMBER").toInteger() : 1)
         versionName "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // Repositori GitHub tempat pembaruan dicek (lihat UpdaterPlugin.java). Di GitHub Actions terisi
+        // otomatis dari GITHUB_REPOSITORY ("pemilik/repo"); untuk build lokal isi updateRepo di gradle.properties.
+        def upd = System.getenv("GITHUB_REPOSITORY") ?: (project.findProperty("updateRepo") ?: "")
+        buildConfigField "String", "UPDATE_REPO", "\"" + upd.toString().trim() + "\""
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
@@ -19,6 +23,9 @@ android {
     // Key tetap: office.jks ikut di repo, jadi semua build (debug/release, di komputer mana pun)
     // ditandatangani dengan key yang SAMA dan APK baru bisa menimpa APK lama.
     // (Cocok untuk sideload pribadi. Untuk Play Store, pakai keystore rahasia: isi env KEYSTORE_FILE dst.)
+    buildFeatures {
+        buildConfig = true
+    }
     signingConfigs {
         office {
             def extKs = System.getenv("KEYSTORE_FILE")

@@ -24,7 +24,7 @@ const MIME = {
   pdf:'application/pdf'
 };
 const TYPE_LABEL = { docx:'Dokumen Word (.docx)', xlsx:'Lembar kerja Excel (.xlsx)', pptx:'Presentasi PowerPoint (.pptx)', pdf:'Dokumen PDF (.pdf)' };
-const KEYS = { files:'ofc.files.v1', favs:'ofc.favs.v1', recents:'ofc.recents.v1', sort:'ofc.sort.v1' };
+const KEYS = { files:'ofc.files.v1', favs:'ofc.favs.v1', recents:'ofc.recents.v1', sort:'ofc.sort.v1', updauto:'ofc.updauto.v1', updlast:'ofc.updlast.v1', updskip:'ofc.updskip.v1' };
 const PAGE = 300;
 
 const LS = {
@@ -86,7 +86,7 @@ const S = {
   tab:'home', sub:'all', q:'', search:false, folder:null, limit:PAGE,
   sort: LS.get(KEYS.sort, 'date-desc'),
   files: [], favs: new Set(LS.get(KEYS.favs, [])), recents: LS.get(KEYS.recents, {}),
-  access: null, scanning:false, inEditor:false
+  access: null, scanning:false, inEditor:false, page:null
 };
 let byPath = new Map();
 const indexFiles = () => { byPath = new Map(S.files.map(f => [f.path, f])); };
@@ -131,13 +131,17 @@ const hdr = $('#hdr'), subtabs = $('#subtabs'), list = $('#list'), bnav = $('#bn
 const shell = $('#shell'), app = $('#app'), layer = $('#layer'), picker = $('#picker');
 
 function renderHeader(){
+  if (S.page === 'about'){
+    hdr.innerHTML = `<button class="ib" data-a="about-close" aria-label="Kembali">${IC.back}</button><h2 class="ptitle">Tentang</h2>`;
+    return;
+  }
   if (S.search){
     hdr.innerHTML = `<button class="ib" data-a="search-close" aria-label="Kembali">${IC.back}</button>` +
       `<input id="q" type="search" placeholder="Cari berkas" value="${esc(S.q)}" autocomplete="off" enterkeyhint="search">`;
     return;
   }
   const left = S.tab === 'home'
-    ? `<button class="ib lg" data-a="about" aria-label="Tentang">${IC.appicon}</button>`
+    ? `<button class="ib lg" data-a="about" aria-label="Tentang">${IC.appicon}${updBadge() ? '<i class="bdg"></i>' : ''}</button>`
     : `<div class="hl" style="--c:${FM[S.tab].c}">` +
         `<button class="pill fill" data-a="new">${IC.plus}<span>Baru</span></button>` +
         `<button class="pill" data-a="open">${IC.folder}<span>Buka</span></button></div>`;
@@ -147,7 +151,7 @@ function renderHeader(){
 }
 
 function renderSubtabs(){
-  subtabs.hidden = S.tab !== 'home';
+  subtabs.hidden = S.tab !== 'home' || !!S.page;
   if (subtabs.hidden) return;
   const t = (k, ic, label) => `<button class="st${S.sub === k ? ' on' : ''}" data-sub="${k}" aria-label="${label}">${IC[ic]}</button>`;
   subtabs.innerHTML = t('all', 'docs', 'Semua dokumen') + t('recent', 'history', 'Terbaru') + t('fav', 'star', 'Favorit') +
@@ -156,6 +160,8 @@ function renderSubtabs(){
 }
 
 function renderNav(){
+  bnav.hidden = !!S.page;
+  if (S.page) return;
   const items = [['home', 'Beranda', IC.home, '#e0390b']].concat(
     Object.values(FM).map(f => [f.id, f.nav, IC[f.id], f.c]));
   bnav.innerHTML = items.map(([id, label, icon, c]) =>
@@ -174,6 +180,7 @@ function empty(msg, btn){
 }
 
 function renderList(){
+  if (S.page === 'about'){ renderAbout(); return; }
   let html;
   if (!N.isNative){
     html = empty('Daftar berkas hanya tersedia di aplikasi Android. Gunakan tombol Baru / Buka.');
@@ -192,11 +199,12 @@ function renderList(){
   list.innerHTML = html;
 }
 
-function renderScan(){ scanbar.hidden = !S.scanning; }
+function renderScan(){ scanbar.hidden = !S.scanning || !!S.page; }
 function render(){ renderHeader(); renderSubtabs(); renderList(); renderNav(); renderScan(); }
 
 /* ------------------------------------------------------------------ navigasi */
 function setTab(t){
+  S.page = null;
   S.tab = t; S.q = ''; S.search = false; S.folder = null; S.limit = PAGE;
   render(); list.scrollTop = 0;
 }
@@ -209,7 +217,17 @@ function act(a){
     case 'search': S.search = true; renderHeader(); { const i = $('#q'); if (i) i.focus(); } break;
     case 'search-close': closeSearch(); break;
     case 'sort': sortSheet(); break;
-    case 'about': aboutDialog(); break;
+    case 'about': openAbout(); break;
+    case 'about-close': closeAbout(); break;
+    case 'upd-check': updCheck(true); break;
+    case 'upd-dl': updDownload(); break;
+    case 'upd-cancel': if (N.Updater) N.Updater.cancel().catch(() => {}); break;
+    case 'upd-install': updInstall(); break;
+    case 'upd-perm': N.Updater.openInstallSettings().catch(e => toast(e.message || 'Pengaturan tidak tersedia')); break;
+    case 'upd-skip':
+      if (U.rel){ LS.set(KEYS.updskip, U.rel.tag); U.phase = 'skipped'; renderHeader(); renderAbout(); }
+      break;
+    case 'upd-auto': LS.set(KEYS.updauto, !LS.get(KEYS.updauto, true)); renderAbout(); break;
     case 'folder': folderSheet(); break;
     case 'more': S.limit += PAGE; renderList(); break;
     case 'grant':
@@ -282,15 +300,188 @@ function folderSheet(){
   sheet('Lokasi penyimpanan', items, it => { S.folder = it.dir; S.limit = PAGE; renderSubtabs(); renderList(); });
 }
 
-async function aboutDialog(){
-  let ver = '';
-  try { const i = await N.App.getInfo(); ver = `${i.version} (${i.build})`; } catch(e){}
-  dialog({
-    title:'Alethra Office',
-    html:'<p>Word, Excel, PowerPoint, dan PDF yang berjalan sepenuhnya <b>offline</b> di perangkat Anda.</p>' +
-         (ver ? `<p class="mut">Versi ${esc(ver)}</p>` : ''),
-    ok:'Tutup', cancel:null
-  });
+/* ------------------------------------------------------------------ Tentang (halaman) + pembaruan */
+/* Pembaruan lewat GitHub Releases (plugin native Updater), sama seperti Alethra Browser:
+   periksa rilis terbaru -> unduh APK -> periksa ukuran/checksum/tanda tangan -> pemasang Android. */
+const U = {
+  loaded:false, enabled:false, version:'', build:0, metered:false,
+  phase:'idle',      /* idle | checking | uptodate | norelease | available | skipped | downloading | installing | started | needperm | badsig | error | unsupported */
+  rel:null, err:'', errAct:'upd-check', done:0, total:0
+};
+
+const skippedTag = () => LS.get(KEYS.updskip, '');
+function updBadge(){ return !!(U.rel && U.rel.available && U.rel.tag !== skippedTag() && U.phase !== 'uptodate'); }
+/* nama versi baru dalam format yang sama dengan versi terpasang (mis. 1.0.12 -> 1.0.13) */
+function latestName(r){
+  if (/\d+$/.test(U.version)) return U.version.replace(/\d+$/, String(r.latestBuild));
+  return r.latest || r.tag;
+}
+
+async function updInit(){
+  if (U.loaded) return;
+  if (!N.isNative || !N.Updater){ U.loaded = true; U.phase = 'unsupported'; return; }
+  try {
+    const i = await N.Updater.info();
+    U.enabled = !!i.enabled; U.version = i.version || ''; U.build = +i.build || 0; U.metered = !!i.metered;
+    N.Updater.cleanup().catch(() => {});
+  } catch(e){ U.phase = 'unsupported'; }
+  U.loaded = true;
+}
+
+/* manual = true: selalu beri kabar hasilnya dan abaikan "Lewati versi ini" */
+async function updCheck(manual){
+  if (!N.isNative || !N.Updater) return;
+  if (U.phase === 'checking' || U.phase === 'downloading') return;
+  await updInit();
+  if (!U.enabled){ U.phase = 'unsupported'; if (S.page === 'about') renderAbout(); return; }
+  U.phase = 'checking'; U.err = '';
+  if (S.page === 'about') renderAbout();
+  try {
+    const r = await N.Updater.check();
+    LS.set(KEYS.updlast, Date.now());
+    U.rel = r.available ? r : null;
+    if (r.available){
+      U.phase = (!manual && r.tag === skippedTag()) ? 'skipped' : 'available';
+      if (U.phase === 'available' && !manual) toast('Pembaruan tersedia: ' + latestName(r) + '. Buka Tentang untuk memperbarui.');
+    } else U.phase = r.norelease ? 'norelease' : 'uptodate';
+  } catch(e){
+    U.phase = 'error'; U.errAct = 'upd-check'; U.err = (e && e.message) || 'Gagal memeriksa';
+    if (!manual) U.phase = 'idle';   /* cek otomatis diam-diam: jangan tampilkan galat */
+  }
+  renderHeader();
+  if (S.page === 'about') renderAbout();
+}
+
+/* dipanggil sesaat setelah aplikasi dibuka: maksimal sekali sehari, bila diaktifkan */
+async function updAutoCheck(){
+  if (!N.isNative || !N.Updater) return;
+  await updInit();
+  if (!U.enabled || !LS.get(KEYS.updauto, true)) return;
+  if (Date.now() - LS.get(KEYS.updlast, 0) < 24 * 3600 * 1000) return;
+  updCheck(false);
+}
+
+async function updDownload(){
+  if (!U.rel || U.phase === 'downloading') return;
+  U.phase = 'downloading'; U.done = 0; U.total = U.rel.size || 0; U.err = '';
+  renderAbout();
+  try {
+    const r = await N.Updater.download();
+    if (r && r.cancelled){ U.phase = 'available'; toast('Unduhan dibatalkan'); renderAbout(); return; }
+    U.rel.downloaded = true;
+    await updInstall();
+  } catch(e){
+    U.phase = 'error'; U.errAct = 'upd-dl'; U.err = (e && e.message) || 'Gagal mengunduh';
+    renderAbout();
+  }
+}
+
+async function updInstall(){
+  if (!U.rel) return;
+  U.phase = 'installing'; renderAbout();
+  try {
+    const r = await N.Updater.install();
+    U.phase = r.status === 'started' ? 'started' : (r.status === 'badsig' ? 'badsig' : 'needperm');
+  } catch(e){
+    U.phase = 'error'; U.errAct = 'upd-install'; U.err = (e && e.message) || 'Tidak bisa memulai pemasangan';
+  }
+  renderAbout();
+}
+
+if (N.Updater && N.Updater.addListener){
+  try {
+    N.Updater.addListener('progress', e => {
+      U.done = +e.done || 0; U.total = +e.total || U.total;
+      if (S.page !== 'about' || U.phase !== 'downloading') return;
+      const bar = $('#upbar'), txt = $('#uptxt');
+      if (bar) bar.style.width = (U.total ? Math.min(100, U.done / U.total * 100) : 0) + '%';
+      if (txt) txt.textContent = dlText();
+    });
+  } catch(e){}
+}
+function dlText(){
+  return U.total ? `Mengunduh ${fmtSize(U.done)} dari ${fmtSize(U.total)} (${Math.min(100, Math.floor(U.done / U.total * 100))}%)` : `Mengunduh ${fmtSize(U.done)}…`;
+}
+
+async function openAbout(){
+  S.page = 'about'; S.search = false; S.q = '';
+  render(); list.scrollTop = 0;
+  if (!U.loaded){ await updInit(); if (S.page === 'about') renderAbout(); }
+}
+function closeAbout(){ S.page = null; render(); }
+
+function updCard(){
+  const ic = (cls, body) => `<svg class="${cls}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  const okI = ic('ab-ok', `<circle cx="12" cy="12" r="9.2" ${S1}/><path d="m7.8 12.4 3 3 5.4-5.8" ${S1} stroke-width="2.2"/>`);
+  const upI = ic('ab-warn', `<circle cx="12" cy="12" r="9.2" ${S1}/><path d="M12 16.5V8M8.2 11.6 12 7.8l3.8 3.8" ${S1} stroke-width="2.2"/>`);
+  const erI = ic('ab-warn', `<circle cx="12" cy="12" r="9.2" ${S1}/><path d="M12 7.5v5.5" ${S1} stroke-width="2.2"/><circle cx="12" cy="16.4" r="1.1" fill="currentColor"/>`);
+  const st = (icon, t, sub) => `<div class="ab-st">${icon}<div><div class="tt">${t}</div>${sub ? `<div class="ss">${sub}</div>` : ''}</div></div>`;
+  const btn = (a, label, cls) => `<button class="ab-btn${cls ? ' ' + cls : ''}" data-a="${a}">${label}</button>`;
+  const last = LS.get(KEYS.updlast, 0);
+  const lastTxt = last ? 'Terakhir diperiksa: ' + esc(fmtDateTime(last)) : '';
+  const r = U.rel;
+  switch (U.phase){
+    case 'unsupported':
+      return st(erI, 'Pembaruan tidak tersedia', N.isNative ? 'Alamat repositori GitHub tidak diketahui di build ini.' : 'Pembaruan hanya tersedia di aplikasi Android.');
+    case 'checking':
+      return `<div class="ab-st"><div class="ab-spin"></div><div><div class="tt">Memeriksa pembaruan…</div></div></div>`;
+    case 'uptodate':
+      return st(okI, 'Alethra Office sudah versi terbaru', lastTxt) + `<div class="ab-acts">${btn('upd-check', 'Periksa lagi', 'ghost')}</div>`;
+    case 'norelease':
+      return st(erI, 'Rilis tidak ditemukan', 'Pastikan repositori GitHub bersifat publik dan sudah punya Release berisi berkas .apk.') +
+        `<div class="ab-acts">${btn('upd-check', 'Coba lagi', 'ghost')}</div>`;
+    case 'skipped':
+      return st(okI, 'Tidak ada pembaruan yang ditampilkan', `Versi ${esc(latestName(r))} dilewati. ${lastTxt}`) +
+        `<div class="ab-acts">${btn('upd-check', 'Periksa pembaruan', 'ghost')}</div>`;
+    case 'available': {
+      const notes = String(r.notes || '').trim().slice(0, 600);
+      return st(upI, 'Pembaruan tersedia: ' + esc(latestName(r)),
+          `Versi terpasang: ${esc(U.version)}` + (r.size > 0 ? ` · Ukuran ±${fmtSize(r.size)}` : '') +
+          (U.metered ? '<br>Kamu sedang memakai data seluler. Disarankan memakai Wi-Fi.' : '')) +
+        (notes ? `<div class="ab-notes">${esc(notes)}</div>` : '') +
+        `<div class="ab-acts">${btn('upd-dl', r.downloaded ? 'Pasang sekarang' : 'Unduh & pasang', 'fill')}${btn('upd-skip', 'Lewati versi ini', 'ghost')}</div>`;
+    }
+    case 'downloading': {
+      const pct = U.total ? Math.min(100, U.done / U.total * 100) : 0;
+      return `<div class="ab-st"><div class="ab-spin"></div><div><div class="tt">Mengunduh pembaruan ${esc(latestName(r))}</div><div class="ss" id="uptxt">${esc(dlText())}</div></div></div>` +
+        `<div class="ab-bar${U.total ? '' : ' ind'}"><i id="upbar" style="width:${pct}%"></i></div>` +
+        `<div class="ab-acts">${btn('upd-cancel', 'Batal', 'ghost')}</div>`;
+    }
+    case 'installing':
+      return `<div class="ab-st"><div class="ab-spin"></div><div><div class="tt">Menyiapkan pemasangan…</div></div></div>`;
+    case 'started':
+      return st(upI, 'Pemasangan dimulai', 'Ikuti petunjuk Android untuk menyelesaikan pembaruan. Jika layar pemasang tidak muncul, ketuk Pasang sekarang.') +
+        `<div class="ab-acts">${btn('upd-install', 'Pasang sekarang', 'fill')}</div>`;
+    case 'needperm':
+      return st(erI, 'Izinkan pemasangan', 'Android perlu izin "Pasang aplikasi tidak dikenal" untuk Alethra Office supaya pembaruan bisa dipasang. Setelah mengizinkan, kembali ke sini; berkas yang sudah diunduh tidak diunduh ulang.') +
+        `<div class="ab-acts">${btn('upd-perm', 'Buka pengaturan', 'fill')}${btn('upd-install', 'Pasang sekarang', 'ghost')}</div>`;
+    case 'badsig':
+      return st(erI, 'Pembaruan dibatalkan', 'Tanda tangan APK ini tidak sama dengan aplikasi yang terpasang, jadi tidak dipasang demi keamanan. Berkas unduhan sudah dihapus.') +
+        `<div class="ab-acts">${btn('upd-check', 'Periksa lagi', 'ghost')}</div>`;
+    case 'error':
+      return st(erI, 'Gagal', esc(U.err)) +
+        `<div class="ab-acts">${btn(U.errAct, 'Coba lagi', 'fill')}</div>`;
+    default:
+      return st(upI, 'Versi ' + esc(U.version || '-'), 'Ketuk untuk memeriksa apakah ada versi yang lebih baru di GitHub Releases.') +
+        `<div class="ab-acts">${btn('upd-check', 'Periksa pembaruan', 'fill')}</div>`;
+  }
+}
+
+function renderAbout(){
+  const auto = LS.get(KEYS.updauto, true);
+  const canUpd = N.isNative && !!N.Updater;
+  list.innerHTML = '<div class="ab">' +
+    `<div class="ab-hero">${IC.appicon}<h1>Alethra Office</h1>` +
+      `<p>${U.version ? 'Versi ' + esc(U.version) + (U.build ? ' (build ' + U.build + ')' : '') : ''}</p></div>` +
+    `<section class="ab-card"><h2>Pembaruan</h2>${updCard()}</section>` +
+    (canUpd && U.enabled ?
+      `<section class="ab-card"><button class="ab-sw" data-a="upd-auto"><span class="tx"><div class="tt">Periksa pembaruan otomatis</div>` +
+      `<div class="ss">Cek versi baru di GitHub Releases saat aplikasi dibuka, maksimal sekali sehari. Hanya mengirim satu permintaan ke api.github.com.</div></span>` +
+      `<span class="sw${auto ? ' on' : ''}"></span></button></section>` : '') +
+    '<section class="ab-card"><h2>Tentang aplikasi</h2>' +
+      '<p>Word, Excel, PowerPoint, dan PDF yang berjalan sepenuhnya <b>offline</b> di perangkat Anda.</p>' +
+      '<p class="mut">Pembaruan diunduh dari GitHub Releases, diperiksa ukuran, checksum, dan tanda tangannya sebelum dipasang.</p></section>' +
+    '</div>';
 }
 
 /* ------------------------------------------------------------------ menu berkas */
@@ -412,7 +603,7 @@ function loadModule(id){
 async function start(id, file){
   try { await loadModule(id); }
   catch(e){ return toast(e.message); }
-  S.inEditor = true; shell.hidden = true; app.hidden = false; app.innerHTML = '';
+  S.page = null; S.inEditor = true; shell.hidden = true; app.hidden = false; app.innerHTML = '';
   /* Tiap editor dipasang di wadah baru. Editor memasang listener di elemen root-nya;
      bila root dipakai ulang (#app), listener menumpuk tiap kali dokumen dibuka dan satu ketukan
      diproses berkali-kali (ribbon terbuka lalu langsung menutup, tombol catatan terbalik dua kali). */
@@ -528,12 +719,13 @@ window.addEventListener('office:saved', e => {
 if (N.App && N.App.addListener){
   N.App.addListener('backButton', () => {
     if (layer.innerHTML){ closeLayer(); return; }
+    if (S.page){ closeAbout(); return; }
     if (S.inEditor){ toast('Gunakan menu Berkas > Kembali ke menu utama'); return; }
     if (S.search){ closeSearch(); return; }
     if (S.tab !== 'home'){ setTab('home'); return; }
     N.App.exitApp();
   });
-  N.App.addListener('resume', () => { if (!S.inEditor) rescan(); checkLaunch(); });
+  N.App.addListener('resume', () => { if (!S.inEditor) rescan(); checkLaunch(); if (U.phase === 'needperm' && U.rel) updInstall(); });
 }
 if (Files && Files.addListener){ try { Files.addListener('launch', () => checkLaunch()); } catch(e){} }
 
@@ -543,7 +735,7 @@ if (N.isNative){
   indexFiles();
 }
 render();
-if (N.isNative){ rescan(); checkLaunch(); }
+if (N.isNative){ rescan(); checkLaunch(); updAutoCheck(); }
 const h0 = location.hash.slice(1);
 if (FM[h0] && !N.isNative) start(h0, null);
 

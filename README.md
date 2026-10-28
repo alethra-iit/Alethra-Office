@@ -62,6 +62,23 @@ dan `versionCode` otomatis naik mengikuti nomor run GitHub. Jadi setiap APK baru
 - Karena keystore ada di repo, jaga agar repo tetap **private** (cukup untuk dipakai sendiri/sideload).
   Untuk Google Play, gunakan keystore rahasia lewat env `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
 
+## Pembaruan di dalam aplikasi (menu Tentang)
+
+Ketuk **ikon Alethra Office** di pojok kiri atas Beranda untuk membuka halaman **Tentang** (halaman penuh, bukan popup).
+Cara kerjanya sama dengan Alethra Browser, lewat **GitHub Releases**:
+
+- **Periksa pembaruan**: membandingkan nomor rilis terbaru (`v1.N`) dengan `versionCode` yang terpasang.
+- **Unduh & pasang**: APK diunduh dengan bilah progres (bisa dibatalkan), lalu diperiksa ukuran, SHA-256, dan
+  **tanda tangannya harus sama** dengan aplikasi terpasang sebelum pemasang Android dibuka. Android akan meminta izin
+  *Pasang aplikasi tidak dikenal* sekali saja; setelah diizinkan, kembali ke aplikasi dan pemasangan dilanjutkan.
+- **Lewati versi ini** dan sakelar **Periksa pembaruan otomatis** (maksimal sekali sehari saat aplikasi dibuka;
+  bila ada versi baru muncul titik di ikon aplikasi dan sebuah notifikasi singkat).
+- Alamat repositori ditanam saat build dari `GITHUB_REPOSITORY` (otomatis di GitHub Actions). Untuk build lokal isi
+  `updateRepo=pemilik/repo` di `android/gradle.properties`.
+- **Repositori harus publik**: pemeriksa memakai API GitHub tanpa login, jadi repositori privat dianggap "rilis tidak
+  ditemukan". Bila ingin kode tetap privat, buat repositori publik khusus rilis dan isi `updateRepo` ke sana
+  (APK tetap harus ditandatangani `office.jks` yang sama).
+
 ## Build lokal (opsional)
 
 Butuh Node 22+, JDK 21, dan Android SDK.
