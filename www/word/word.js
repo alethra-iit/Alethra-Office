@@ -4,7 +4,8 @@ const CDN={
   mammoth:'lib/mammoth.browser.min.js',
   docx:'lib/docx.iife.js',
   jszip:'lib/jszip.min.js',
-  docxio:'word/docx-io.js'
+  docxio:'word/docx-io.js',
+  omml:'word/omml.js'
 };
 const libs={};
 function lib(n,test){
@@ -137,6 +138,9 @@ const CSS=`
 .wd .page table{border-collapse:collapse;margin:0 0 8pt}
 .wd .page td,.wd .page th{border:1px solid #000;padding:2pt 5.4pt;min-width:60px;vertical-align:top}
 .wd .page img{max-width:100%}
+.wd .page .eq{display:inline-block;vertical-align:middle;user-select:all;-webkit-user-select:all}
+.wd .page .eq.eqd{display:block;text-align:center;margin:6pt 0}
+.wd .page .eq math{font-family:"Cambria Math","STIX Two Math","Noto Sans Math","Latin Modern Math",math;font-size:1.1em;color:inherit}
 .wd .page blockquote{margin:8pt 36pt;font-style:italic;color:#404040}
 .wd .page .fnote{font-size:9pt;margin:0}
 .wd .page.marks p::after,.wd .page.marks h1::after,.wd .page.marks h2::after,.wd .page.marks h3::after,.wd .page.marks li::after{content:"¶";color:#2b579a;font-size:10pt}
@@ -622,7 +626,15 @@ function mount(root,opts={}){
       hdr=ftr='';
       if(ext==='docx'){
         const buf=await file.arrayBuffer();
-        await lib('mammoth',()=>window.mammoth);setContent((await mammoth.convertToHtml({arrayBuffer:buf})).value);
+        await lib('mammoth',()=>window.mammoth);
+        let mbuf=buf,maths=[];
+        try{  /* Mammoth membuang rumus Word (OMML): ganti dulu dengan token, lalu pulihkan sebagai MathML */
+          await lib('jszip',()=>window.JSZip);await lib('omml',()=>window.WordMath);
+          const pr=await WordMath.prepare(buf,window.JSZip);mbuf=pr.buf;maths=pr.maths;
+        }catch(e){mbuf=buf;maths=[];toast('Rumus tidak terbaca: '+e.message);}
+        let html=(await mammoth.convertToHtml({arrayBuffer:mbuf})).value;
+        if(maths.length)html=window.WordMath.inject(html,maths);
+        setContent(html);
         try{  /* header, footer, dan tata letak halaman asli dibaca terpisah dari isi */
           await lib('jszip',()=>window.JSZip);await lib('docxio',()=>window.WordDocx);
           const r=await WordDocx.readDocx(buf,window.JSZip);
@@ -641,8 +653,9 @@ function mount(root,opts={}){
   async function saveDocx(){
     try{
       pick(null);await lib('docx',()=>window.docx);await lib('docxio',()=>window.WordDocx);
+      if(page.querySelector('.eq[data-omml]'))await lib('jszip',()=>window.JSZip);   /* perlu untuk menyimpan rumus */
       const bs=$('[data-s=bsty]').value;
-      const blob=await WordDocx.toBlob({page,name,cfg,D,hdr,ftr,rtl:page.dir==='rtl',lineNumbers:page.classList.contains('ln'),
+      const blob=await WordDocx.toBlob({JSZip:window.JSZip,page,name,cfg,D,hdr,ftr,rtl:page.dir==='rtl',lineNumbers:page.classList.contains('ln'),
         border:bs?{style:bs,w:+$('[data-s=bw]').value,color:$('[data-s=bcol]').value}:null,pageColor:paper.style.background});
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);
       a.download=/\.docx$/i.test(name)?name:name+'.docx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Tersimpan: '+a.download);

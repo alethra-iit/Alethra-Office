@@ -127,3 +127,17 @@ opasitas gambar/isian tersimpan; opsi media dan bayangan/efek bentuk khusus ters
 - Menu **Berkas** punya dua tombol: **Simpan** (menimpa berkas yang sama tanpa bertanya) dan **Simpan Sebagai…** (selalu minta nama baru,
   hasilnya berkas baru di folder Download; simpan berikutnya menimpa berkas baru itu).
 - Berkas yang dibuka dari daftar tetap ditimpa di lokasi aslinya. Jika nama sudah dipakai, Android menambahkan `(1)` agar tidak menimpa berkas lain.
+
+## Rumus (persamaan) di Word
+
+Rumus bawaan Microsoft Word (OMML / `<m:oMath>`) sekarang **tampil** saat `.docx` dibuka dan **tetap utuh** saat disimpan.
+
+- **Buka**: Mammoth membuang rumus, jadi `www/word/omml.js` mengganti tiap rumus dengan token sebelum Mammoth membaca berkas,
+  lalu token itu dipulihkan sebagai **MathML** (pecahan, akar, pangkat/indeks, ∑ ∏ ∫ ∮, kurung, matriks, fungsi, limit, aksen, dll.).
+  Rumus tampil sebagai satu blok yang tidak ikut terketik (`contenteditable=false`).
+- **Simpan**: OMML asli disimpan di atribut `data-omml` dan dimasukkan kembali ke `document.xml`, jadi rumus tetap bisa
+  diedit di Microsoft Word.
+- Butuh WebView Android dengan MathML (Chromium 109+, Android 7+ dengan WebView terbarui). Di WebView lama rumus
+  ditampilkan sebagai teks linear, dan tetap utuh saat disimpan.
+- Batasan: rumus belum bisa **diedit** di dalam Alethra (hanya tampil/dipertahankan), dan hanya isi utama dokumen
+  (bukan header/footer).

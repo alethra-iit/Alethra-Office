@@ -41,6 +41,7 @@ const imgSize=u=>{                             // ukuran asli gambar dari header
 async function toBlob(c){
   const X=root.docx;if(!X)throw new Error('library docx belum dimuat');
   const {page,cfg,D}=c;
+  const eqs=[];                                  // OMML asli tiap rumus (data-omml)
   const doc0=page.ownerDocument;
   const paper=PAPER[cfg.size]||PAPER.a4;
   const mTw=cfg.m.map(v=>Math.round(v*TW));                    // atas, kanan, bawah, kiri
@@ -130,6 +131,8 @@ async function toBlob(c){
         }
         if(n.nodeType!==1||hidden(n))continue;
         const t=n.tagName;
+        if(n.classList.contains('eq')&&n.getAttribute('data-omml')){   // rumus: sisipkan token, OMML asli dipulihkan setelah dokumen dibuat
+          out.push(new X.TextRun({text:'@@ALEQ'+eqs.length+'@@'}));eqs.push(n.getAttribute('data-omml'));continue;}
         if(t==='BR'){out.push(new X.TextRun({break:1}));continue;}
         if(t==='IMG'){const r=imageRun(n,cx);if(r)out.push(r);else if(n.getAttribute('alt'))out.push(mkRun(n.getAttribute('alt'),cx));continue;}
         if(n.classList.contains('pn')){out.push(new X.TextRun({children:[X.PageNumber.CURRENT],...runOpts(ctxFor(n,cx))}));continue;}
@@ -364,7 +367,16 @@ async function toBlob(c){
     sections:[section]
   };
   const pc=hex(c.pageColor);if(pc)docOpts.background={color:pc};
-  return X.Packer.toBlob(new X.Document(docOpts));
+  const blob=await X.Packer.toBlob(new X.Document(docOpts));
+  if(!eqs.length)return blob;
+  /* pulihkan rumus: ganti run token dengan <m:oMath>/<m:oMathPara> asli di document.xml */
+  const JS=c.JSZip||root.JSZip;if(!JS)return blob;
+  const zip=await JS.loadAsync(await blob.arrayBuffer());
+  const f=zip.file('word/document.xml');if(!f)return blob;
+  const xml=(await f.async('string')).replace(/<w:r(?: [^>]*)?>(?:(?!<\/w:r>)[\s\S])*?@@ALEQ(\d+)@@(?:(?!<\/w:r>)[\s\S])*?<\/w:r>/g,
+    (m,i)=>eqs[+i]?eqs[+i].replace(/^<\?xml[^>]*\?>\s*/,''):m);
+  zip.file('word/document.xml',xml);
+  return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE'});
 }
 
 /* ======================================================================
