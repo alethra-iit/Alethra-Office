@@ -40,7 +40,7 @@ function runML(r){
       if(plain)out+=`<mi mathvariant="normal"${st}>${esc(m[2])}</mi>`;          // mis. sin, lim: satu token tegak
       else for(const ch of m[2])out+=`<mi${st}>${esc(ch)}</mi>`;                 // variabel: huruf miring satu-satu
     }
-    else if(m[3])continue;
+    else if(m[3]){const w=/\u2003/.test(m[3])?1:/\u2002/.test(m[3])?.5:/\u2005|\u2004/.test(m[3])?.25:/\u2009/.test(m[3])?.17:0;if(w)out+=`<mspace width="${w}em"/>`;}
     else out+=`<mo>${esc(m[4]==='-'?'\u2212':m[4])}</mo>`;
   }
   return out;
@@ -107,7 +107,7 @@ function node(n){
       return show&&!on(show)?`<mphantom>${arg(n,'e')}</mphantom>`:arg(n,'e');
     }
     case 'borderBox':return `<mrow style="border:1px solid currentColor;padding:2px">${seq(kid(n,'e'))}</mrow>`;
-    case 'eqArr':return `<mtable columnalign="left">${kids(n,'e').map(x=>`<mtr><mtd>${seq(x)}</mtd></mtr>`).join('')}</mtable>`;
+    case 'eqArr':return `<mtable columnalign="left">${kids(n,'e').map(x=>`<mtr><mtd>${seq(x).replace(/<mo>&amp;<\/mo>/g,'')}</mtd></mtr>`).join('')}</mtable>`;   // '&' = titik perataan Word, bukan karakter
     case 'm':return `<mtable>${kids(n,'mr').map(r=>`<mtr>${kids(r,'e').map(x=>`<mtd>${seq(x)}</mtd>`).join('')}</mtr>`).join('')}</mtable>`;
     case 'oMath':return seq(n);
     default:
@@ -181,5 +181,5 @@ function inject(html,maths,DP){
   return html.replace(/@@ALMATH(\d+)@@/g,(s,i)=>maths[+i]?eqHTML(maths[+i],DP):s);
 }
 
-root.WordMath={prepare,inject,toMathML,supported,M_NS};
+root.WordMath={prepare,inject,toMathML,supported,eqHTML,plainText,M_NS};
 })(typeof window!=='undefined'?window:globalThis);

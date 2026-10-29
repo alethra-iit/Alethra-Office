@@ -156,5 +156,32 @@ Rumus bawaan Microsoft Word (OMML / `<m:oMath>`) sekarang **tampil** saat `.docx
   diedit di Microsoft Word.
 - Butuh WebView Android dengan MathML (Chromium 109+, Android 7+ dengan WebView terbarui). Di WebView lama rumus
   ditampilkan sebagai teks linear, dan tetap utuh saat disimpan.
-- Batasan: rumus belum bisa **diedit** di dalam Alethra (hanya tampil/dipertahankan), dan hanya isi utama dokumen
-  (bukan header/footer).
+- Batasan: hanya isi utama dokumen yang didukung (bukan header/footer).
+
+### Sisipkan & edit rumus
+
+Tab **SISIPKAN → grup Rumus**:
+
+| Tombol | Fungsi |
+|---|---|
+| **π Rumus** (atau `Alt` + `=`) | Buka editor rumus untuk menyisipkan rumus baru di kursor. Bila ada teks terpilih, teks itu jadi isi awal. |
+| **Edit Rumus** | Edit rumus yang sedang terpilih (termasuk rumus dari berkas Word). |
+| **Rumus Umum ▾** | Galeri siap pakai: luas lingkaran, Pythagoras, rumus ABC, binomial, Taylor, Fourier, turunan, dll. |
+
+Mengetuk rumus di halaman memunculkan bilah kecil **Edit · Sebaris/Blok · Hapus**; mengetuk dua kali langsung membuka editor.
+
+Editor memakai penulisan **LaTeX** (`www/word/eqedit.js`) dengan pratinjau langsung dan palet tombol (struktur, huruf Yunani,
+operator, relasi, panah). Tombol struktur menyisipkan templat dan menaruh kursor di slot pertama; teks yang dipilih di
+kotak masuk ke slot itu. Contoh: `\frac{a}{b}`, `\sqrt[3]{x}`, `\sum_{i=1}^{n} i^2`, `\int_0^1 x\,dx`,
+`\begin{pmatrix} a & b \\ c & d \end{pmatrix}`, `\begin{cases} x & x>0 \\ -x & x\le 0 \end{cases}`.
+
+- Hasilnya OMML standar Word (`<m:oMath>` / `<m:oMathPara>`, strukturnya sama dengan keluaran pandoc dan lolos validasi skema OOXML),
+  bukan gambar, sehingga tersimpan sebagai rumus sungguhan di `.docx`.
+- **Sebaris** = di dalam kalimat; **Blok** = di paragraf sendiri, rata tengah. Rumus beberapa baris (`\\`) otomatis blok.
+- Saat membuka rumus yang sudah ada, OMML diubah ke LaTeX untuk diedit. Bila isinya **tidak diubah**, OMML asli dipakai apa adanya
+  (tidak ada yang berubah). Bila rumus memuat elemen yang tak punya padanan di editor (mis. `m:box`), muncul catatan bahwa
+  bentuknya bisa sedikit berubah setelah diedit.
+- Aksen/huruf khusus dipetakan ke karakter Unicode (`\mathbb{R}` → ℝ), sehingga tampil benar di Word.
+- Catatan teknis: `insertHTML` di Chromium memecah paragraf bila fragmennya berisi `<math>` dan melempar `<span contenteditable=false>`
+  ke luar `<p>`. Karena itu editor menyisipkan "cangkang" `<span class="eq">` dibungkus spasi lebar-nol (dibuang saat disimpan),
+  lalu mengisi MathML lewat DOM. Undo/redo tetap berfungsi.

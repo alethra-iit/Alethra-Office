@@ -5,7 +5,8 @@ const CDN={
   docx:'lib/docx.iife.js',
   jszip:'lib/jszip.min.js',
   docxio:'word/docx-io.js',
-  omml:'word/omml.js'
+  omml:'word/omml.js',
+  eqedit:'word/eqedit.js'
 };
 const libs={};
 function lib(n,test){
@@ -257,6 +258,7 @@ const DDI={
  case:ICS(ICT('Aa')),
  lh:ICS('<path d="M7 5v14M4 8l3-3 3 3M4 16l3 3 3-3M14 7h7M14 12h7M14 17h7"/>'),
  sym:ICS(ICT('Ω',15)),
+ eqg:ICS(ICT('Σ',15)),
  hdrs:ICS(ICPG+'<path d="M4.5 8h15M8 5.6h8"/>'),
  ftrs:ICS(ICPG+'<path d="M4.5 16h15M8 18.4h8"/>'),
  pnum:ICS(ICPG+'<path d="M8.5 8h7M8.5 11h5"/><text x="12" y="19" font-size="5.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif">#</text>'),
@@ -319,6 +321,8 @@ const WI={
  find:ICS('<circle cx="10" cy="10" r="5.8"/><path d="M14.5 14.5l6 6" stroke-width="2.2"/>'),
  repl:ICS('<path d="M4 7h11M12 4l3 3-3 3" stroke="'+WB+'"/><path d="M20 17H9M12 14l-3 3 3 3"/>'),
  sall:ICS('<rect x="3.5" y="3.5" width="12" height="12" stroke-dasharray="2.4 1.8"/><path d="M11 11l9 3-4 1.5L14 20z" fill="#fff" stroke="'+WB+'"/>'),
+ eq:ICS(ICT('π',17)),
+ eqedit:ICS('<path d="M4.5 19.5l1-4 10.5-10.5 3 3L8.5 18.5z"/><path d="M14 7l3 3" stroke="'+WB+'"/>'),
  pgbrk:ICS('<path d="M6 3h12v7H6zM6 14h12v7H6z"/><path d="M2.5 12h3M9 12h2M13 12h2M18.5 12h3" stroke="'+WB+'"/>'),
  table:ICS('<rect x="3.5" y="5" width="17" height="14" fill="#fff"/><rect x="3.5" y="5" width="17" height="4.5" fill="#bcd0ec"/><path d="M3.5 9.5h17M3.5 14.2h17M9.2 5v14M14.8 5v14"/><rect x="3.5" y="5" width="17" height="14" stroke="'+WB+'"/>'),
  image:ICS('<rect x="3.5" y="4.5" width="17" height="15" rx="1" fill="#fff"/><circle cx="9" cy="9.5" r="1.8" fill="#f2b01e" stroke="none"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="#2b8a3e"/>'),
@@ -390,6 +394,7 @@ home:
 insert:
  G('Halaman',B(WI.pgbrk,'Pemisah halaman','pagebreak','big','Pemisah<br>Halaman'))+G('Tabel',B(WI.table,'Tabel','table','big'))+
  G('Ilustrasi',B(WI.image,'Gambar','image','big'))+G('Tautan',B(WI.link,'Tautan','link','big'))+
+ G('Rumus',B(WI.eq,'Sisipkan rumus (Alt+=)','eq','big','Rumus')+`<div class="rows">${B(WI.eqedit,'Edit rumus yang dipilih','eqedit','rw','Edit Rumus')}${S('eqg',[['','Rumus Umum ▾'],...[['circ','Luas lingkaran'],['pyth','Teorema Pythagoras'],['abc','Rumus kuadrat (ABC)'],['binom','Teorema binomial'],['taylor','Deret Taylor'],['trig','Identitas trigonometri'],['fourier','Deret Fourier'],['deriv','Definisi turunan'],['integ','Teorema dasar kalkulus'],['normal','Distribusi normal'],['mean','Rata-rata']]],170,'Sisipkan rumus bawaan',1,'Rumus Umum')}</div>`)+
  G('Simbol',B(WI.hr,'Garis horizontal','insertHorizontalRule','big','Garis<br>Horizontal')+S('sym',[['','Ω Simbol'],'©','®','™','°','±','×','÷','€','£','→','←','✓'],80,'Sisipkan simbol',1,'Simbol','big'))+
  G('Teks',B(WI.date,'Tanggal & waktu','date','big','Tanggal &<br>Waktu'))+
  G('Header & Footer',`<div class="rows">${
@@ -652,7 +657,7 @@ function mount(root,opts={}){
   }
   async function saveDocx(){
     try{
-      pick(null);await lib('docx',()=>window.docx);await lib('docxio',()=>window.WordDocx);
+      pick(null);if(eqc)eqc.hide();await lib('docx',()=>window.docx);await lib('docxio',()=>window.WordDocx);
       if(page.querySelector('.eq[data-omml]'))await lib('jszip',()=>window.JSZip);   /* perlu untuk menyimpan rumus */
       const bs=$('[data-s=bsty]').value;
       const blob=await WordDocx.toBlob({JSZip:window.JSZip,page,name,cfg,D,hdr,ftr,rtl:page.dir==='rtl',lineNumbers:page.classList.contains('ln'),
@@ -950,10 +955,22 @@ function bib(){
     d.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();d.querySelector('.ok').click();}else if(e.key==='Escape')d.remove();});
     const f=d.querySelector('.tc');f.focus();f.select();
   }
+  /* ===== rumus: sisip / edit (word/eqedit.js dimuat saat pertama dipakai) ===== */
+  let eqc=null;
+  const eqLoad=async()=>{
+    if(!eqc){
+      await lib('omml',()=>window.WordMath);await lib('eqedit',()=>window.WordEq);
+      eqc=window.WordEq.attach({host:$('.wd'),page,focus,refresh,stats,toast});
+    }
+    return eqc;
+  };
+  const eqFail=e=>toast('Editor rumus gagal dimuat: '+e.message);
   const acts={
     menu(){menu.hidden=!menu.hidden;},
+    eq(){eqLoad().then(c=>c.openNew()).catch(eqFail);},
+    eqedit(){eqLoad().then(c=>c.editCurrent()).catch(eqFail);},
     new(){setName('Dokumen1.docx');hdr=ftr='';setContent('');focus();},
-    open(){fin.click();},save:saveDocx,print(){pick(null);printDoc();},home(){opts.onHome&&opts.onHome();},
+    open(){fin.click();},save:saveDocx,print(){pick(null);if(eqc)eqc.hide();printDoc();},home(){opts.onHome&&opts.onHome();},
     async paste(){focus();try{document.execCommand('insertText',false,await navigator.clipboard.readText());}catch{toast('Gunakan Ctrl+V untuk menempel');}},
     painter(){painting={bold:document.queryCommandState('bold'),italic:document.queryCommandState('italic'),underline:document.queryCommandState('underline'),
       font:(document.queryCommandValue('fontName')||'Calibri').replace(/["']/g,''),size:curSize(),color:document.queryCommandValue('foreColor')};toast('Pilih teks untuk menerapkan format');},
@@ -990,6 +1007,7 @@ function bib(){
     lh(v){if(v)blocks().forEach(b=>b.style.lineHeight=v);},
     shade(v){blocks().forEach(b=>b.style.background=v);},
     sym:v=>v&&exec('insertText',v),
+    eqg:v=>{if(!v)return;eqLoad().then(c=>{const g=window.WordEq.GALLERY.find(x=>x[0]===v);if(g)c.insertTex(g[2],true);}).catch(eqFail);},
     thm(v){const t=THM[v];applyDesign({h:t[0],b:t[1],hc:t[2],lh:t[3],ps:8});},
     hcol:v=>applyDesign({hc:v}),fpair(v){const[h,b]=v.split('|');applyDesign({h,b});},
     pspace(v){const p=PSP[v];applyDesign({ps:p[0],lh:p[1]});},fx:v=>applyDesign({fx:v}),
@@ -1445,6 +1463,7 @@ function bib(){
   if(window.ResizeObserver){let rt=0;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!root.isConnected)return;if(autoFit)fit();},80);}).observe(desk);}
   fin.onchange=()=>{if(fin.files[0])openFile(fin.files[0]);fin.value='';};
   $('.img').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>exec('insertImage',r.result);r.readAsDataURL(f);e.target.value='';};
+  page.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.eq'))eqLoad().then(c=>c.tap(e)).catch(eqFail);});
   page.addEventListener('input',stats);
   page.addEventListener('keyup',refresh);
   page.addEventListener('mouseup',()=>{refresh();
@@ -1453,6 +1472,7 @@ function bib(){
       exec('fontName',p.font);setSize(p.size);if(p.color)exec('foreColor',p.color);}});
   page.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();document.execCommand('insertHTML',false,'&emsp;');}});
   root.addEventListener('keydown',e=>{
+    if(e.altKey&&!e.ctrlKey&&!e.metaKey&&(e.key==='='||e.key==='+')){e.preventDefault();acts.eq();return;}
     if(!(e.ctrlKey||e.metaKey))return;const k=e.key.toLowerCase();
     if(k==='s'){e.preventDefault();saveDocx();}else if(k==='f'||k==='h'){e.preventDefault();showFind();}});
   f1.addEventListener('keydown',e=>{if(e.key==='Enter')findNext();});
