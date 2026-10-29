@@ -20,28 +20,58 @@ const mattr=(el,a)=>{                       // m:val dll; null bila atribut tida
 const on=el=>{if(!el)return false;const v=mattr(el,'val');return v===null||!/^(0|false|off)$/i.test(v);};
 const chrVal=(pr,tag,dflt)=>{const v=mattr(kid(pr,tag),'val');return v===null?dflt:v;};
 
+/* ---------- gaya rumus: warna, ukuran, sorot (w:rPr di dalam m:r / m:ctrlPr) ---------- */
+const wkid=(el,n)=>el?([...el.childNodes].find(x=>x.nodeType===1&&x.localName===n&&x.namespaceURI===W_NS)||null):null;
+const wval=el=>el?(el.getAttributeNS(W_NS,'val')||el.getAttribute('w:val')||''):'';
+const mrp=r=>[...r.childNodes].find(x=>x.nodeType===1&&x.localName==='rPr'&&x.namespaceURI===M_NS)||null;
+const HLITE={yellow:'FFFF00',green:'00FF00',cyan:'00FFFF',magenta:'FF00FF',blue:'0000FF',red:'FF0000',darkBlue:'000080',darkCyan:'008080',darkGreen:'008000',darkMagenta:'800080',darkRed:'800000',darkYellow:'808000',darkGray:'808080',lightGray:'C0C0C0'};
+let skipSz=false;                               // true bila ukuran seragam sudah dipasang di <math>
+function rprCSS(rp){
+  if(!rp)return '';let css='';
+  const cv=wval(wkid(rp,'color'));if(/^[0-9a-f]{6}$/i.test(cv)&&!/^000000$/.test(cv))css+=`color:#${cv};`;
+  const zv=+wval(wkid(rp,'sz'));if(zv>0&&!skipSz)css+=`font-size:${zv/2}pt;`;
+  const sh=wkid(rp,'shd'),fill=sh?(sh.getAttributeNS(W_NS,'fill')||sh.getAttribute('w:fill')||''):'';
+  if(/^[0-9a-f]{6}$/i.test(fill))css+=`background-color:#${fill};`;
+  else{const h=wval(wkid(rp,'highlight'));if(HLITE[h])css+=`background-color:#${HLITE[h]};`;}
+  return css;
+}
+function ctrlCSS(n){                            // gaya pada struktur (pecahan, akar, dst.) lewat m:ctrlPr
+  const pr=[...n.childNodes].find(x=>x.nodeType===1&&x.namespaceURI===M_NS&&/Pr$/.test(x.localName)&&x.localName!=='rPr');
+  const cp=pr?kid(pr,'ctrlPr'):null;
+  return cp?rprCSS(wkid(cp,'rPr')):'';
+}
+function uniformSz(el){                         // ukuran (setengah poin) bila SEMUA run sama; 0 bila tidak
+  let v=null;
+  for(const r of el.getElementsByTagNameNS(M_NS,'r')){
+    const x=+wval(wkid(wkid(r,'rPr'),'sz'));
+    if(!(x>0))return 0;if(v===null)v=x;else if(v!==x)return 0;
+  }
+  return v||0;
+}
+
 /* ---------- OMML -> MathML ---------- */
 const ACCENT={'\u0302':'^','\u0303':'~','\u0307':'\u02D9','\u0308':'\u00A8','\u0304':'\u00AF','\u20D7':'\u2192','\u0301':'\u00B4','\u0300':'`','\u030C':'\u02C7','\u0306':'\u02D8'};
 
 function runML(r){
-  const rPr=kid(r,'rPr');
+  const rPr=mrp(r),wp=wkid(r,'rPr');
   const sty=rPr?mattr(kid(rPr,'sty'),'val'):null,nor=rPr?kid(rPr,'nor'):null;
   let txt='';
   for(const c of r.childNodes)if(c.nodeType===1&&c.localName==='t')txt+=c.textContent;
   if(!txt)return '';
-  if(on(nor))return `<mtext>${esc(txt)}</mtext>`;
-  const bold=sty==='b'||sty==='bi',plain=sty==='p'||sty==='b';
-  const st=bold?' style="font-weight:bold"':'';
+  const cx=rprCSS(wp),at=x=>x?` style="${x}"`:'';
+  if(on(nor))return `<mtext${at(cx)}>${esc(txt)}</mtext>`;
+  const bold=sty==='b'||sty==='bi',ital=sty==='i'||sty==='bi',plain=sty==='p'||sty==='b';
+  const sB=(bold?'font-weight:bold;':'')+cx,sN=sB+(ital?'font-style:italic;':'');   // mi/mn: tebal & miring; mo: hanya warna/ukuran/sorot
   let out='';
   const re=/(\d+(?:[.,]\d+)?)|(\p{L}+)|(\s+)|([\s\S])/gu;
   for(let m;(m=re.exec(txt));){
-    if(m[1])out+=`<mn${st}>${esc(m[1])}</mn>`;
+    if(m[1])out+=`<mn${at(sN)}>${esc(m[1])}</mn>`;
     else if(m[2]){
-      if(plain)out+=`<mi mathvariant="normal"${st}>${esc(m[2])}</mi>`;          // mis. sin, lim: satu token tegak
-      else for(const ch of m[2])out+=`<mi${st}>${esc(ch)}</mi>`;                 // variabel: huruf miring satu-satu
+      if(plain)out+=`<mi mathvariant="normal"${at(sB)}>${esc(m[2])}</mi>`;          // mis. sin, lim: satu token tegak
+      else for(const ch of m[2])out+=`<mi${at(sB)}>${esc(ch)}</mi>`;                 // variabel: huruf miring satu-satu
     }
     else if(m[3]){const w=/\u2003/.test(m[3])?1:/\u2002/.test(m[3])?.5:/\u2005|\u2004/.test(m[3])?.25:/\u2009/.test(m[3])?.17:0;if(w)out+=`<mspace width="${w}em"/>`;}
-    else out+=`<mo>${esc(m[4]==='-'?'\u2212':m[4])}</mo>`;
+    else out+=`<mo${at(cx)}>${esc(m[4]==='-'?'\u2212':m[4])}</mo>`;
   }
   return out;
 }
@@ -51,6 +81,12 @@ const hasContent=el=>!!(el&&el.textContent.trim()||el&&el.getElementsByTagNameNS
 const mo=(c,attrs)=>`<mo${attrs||''}>${esc(ACCENT[c]||c)}</mo>`;
 
 function node(n){
+  const o=node0(n);
+  if(!o||n.localName==='r')return o;
+  const css=ctrlCSS(n);
+  return css?`<mrow style="${css}">${o}</mrow>`:o;
+}
+function node0(n){
   const ln=n.localName;
   switch(ln){
     case 'r':return runML(n);
@@ -118,10 +154,14 @@ function node(n){
 
 function toMathML(omml,display,DP){           // omml: elemen m:oMath / m:oMathPara
   DP=DP||root.DOMParser;
+  const u=uniformSz(omml);skipSz=u>0;           // ukuran seragam dipasang sekali di <math> (supaya pangkat/indeks tetap mengecil)
+  try{return toMathML0(omml,display,u);}finally{skipSz=false;}
+}
+function toMathML0(omml,display,u){
   let body='';
   if(omml.localName==='oMathPara'){display=true;body=kids(omml,'oMath').map(m=>`<mrow>${seq(m)}</mrow>`).join('<mspace linebreak="newline"/>');}
   else body=`<mrow>${seq(omml)}</mrow>`;
-  return `<math xmlns="http://www.w3.org/1998/Math/MathML" display="${display?'block':'inline'}">${body}</math>`;
+  return `<math xmlns="http://www.w3.org/1998/Math/MathML" display="${display?'block':'inline'}"${u>0?` style="font-size:${u/2}pt"`:''}>${body}</math>`;
 }
 const plainText=el=>[...el.getElementsByTagNameNS(M_NS,'t')].map(t=>t.textContent).join('');
 

@@ -158,6 +158,27 @@ Rumus bawaan Microsoft Word (OMML / `<m:oMath>`) sekarang **tampil** saat `.docx
   ditampilkan sebagai teks linear, dan tetap utuh saat disimpan.
 - Batasan: hanya isi utama dokumen yang didukung (bukan header/footer).
 
+### Editor rumus v2 (palet visual, gaya, dan galeri)
+
+Dialog **Sisipkan/Edit Rumus** dirombak supaya mudah dipakai orang awam tanpa hafal LaTeX:
+
+- **Tombol mewakili fungsi aslinya**: tiap tombol menampilkan bentuk rumus sebenarnya dengan kotak isi □
+  (mis. integral tentu lengkap dengan batas atas/bawah, sigma, limit, matriks, determinan). **Akar kuadrat (√) dan akar
+  pangkat n (ⁿ√) kini berbeda**: yang kedua menampilkan "n" di pangkat akar.
+- **Tab palet**: Dasar, Kalkulus, Aljabar (matriks 2×2/3×3, determinan, sistem persamaan, fungsi bersyarat), Trigonometri,
+  Aksen, Yunani, Operator, Relasi, Panah, Himpunan, Statistik, Fisika & Geometri, Kimia, Lainnya, dan **Contoh**
+  (±50 rumus siap pakai, dikelompokkan; ketuk untuk menyisipkan di kursor).
+- **⇥ Kotak berikutnya** (atau tombol `Tab` di kotak rumus) melompat ke kotak `{}`/`[]` kosong berikutnya setelah
+  menyisipkan templat.
+- **Gaya rumus** (toolbar di bawah kotak rumus): **B** tebal, *I* miring, A tegak, warna rumus, warna sorot, ukuran (8-48 pt),
+  ⌫ hapus gaya. Berlaku pada teks yang diblok; tanpa blok = seluruh rumus. Tombol tebal/miring berfungsi sebagai sakelar.
+  Di LaTeX: `\textcolor{red}{..}` (nama Inggris/Indonesia atau hex), `\colorbox{..}{..}`, `\size{16}{..}`, `\color{..}`,
+  `\large`, `\mathbf`, `\mathit`, `\boldsymbol`, serta panah berketerangan `\xrightarrow[bawah]{atas}`.
+- **Bilah ketuk-rumus** kini punya **B · I · A▾ (warna & sorot)** untuk mengubah gaya rumus langsung tanpa membuka dialog
+  (gaya ditulis langsung ke OMML, jadi bagian rumus lain tidak berubah).
+- Gaya disimpan sebagai gaya Word asli (`w:color`, `w:sz`, `w:shd`, `m:sty`, `m:ctrlPr`), jadi tetap terbaca di Microsoft Word.
+- **Rumus Umum ▾** di pita bertambah dan dikelompokkan (Geometri, Aljabar, Trigonometri, Kalkulus, Statistika, Fisika, Kimia).
+
 ### Sisipkan & edit rumus
 
 Tab **SISIPKAN → grup Rumus**:

@@ -773,6 +773,7 @@ const CSS=`
 .xl .clr{position:relative;display:inline-flex;align-items:center}
 .xl .clr .b{padding:0 3px}
 .xl .clr .sw{display:inline-block;line-height:1.1;padding:0 2px;border-bottom:3px solid var(--sw,#ff0000);font-weight:600}
+.xl .clr .sw .sw{border-bottom:0;padding:0;display:block}
 .xl .gal{display:grid;grid-template-columns:repeat(3,70px);grid-template-rows:repeat(2,28px);gap:3px;padding:2px;border:1px solid var(--ln);height:64px;align-self:flex-start}
 .xl .gal button{border:1px solid #d0d0d0;cursor:pointer;padding:0 4px;font-size:12px;white-space:nowrap;overflow:hidden;text-align:left;background:#fff;font-family:Calibri,Carlito,sans-serif}
 .xl .gal button:hover{outline:2px solid #f5c35d;outline-offset:-1px}

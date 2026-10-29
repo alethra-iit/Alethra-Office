@@ -57,7 +57,24 @@ const BREAKCMD=new Set('pm mp leq le geq ge neq ne approx equiv sim simeq cong p
 const BREAKCH='+-=<>,;';
 const MATENV={matrix:['',''],pmatrix:['(',')'],bmatrix:['[',']'],Bmatrix:['{','}'],vmatrix:['|','|'],Vmatrix:['‖','‖'],smallmatrix:['',''],array:['','']};
 const ARRENV=new Set('aligned align align* alignat alignat* split gather gather* gathered eqnarray eqnarray* flalign flalign*'.split(' '));
-const FONTCMD={mathrm:'p',textrm:'p',mathbf:'b',textbf:'b',mathit:'i',textit:'i',boldsymbol:'bi',bm:'bi',mathsf:'sf',mathtt:'tt',mathbb:'bb',mathcal:'cal',mathscr:'cal',mathfrak:'frak'};
+const FONTCMD={mathrm:'p',textrm:'p',mathup:'p',textup:'p',mathbf:'b',textbf:'b',mathit:'i',textit:'i',mathnormal:'i',boldsymbol:'bi',bm:'bi',mathbfit:'bi',mathsf:'sf',textsf:'sf',mathtt:'tt',texttt:'tt',mathbb:'bb',mathcal:'cal',mathscr:'cal',mathfrak:'frak'};
+/* warna (nama Inggris/Indonesia atau hex) & ukuran */
+const COLORS={black:'000000',white:'FFFFFF',red:'FF0000',green:'008000',blue:'0000FF',yellow:'FFFF00',orange:'FF8000',purple:'800080',gray:'808080',grey:'808080',brown:'8B4513',cyan:'00FFFF',magenta:'FF00FF',pink:'FF69B4',teal:'008080',navy:'000080',lime:'00FF00',olive:'808000',maroon:'800000',darkgray:'404040',lightgray:'BFBFBF',
+  hitam:'000000',putih:'FFFFFF',merah:'FF0000',hijau:'008000',biru:'0000FF',kuning:'FFFF00',oranye:'FF8000',jingga:'FF8000',ungu:'800080',abu:'808080',cokelat:'8B4513',merahmuda:'FF69B4'};
+function colorHex(raw,model){
+  const s=String(raw).trim().replace(/^#/,'');
+  if(model&&/^rgb$/i.test(model)){const q=s.split(',').map(Number);if(q.length===3&&q.every(x=>x>=0&&x<=1))return q.map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('').toUpperCase();err('Warna rgb tidak valid: '+raw);}
+  if(/^[0-9a-fA-F]{6}$/.test(s))return s.toUpperCase();
+  if(/^[0-9a-fA-F]{3}$/.test(s))return s.split('').map(c=>c+c).join('').toUpperCase();
+  const k=s.toLowerCase();if(COLORS[k])return COLORS[k];
+  err('Warna tidak dikenal: '+raw+' (pakai nama seperti red/merah atau kode seperti FF0000)');
+}
+const SIZECMD={tiny:7,scriptsize:8,footnotesize:9,small:10,normalsize:0,large:14,Large:17,LARGE:20,huge:24,Huge:28};
+const mixSty=(o,n)=>{                              /* gabung gaya huruf: tebal + miring = tebal-miring */
+  if(!o)return n;const b=/b/.test(o),i=/i/.test(o);
+  if(n==='b')return i?'bi':'b';if(n==='i')return b?'bi':'i';if(n==='bi')return 'bi';if(n==='p')return b?'b':'p';
+  return n;
+};
 
 /* alfabet matematika Unicode (mathbb, mathcal, mathfrak, mathsf, mathtt) */
 const ALPHA={
@@ -136,7 +153,11 @@ function parseTex(src,opt){
     const out=[];
     for(;;){
       const t=peek();if(!t||stop(t))break;
-      const n=term();if(n)out.push(n);
+      const n=term();if(!n)continue;
+      if(n.t==='cset'){                             /* \color{..} / \large: berlaku sampai akhir kelompok */
+        const rest=seq(stop);applyStyle(rest,n.st);out.push({t:'g',c:rest,style:true});break;
+      }
+      out.push(n);
     }
     return out;
   }
@@ -151,13 +172,17 @@ function parseTex(src,opt){
     if(t.k==='{')return group();
     const a=atom(true);return a?[a]:[];
   }
-  function mapRuns(nodes,fn){
+  function mapNodes(nodes,fn){                      /* kunjungi SEMUA simpul (run & struktur) */
     for(const n of nodes){
-      if(n.t==='r'){fn(n);continue;}
-      for(const k of ['c','n','d','deg','e','sub','sup','lim','name'])if(Array.isArray(n[k]))mapRuns(n[k],fn);
-      if(n.es)n.es.forEach(x=>mapRuns(x,fn));
-      if(n.rows)n.rows.forEach(r=>{if(Array.isArray(r[0])||r.length===0)r.forEach(c=>mapRuns(c,fn));else mapRuns(r,fn);});
+      if(!n||typeof n!=='object')continue;
+      fn(n);
+      for(const k of ['c','n','d','deg','e','sub','sup','lim','name'])if(Array.isArray(n[k]))mapNodes(n[k],fn);
+      if(n.es)n.es.forEach(x=>mapNodes(x,fn));
+      if(n.rows)n.rows.forEach(r=>{if(!r.length||Array.isArray(r[0]))r.forEach(c=>mapNodes(c,fn));else mapNodes(r,fn);});
     }
+  }
+  function applyStyle(nodes,st){                    /* warna/ukuran/sorot; gaya yang lebih dalam menang */
+    mapNodes(nodes,n=>{for(const k in st)if(n[k]==null)n[k]=st[k];});
   }
   function operand(){             /* isi operator n-ary: sampai operator +,-,= dst. di tingkat yang sama */
     const t=peek();if(!t||isStopGen(t))return [];
@@ -221,12 +246,18 @@ function parseTex(src,opt){
     return {t:'sup',e:[a],sup};
   }
   function styled(kind,nodes){
-    mapRuns(nodes,r=>{
-      if(r.nor)return;
+    mapNodes(nodes,r=>{
+      if(r.t!=='r'||r.nor)return;
       if(ALPHA[kind]){r.s=[...r.s].map(ch=>alphaMap(kind,ch)).join('');}
-      else r.sty=kind;
+      else r.sty=mixSty(r.sty,kind);
     });
     return {t:'g',c:nodes,style:true};
+  }
+  function optModel(){                              /* [HTML] / [rgb] sebelum nama warna */
+    const q=peek();if(!q||q.k!=='ch'||q.v!=='[')return null;
+    next();let m='';
+    for(;;){const t=next();if(!t)err('Kurung siku [ tidak ditutup');if(t.k==='ch'&&t.v===']')break;m+=t.v||'';}
+    return m;
   }
   function env(name){
     if(name==='array'&&peek()&&peek().k==='{')rawGroup();
@@ -271,6 +302,7 @@ function parseTex(src,opt){
       if(ESC1[v]!==undefined)return R(ESC1[v]);
       err('Perintah tidak dikenal: \\'+v);
     }
+    if(SIZECMD[v]!==undefined&&!SYM[v])return {t:'cset',st:{sz:SIZECMD[v]}};
     if(FUNCS.has(v))return {t:'fn',name:v};
     if(NARY[v])return {t:'nary',chr:NARY[v],loc:/[\u222B-\u2233]/.test(NARY[v])?'subSup':'undOvr'};
     if(ACC[v]){const e=atom();return {t:'acc',chr:ACC[v],e:e?[e]:[]};}
@@ -318,6 +350,23 @@ function parseTex(src,opt){
       case 'begin':return env(rawGroup());
       case 'end':err('\\end tanpa \\begin');break;
       case 'big':case 'Big':case 'bigg':case 'Bigg':case 'bigl':case 'bigr':case 'Bigl':case 'Bigr':case 'biggl':case 'biggr':{const d=delim();return R(d);}
+      case 'textcolor':case 'colortext':{const m=optModel(),c=colorHex(rawGroup(),m),x=scriptArg();applyStyle(x,{col:c});return {t:'g',c:x,style:true};}
+      case 'color':{const m=optModel(),c=colorHex(rawGroup(),m);return {t:'cset',st:{col:c}};}
+      case 'colorbox':case 'highlight':case 'bgcolor':{const m=optModel(),c=colorHex(rawGroup(),m),x=scriptArg();applyStyle(x,{hl:c});return {t:'g',c:x,style:true};}
+      case 'size':case 'fontsize':{
+        const n=parseFloat(rawGroup().replace(',','.'));
+        if(!(n>=4&&n<=200))err('Ukuran harus antara 4 dan 200 poin');
+        const x=scriptArg();applyStyle(x,{sz:n});return {t:'g',c:x,style:true};
+      }
+      case 'xrightarrow':case 'xleftarrow':case 'xlongequal':{            /* panah dengan keterangan di atas/bawah */
+        let below=null;const q=peek();
+        if(q&&q.k==='ch'&&q.v==='['){next();below=seq(x=>x.k==='ch'&&x.v===']');if(!next())err('Kurung siku [ tidak ditutup');}
+        const up=scriptArg();
+        let node=R(v==='xrightarrow'?'⟶':v==='xleftarrow'?'⟵':'═');
+        if(up.length)node={t:'limupp',e:[node],lim:up};
+        if(below&&below.length)node={t:'limlow',e:[node],lim:below};
+        return node;
+      }
       case 'displaystyle':case 'textstyle':case 'scriptstyle':case 'limits':case 'nolimits':case 'mathstrut':case 'relax':return null;
       case 'not':{const a=atom();return a;}
     }
@@ -339,45 +388,65 @@ function parseTex(src,opt){
 }
 
 /* ============================ AST -> OMML ============================ */
-const FONT='<w:rPr><w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/></w:rPr>';
 const val=(n,v)=>`<m:${n} m:val="${xa(v)}"/>`;
-function flat(nodes){const o=[];for(const n of nodes||[]){if(n.t==='g'){o.push(...flat(n.c));}else if(n.t==='fnop'){}else o.push(n);}return o;}
-function runXML(s,sty,nor){
-  let pr='';
-  if(nor)pr='<m:nor/>';else if(sty&&sty!=='i')pr=val('sty',{p:'p',b:'b',bi:'bi'}[sty]||'p');
-  return `<m:r>${pr?`<m:rPr>${pr}</m:rPr>`:''}${FONT}<m:t${/^\s|\s$/.test(s)?' xml:space="preserve"':''}>${xe(s)}</m:t></m:r>`;
+function flat(nodes){const o=[];for(const n of nodes||[]){if(n.t==='g'){o.push(...flat(n.c));}else if(n.t==='fnop'||n.t==='cset'){}else o.push(n);}return o;}
+/* isi <w:rPr>: font + warna + ukuran + sorot (urutan sesuai skema Word) */
+function rprXML(st){
+  let x='<w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>';
+  if(st&&st.col)x+=`<w:color w:val="${st.col}"/>`;
+  if(st&&st.sz>0){const h=Math.round(st.sz*2);x+=`<w:sz w:val="${h}"/><w:szCs w:val="${h}"/>`;}
+  if(st&&st.hl)x+=`<w:shd w:val="clear" w:color="auto" w:fill="${st.hl}"/>`;
+  return x;
 }
+const STY_VAL={p:'p',b:'b',bi:'bi',i:'i'};
+function runXML(s,o){
+  o=o||{};let pr='';
+  if(o.nor)pr='<m:nor/>';else if(o.sty&&STY_VAL[o.sty])pr=val('sty',STY_VAL[o.sty]);
+  return `<m:r>${pr?`<m:rPr>${pr}</m:rPr>`:''}<w:rPr>${rprXML(o)}</w:rPr><m:t${/^\s|\s$/.test(s)?' xml:space="preserve"':''}>${xe(s)}</m:t></m:r>`;
+}
+/* properti struktur: m:xxxPr berisi opsi + m:ctrlPr (warna/ukuran/sorot garis pecahan, kurung, akar, dst.) */
+const hasSt=n=>!!(n.col||n.sz>0||n.hl);
+function prX(tag,inner,n){
+  const c=hasSt(n)?`<m:ctrlPr><w:rPr>${rprXML(n)}</w:rPr></m:ctrlPr>`:'';
+  return inner||c?`<m:${tag}>${inner||''}${c}</m:${tag}>`:'';
+}
+const stk=n=>[n.sty||'',n.nor?1:0,n.col||'',n.sz||'',n.hl||''].join('|');
 function emit(nodes,ph){
   const L=flat(nodes);let out='';
-  const E=x=>{const s=emit(x,ph);return s||(ph?runXML('□'):'');};
+  const box=()=>runXML('□');
+  const E=x=>{const s=emit(x,ph);return s||(ph?box():'');};
   const arg=(tag,x)=>`<m:${tag}>${E(x)}</m:${tag}>`;
   for(let i=0;i<L.length;i++){
     const n=L[i];
     if(n.t==='r'){
       let s=n.s;
-      while(L[i+1]&&L[i+1].t==='r'&&L[i+1].sty===n.sty&&!!L[i+1].nor===!!n.nor){s+=L[i+1].s;i++;}
-      if(s)out+=runXML(s,n.sty,n.nor);continue;
+      while(L[i+1]&&L[i+1].t==='r'&&stk(L[i+1])===stk(n)){s+=L[i+1].s;i++;}
+      if(s)out+=runXML(s,n);continue;
     }
     switch(n.t){
-      case 'f':out+=`<m:f>${n.type!=='bar'?`<m:fPr>${val('type',n.type)}</m:fPr>`:''}${arg('num',n.n)}${arg('den',n.d)}</m:f>`;break;
-      case 'rad':{const has=n.deg&&n.deg.length;out+=`<m:rad><m:radPr>${has?'':val('degHide','1')}</m:radPr><m:deg>${has?emit(n.deg,ph):''}</m:deg>${arg('e',n.e)}</m:rad>`;break;}
-      case 'sup':out+=`<m:sSup>${arg('e',n.e)}${arg('sup',n.sup)}</m:sSup>`;break;
-      case 'sub':out+=`<m:sSub>${arg('e',n.e)}${arg('sub',n.sub)}</m:sSub>`;break;
-      case 'ssub':out+=`<m:sSubSup>${arg('e',n.e)}${arg('sub',n.sub)}${arg('sup',n.sup)}</m:sSubSup>`;break;
-      case 'pre':out+=`<m:sPre>${arg('sub',n.sub)}${arg('sup',n.sup)}${arg('e',n.e)}</m:sPre>`;break;
-      case 'nary':out+=`<m:nary><m:naryPr>${val('chr',n.chr)}${val('limLoc',n.loc)}${n.sub?'':val('subHide','1')}${n.sup?'':val('supHide','1')}</m:naryPr><m:sub>${emit(n.sub||[],ph)}</m:sub><m:sup>${emit(n.sup||[],ph)}</m:sup>${arg('e',n.e)}</m:nary>`;break;
-      case 'd':out+=`<m:d><m:dPr>${val('begChr',n.beg)}${n.es.length>1?val('sepChr',n.sep):''}${val('endChr',n.end)}</m:dPr>${n.es.map(x=>`<m:e>${emit(x,ph)}</m:e>`).join('')}</m:d>`;break;
-      case 'func':out+=`<m:func><m:fName>${emit(n.name,ph)}</m:fName>${arg('e',n.e)}</m:func>`;break;
-      case 'fn':out+=runXML(n.name,'p');break;
-      case 'limlow':out+=`<m:limLow>${arg('e',n.e)}${arg('lim',n.lim)}</m:limLow>`;break;
-      case 'limupp':out+=`<m:limUpp>${arg('e',n.e)}${arg('lim',n.lim)}</m:limUpp>`;break;
-      case 'acc':out+=`<m:acc><m:accPr>${val('chr',n.chr)}</m:accPr>${arg('e',n.e)}</m:acc>`;break;
-      case 'bar':out+=`<m:bar><m:barPr>${val('pos',n.pos)}</m:barPr>${arg('e',n.e)}</m:bar>`;break;
-      case 'gchr':out+=`<m:groupChr><m:groupChrPr>${val('chr',n.chr)}${val('pos',n.pos)}</m:groupChrPr>${arg('e',n.e)}</m:groupChr>`;break;
-      case 'box':out+=`<m:borderBox>${arg('e',n.e)}</m:borderBox>`;break;
-      case 'phant':out+=`<m:phant><m:phantPr>${val('show','0')}</m:phantPr>${arg('e',n.e)}</m:phant>`;break;
-      case 'eqarr':out+=`<m:eqArr>${(n.rows.length?n.rows:[[]]).map(r=>`<m:e>${emit(r,ph)}</m:e>`).join('')}</m:eqArr>`;break;
-      case 'mat':out+=`<m:m>${n.rows.map(r=>`<m:mr>${r.map(c=>`<m:e>${emit(c,ph)}</m:e>`).join('')}</m:mr>`).join('')}</m:m>`;break;
+      case 'f':out+=`<m:f>${prX('fPr',n.type!=='bar'?val('type',n.type):'',n)}${arg('num',n.n)}${arg('den',n.d)}</m:f>`;break;
+      case 'rad':{
+        const has=n.deg&&n.deg.length,show=has||(ph&&n.deg);          /* akar pangkat n: tampilkan kotak pangkat di pratinjau */
+        out+=`<m:rad>${prX('radPr',show?'':val('degHide','1'),n)}<m:deg>${has?emit(n.deg,ph):show?box():''}</m:deg>${arg('e',n.e)}</m:rad>`;break;}
+      case 'sup':out+=`<m:sSup>${prX('sSupPr','',n)}${arg('e',n.e)}${arg('sup',n.sup)}</m:sSup>`;break;
+      case 'sub':out+=`<m:sSub>${prX('sSubPr','',n)}${arg('e',n.e)}${arg('sub',n.sub)}</m:sSub>`;break;
+      case 'ssub':out+=`<m:sSubSup>${prX('sSubSupPr','',n)}${arg('e',n.e)}${arg('sub',n.sub)}${arg('sup',n.sup)}</m:sSubSup>`;break;
+      case 'pre':out+=`<m:sPre>${prX('sPrePr','',n)}${arg('sub',n.sub)}${arg('sup',n.sup)}${arg('e',n.e)}</m:sPre>`;break;
+      case 'nary':{
+        const hs=!(n.sub&&(n.sub.length||ph)),hp=!(n.sup&&(n.sup.length||ph));
+        out+=`<m:nary>${prX('naryPr',val('chr',n.chr)+val('limLoc',n.loc)+(hs?val('subHide','1'):'')+(hp?val('supHide','1'):''),n)}<m:sub>${hs?'':E(n.sub)}</m:sub><m:sup>${hp?'':E(n.sup)}</m:sup>${arg('e',n.e)}</m:nary>`;break;}
+      case 'd':out+=`<m:d>${prX('dPr',val('begChr',n.beg)+(n.es.length>1?val('sepChr',n.sep):'')+val('endChr',n.end),n)}${n.es.map(x=>`<m:e>${E(x)}</m:e>`).join('')}</m:d>`;break;
+      case 'func':out+=`<m:func>${prX('funcPr','',n)}<m:fName>${emit(n.name,ph)}</m:fName>${arg('e',n.e)}</m:func>`;break;
+      case 'fn':out+=runXML(n.name,Object.assign({},n,{sty:'p'}));break;
+      case 'limlow':out+=`<m:limLow>${prX('limLowPr','',n)}${arg('e',n.e)}${arg('lim',n.lim)}</m:limLow>`;break;
+      case 'limupp':out+=`<m:limUpp>${prX('limUppPr','',n)}${arg('e',n.e)}${arg('lim',n.lim)}</m:limUpp>`;break;
+      case 'acc':out+=`<m:acc>${prX('accPr',val('chr',n.chr),n)}${arg('e',n.e)}</m:acc>`;break;
+      case 'bar':out+=`<m:bar>${prX('barPr',val('pos',n.pos),n)}${arg('e',n.e)}</m:bar>`;break;
+      case 'gchr':out+=`<m:groupChr>${prX('groupChrPr',val('chr',n.chr)+val('pos',n.pos),n)}${arg('e',n.e)}</m:groupChr>`;break;
+      case 'box':out+=`<m:borderBox>${prX('borderBoxPr','',n)}${arg('e',n.e)}</m:borderBox>`;break;
+      case 'phant':out+=`<m:phant>${prX('phantPr',val('show','0'),n)}${arg('e',n.e)}</m:phant>`;break;
+      case 'eqarr':out+=`<m:eqArr>${prX('eqArrPr','',n)}${(n.rows.length?n.rows:[[]]).map(r=>`<m:e>${E(r)}</m:e>`).join('')}</m:eqArr>`;break;
+      case 'mat':out+=`<m:m>${prX('mPr','',n)}${n.rows.map(r=>`<m:mr>${r.map(c=>`<m:e>${E(c)}</m:e>`).join('')}</m:mr>`).join('')}</m:m>`;break;
     }
   }
   return out;
@@ -407,6 +476,33 @@ const on=el=>{if(!el)return false;const v=mattr(el,'val');return v===null||!/^(0
 const chrVal=(pr,tag,d)=>{const v=mattr(kid(pr,tag),'val');return v===null?d:v;};
 const plain=el=>{let s='';if(el)for(const t of el.getElementsByTagNameNS(M_NS,'t'))s+=t.textContent;return s;};
 const hasContent=el=>!!(el&&(plain(el).trim()||el.getElementsByTagNameNS(M_NS,'r').length));
+/* ---- gaya (warna/ukuran/sorot) dari OMML ---- */
+const wkid=(el,n)=>el?([...el.childNodes].find(x=>x.nodeType===1&&x.localName===n&&x.namespaceURI===W_NS)||null):null;
+const wval=el=>el?(el.getAttributeNS(W_NS,'val')||el.getAttribute('w:val')||''):'';
+const mrp=r=>[...r.childNodes].find(x=>x.nodeType===1&&x.localName==='rPr'&&x.namespaceURI===M_NS)||null;
+const HLITE={yellow:'FFFF00',green:'00FF00',cyan:'00FFFF',magenta:'FF00FF',blue:'0000FF',red:'FF0000',darkBlue:'000080',darkCyan:'008080',darkGreen:'008000',darkMagenta:'800080',darkRed:'800000',darkYellow:'808000',darkGray:'808080',lightGray:'C0C0C0'};
+function rpOf(el){
+  if(el.localName==='r')return wkid(el,'rPr');
+  const pr=[...el.childNodes].find(x=>x.nodeType===1&&x.namespaceURI===M_NS&&/Pr$/.test(x.localName)&&x.localName!=='rPr');
+  const cp=pr?kid(pr,'ctrlPr'):null;return cp?wkid(cp,'rPr'):null;
+}
+/* kunci gaya "warna|ukuran|sorot"; '' bila tidak ada. Ukuran sama dengan ukuran teks dasar dianggap bawaan. */
+function styKey(el,base){
+  const rp=rpOf(el);if(!rp)return '';
+  let col='',sz='',hl='';
+  const cv=wval(wkid(rp,'color'));if(/^[0-9a-f]{6}$/i.test(cv)&&!/^000000$/.test(cv))col=cv.toUpperCase();
+  const zv=+wval(wkid(rp,'sz'))/2;if(zv>0&&!(base&&Math.abs(zv-base)<.3))sz=String(zv);
+  const sh=wkid(rp,'shd'),fill=sh?(sh.getAttributeNS(W_NS,'fill')||sh.getAttribute('w:fill')||''):'';
+  if(/^[0-9a-f]{6}$/i.test(fill))hl=fill.toUpperCase();else{const h=HLITE[wval(wkid(rp,'highlight'))];if(h)hl=h;}
+  return col||sz||hl?col+'|'+sz+'|'+hl:'';
+}
+function wrapSty(k,inner){
+  const [col,sz,hl]=k.split('|');let o=inner;
+  if(col)o='\\textcolor{'+col+'}{'+o+'}';
+  if(hl)o='\\colorbox{'+hl+'}{'+o+'}';
+  if(sz)o='\\size{'+sz+'}{'+o+'}';
+  return o;
+}
 const cat=(a,b)=>(a&&b&&/\\[A-Za-z]+$/.test(a)&&/^[A-Za-z]/.test(b))?a+' '+b:a+b;
 const BREAKCHARS=new Set([...BREAKCH,'\u2212',...[...BREAKCMD].map(c=>SYM[c]).filter(Boolean)]);
 const SCRCMD={'double-struck':'mathbb',script:'mathcal',fraktur:'mathfrak','sans-serif':'mathsf',monospace:'mathtt'};
@@ -439,12 +535,12 @@ function chTex(c,inEq){
   return c;
 }
 function runTex(r,c){
-  const rPr=kid(r,'rPr');let t='';
+  const rPr=mrp(r);let t='';
   for(const x of r.childNodes)if(x.nodeType===1&&x.localName==='t')t+=x.textContent;
   if(!t)return '';
   if(rPr&&on(kid(rPr,'nor')))return '\\text{'+t.replace(/[\\{}$&%#_^~]/g,m=>'\\'+m)+'}';
-  const sty=rPr?mattr(kid(rPr,'sty'),'val'):null,scr=rPr?mattr(kid(rPr,'scr'),'val'):null;
-  const styCmd=scr&&SCRCMD[scr]?SCRCMD[scr]:(sty==='p'?'mathrm':sty==='b'?'mathbf':sty==='bi'?'boldsymbol':null);
+  const sty0=rPr?mattr(kid(rPr,'sty'),'val'):null,sty=(c.uni&&sty0===c.uni)?null:sty0,scr=rPr?mattr(kid(rPr,'scr'),'val'):null;
+  const styCmd=scr&&SCRCMD[scr]?SCRCMD[scr]:(sty==='p'?'mathrm':sty==='b'?'mathbf':sty==='bi'?'boldsymbol':(sty==='i'&&/[^\p{L}\s]/u.test(t))?'mathit':null);
   let out='',buf='',bk=null;
   const flush=()=>{if(buf)out=cat(out,bk?'\\'+bk+'{'+buf+'}':buf);buf='';bk=null;};
   for(const ch of t){
@@ -457,7 +553,18 @@ function runTex(r,c){
   }
   flush();return out;
 }
-function oseq(el,c){let s='';for(const n of kids(el))s=cat(s,onode(n,c));return s;}
+function oseq(el,c){
+  let s='';const ns=kids(el);
+  for(let i=0;i<ns.length;){
+    const k=styKey(ns[i],c.base);
+    if(k&&k!==c.cur){                              /* kelompokkan simpul berurutan yang bergaya sama -> satu pembungkus */
+      const prev=c.cur;c.cur=k;let inner='',j=i;
+      while(j<ns.length&&styKey(ns[j],c.base)===k){inner=cat(inner,onode(ns[j],c));j++;}
+      c.cur=prev;s=cat(s,wrapSty(k,inner));i=j;
+    }else{s=cat(s,onode(ns[i],c));i++;}
+  }
+  return s;
+}
 const oarg=(p,name,c)=>oseq(kid(p,name),c);
 const dtex=ch=>ch===''?'.':(DELIM_REV[ch]!==undefined?DELIM_REV[ch]:ch);
 function fnameTex(el,c){
@@ -479,7 +586,7 @@ function matTex(m,name,c){
   return '\\begin{'+name+'} '+rows+' \\end{'+name+'}';
 }
 function arrTex(a,name,c){
-  const k={inEq:true,lossy:false};const rows=kids(a,'e').map(e=>oseq(e,k)).join(' \\\\ ');
+  const k={inEq:true,lossy:false,cur:c.cur,base:c.base};const rows=kids(a,'e').map(e=>oseq(e,k)).join(' \\\\ ');
   if(k.lossy)c.lossy=true;
   return '\\begin{'+name+'} '+rows+' \\end{'+name+'}';
 }
@@ -570,10 +677,15 @@ function onode(n,c){
   }
 }
 /* el: elemen m:oMath / m:oMathPara -> {tex, lossy, display} */
-function omml2tex(el){
-  const c={lossy:false,inEq:false};let tex,display=false;
-  if(el.localName==='oMathPara'){display=true;tex=kids(el,'oMath').map(m=>oseq(m,c)).join(' \\\\ ');}
-  else tex=oseq(el,c);
+function omml2tex(el,opt){
+  const c={lossy:false,inEq:false,cur:'',base:(opt&&opt.basePt)||0};let tex,display=false;
+  /* semua huruf/angka bergaya sama (mis. seluruh rumus tebal) -> satu pembungkus, bukan satu per huruf */
+  const vs=[...el.getElementsByTagNameNS(M_NS,'r')].filter(r=>/[\p{L}\p{N}]/u.test(plain(r))&&!(mrp(r)&&on(kid(mrp(r),'nor')))).map(r=>{const p=mrp(r);return (p&&mattr(kid(p,'sty'),'val'))||'';});
+  if(vs.length>1&&vs[0]&&vs.every(v=>v===vs[0])&&{p:1,b:1,bi:1}[vs[0]])c.uni=vs[0];
+  const UNI={p:'mathrm',b:'mathbf',bi:'boldsymbol'};
+  const wrapU=t=>c.uni&&t?'\\'+UNI[c.uni]+'{'+t+'}':t;
+  if(el.localName==='oMathPara'){display=true;tex=kids(el,'oMath').map(m=>wrapU(oseq(m,c))).join(' \\\\ ');}
+  else tex=wrapU(oseq(el,c));
   return {tex:tex.trim(),lossy:c.lossy,display};
 }
 /* ubah OMML sebaris <-> blok tanpa menyentuh isinya; null bila tidak mungkin (beberapa baris -> sebaris) */
@@ -591,72 +703,310 @@ const isPara=o=>/^\s*<m:oMathPara[\s>]/.test(o);
 
 /* ============================ PALET & DIALOG ============================ */
 const CM='‸';   /* penanda posisi kursor di templat */
+/* item palet: [label, templat, keterangan, (glyph khusus untuk tombol)] */
 const sy=n=>[SYM[n],'\\'+n+' ',n];
-const PAL={
-  s:['Struktur',[
-    ['a/b','\\frac{'+CM+'}{}','Pecahan'],['√','\\sqrt{'+CM+'}','Akar kuadrat'],['ⁿ√','\\sqrt['+CM+']{}','Akar pangkat n'],
-    ['xⁿ','^{'+CM+'}','Pangkat'],['xₙ','_{'+CM+'}','Indeks'],['xₙⁿ','_{'+CM+'}^{}','Indeks dan pangkat'],
-    ['∫','\\int_{'+CM+'}^{}','Integral'],['∬','\\iint_{'+CM+'}','Integral ganda'],['∮','\\oint_{'+CM+'}','Integral kontur'],
-    ['∑','\\sum_{'+CM+'}^{}','Sigma (jumlah)'],['∏','\\prod_{'+CM+'}^{}','Perkalian'],['lim','\\lim_{'+CM+'\\to }','Limit'],
-    ['( )','\\left('+CM+'\\right)','Kurung biasa'],['[ ]','\\left['+CM+'\\right]','Kurung siku'],['{ }','\\left\\{'+CM+'\\right\\}','Kurung kurawal'],
-    ['| |','\\left|'+CM+'\\right|','Nilai mutlak'],['⟨ ⟩','\\left\\langle '+CM+'\\right\\rangle','Kurung sudut'],['(n k)','\\binom{'+CM+'}{}','Binomial'],
-    ['x̂','\\hat{'+CM+'}','Topi'],['x̄','\\overline{'+CM+'}','Garis atas'],['x⃗','\\vec{'+CM+'}','Vektor'],['ẋ','\\dot{'+CM+'}','Titik'],['x̃','\\tilde{'+CM+'}','Tilde'],
-    ['⏟','\\underbrace{'+CM+'}_{}','Kurung bawah'],['⏞','\\overbrace{'+CM+'}^{}','Kurung atas'],
-    ['sin','\\sin '+CM,'Sinus'],['cos','\\cos '+CM,'Cosinus'],['tan','\\tan '+CM,'Tangen'],['log','\\log '+CM,'Logaritma'],['ln','\\ln '+CM,'Logaritma natural'],
-    ['matriks','\\begin{pmatrix} '+CM+' &  \\\\  &  \\end{pmatrix}','Matriks 2×2'],['kasus','\\begin{cases} '+CM+' &  \\\\  &  \\end{cases}','Kasus / sistem persamaan'],
-    ['rata =','\\begin{aligned} '+CM+' &=  \\\\ &=  \\end{aligned}','Persamaan rata sama dengan']
-  ]],
-  g:['Yunani',('alpha beta gamma delta epsilon varepsilon zeta eta theta vartheta iota kappa lambda mu nu xi pi rho sigma tau upsilon phi varphi chi psi omega Gamma Delta Theta Lambda Xi Pi Sigma Phi Psi Omega').split(' ').map(sy)],
-  o:['Operator',('pm mp times div cdot ast circ oplus otimes wedge vee cap cup setminus neg partial nabla infty prime degree').split(' ').map(sy)],
-  r:['Relasi',[['=','=','sama dengan'],['<','<','kurang dari'],['>','>','lebih dari']].concat(('neq approx equiv sim cong propto leq geq ll gg in notin subset supset subseteq supseteq forall exists emptyset perp parallel mid').split(' ').map(sy))],
-  a:['Panah',('to leftarrow leftrightarrow Rightarrow Leftarrow Leftrightarrow mapsto uparrow downarrow implies iff').split(' ').map(sy)],
-  l:['Lainnya',[['ℝ','\\mathbb{R}','Bilangan real'],['ℕ','\\mathbb{N}','Bilangan asli'],['ℤ','\\mathbb{Z}','Bilangan bulat'],['ℚ','\\mathbb{Q}','Bilangan rasional'],['ℂ','\\mathbb{C}','Bilangan kompleks'],
-    ['abc','\\mathrm{'+CM+'}','Teks tegak'],['teks','\\text{'+CM+'}','Teks biasa'],['𝐱','\\mathbf{'+CM+'}','Tebal'],['…','\\ldots ','Titik tiga'],['⋯','\\cdots ','Titik tiga tengah'],['⋮','\\vdots ','Titik vertikal'],
-    ['ℏ','\\hbar ','h-bar'],['ℓ','\\ell ','l kecil'],['∠','\\angle ','Sudut'],['∴','\\therefore ','Jadi'],['∵','\\because ','Karena'],['spasi','\\quad ','Spasi lebar'],[',','\\, ','Spasi tipis']].concat([]) ]
+const T=(l,t,h,g)=>[l,t,h,g];
+const mx=(env,rows,cols,first)=>{                          /* matriks kosong rows×cols; kursor di sel pertama */
+  const r=[];for(let i=0;i<rows;i++){const c=[];for(let j=0;j<cols;j++)c.push(i||j?'':first);r.push(c.join(' & '));}
+  return '\\begin{'+env+'} '+r.join(' \\\\ ')+' \\end{'+env+'}';
 };
-/* rumus bawaan untuk galeri di pita */
+const PAL={
+  d:['Dasar',[
+    T('a/b','\\frac{‸}{}','Pecahan'),
+    T('a⁄b','\\sfrac{‸}{}','Pecahan miring'),
+    T('√','\\sqrt{‸}','Akar kuadrat'),
+    T('ⁿ√','\\sqrt[‸]{}','Akar pangkat n (ganti n)','\\sqrt[n]{\\square}'),
+    T('∛','\\sqrt[3]{‸}','Akar pangkat 3'),
+    T('xⁿ','^{‸}','Pangkat'),
+    T('x²','^{2}','Kuadrat'),
+    T('xₙ','_{‸}','Indeks bawah'),
+    T('xₙⁿ','_{‸}^{}','Indeks + pangkat'),
+    T('ⁿₘx','\\prescript{‸}{}{}','Indeks di kiri'),
+    T('eˣ','e^{‸}','Eksponen e'),
+    T('( )','\\left(‸\\right)','Kurung biasa'),
+    T('[ ]','\\left[‸\\right]','Kurung siku'),
+    T('{ }','\\left\\{‸\\right\\}','Kurung kurawal'),
+    T('| |','\\left|‸\\right|','Nilai mutlak'),
+    T('‖ ‖','\\left\\|‸\\right\\|','Norma'),
+    T('⟨ ⟩','\\left\\langle ‸\\right\\rangle','Kurung sudut'),
+    T('⌊ ⌋','\\left\\lfloor ‸\\right\\rfloor','Pembulatan bawah'),
+    T('⌈ ⌉','\\left\\lceil ‸\\right\\rceil','Pembulatan atas'),
+    T('(n k)','\\binom{‸}{}','Kombinasi / binomial'),
+    T('n!','‸!','Faktorial'),
+    T('log','\\log_{‸}{}','Logaritma basis'),
+    T('ln','\\ln\\left(‸\\right)','Logaritma natural'),
+    T('±','\\pm ','Plus-minus'),
+    T('×','\\times ','Kali')
+  ],1],
+  k:['Kalkulus',[
+    T('∫','\\int ‸\\,dx','Integral tak tentu'),
+    T('∫ₐᵇ','\\int_{‸}^{}{}\\,dx','Integral tentu'),
+    T('∬','\\iint_{‸}{}\\,dA','Integral ganda'),
+    T('∭','\\iiint_{‸}{}\\,dV','Integral tripel'),
+    T('∮','\\oint_{‸}{}\\,ds','Integral kontur'),
+    T('[ ]ₐᵇ','\\left[‸\\right]_{}^{}','Substitusi batas'),
+    T('lim','\\lim_{x\\to ‸}{}','Limit'),
+    T('lim ∞','\\lim_{x\\to\\infty}{‸}','Limit tak hingga'),
+    T('d/dx','\\frac{d}{dx}\\left(‸\\right)','Turunan'),
+    T('dⁿ/dxⁿ','\\frac{d^{n}}{dx^{n}}','Turunan ke-n'),
+    T('∂/∂x','\\frac{\\partial ‸}{\\partial x}','Turunan parsial'),
+    T('∂²/∂x²','\\frac{\\partial^{2} ‸}{\\partial x^{2}}','Parsial kedua'),
+    T('f′','f\'(‸)','Turunan (aksen)'),
+    T('∑','\\sum_{‸}^{}{}','Sigma (jumlah)'),
+    T('∏','\\prod_{‸}^{}{}','Perkalian'),
+    T('⋃','\\bigcup_{‸}^{}{}','Gabungan besar'),
+    T('⋂','\\bigcap_{‸}^{}{}','Irisan besar'),
+    T('∇','\\nabla ‸','Nabla / gradien'),
+    T('Δ','\\Delta ‸','Delta (perubahan)'),
+    T('∞','\\infty ','Tak hingga')
+  ],1],
+  a:['Aljabar',[
+    T('2×2',mx('pmatrix',2,2,CM),'Matriks 2×2'),
+    T('3×3',mx('pmatrix',3,3,CM),'Matriks 3×3'),
+    T('[2×2]',mx('bmatrix',2,2,CM),'Matriks kurung siku'),
+    T('|2×2|',mx('vmatrix',2,2,CM),'Determinan 2×2'),
+    T('|3×3|',mx('vmatrix',3,3,CM),'Determinan 3×3'),
+    T('2×1',mx('pmatrix',2,1,CM),'Vektor kolom 2'),
+    T('3×1',mx('pmatrix',3,1,CM),'Vektor kolom 3'),
+    T('1×3',mx('pmatrix',1,3,CM),'Vektor baris 3'),
+    T('I₂','\\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix}','Matriks identitas'),
+    T('{ 2','\\begin{cases} ‸ \\\\ \\end{cases}','Sistem persamaan 2 baris'),
+    T('{ 3','\\begin{cases} ‸ \\\\ \\\\ \\end{cases}','Sistem persamaan 3 baris'),
+    T('f(x)={','f(x)=\\begin{cases} ‸ & \\text{jika } \\\\ & \\text{jika } \\end{cases}','Fungsi bersyarat'),
+    T('rata =','\\begin{aligned} ‸ &= \\\\ &= \\end{aligned}','Langkah sejajar tanda ='),
+    T('ax²','ax^{2}+bx+c=0','Persamaan kuadrat'),
+    T('ABC','x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}','Rumus ABC'),
+    T('(a+b)²','(a+b)^{2}=a^{2}+2ab+b^{2}','Kuadrat jumlah'),
+    T('a²−b²','a^{2}-b^{2}=(a+b)(a-b)','Selisih kuadrat'),
+    T('ₙCᵣ','\\prescript{}{n}{C_{r}}','Kombinasi nCr'),
+    T('ₙPᵣ','\\prescript{}{n}{P_{r}}','Permutasi nPr')
+  ],1],
+  t:['Trigonometri',[
+    T('sin','\\sin\\left(‸\\right)','Sinus'),T('cos','\\cos\\left(‸\\right)','Cosinus'),T('tan','\\tan\\left(‸\\right)','Tangen'),
+    T('cot','\\cot\\left(‸\\right)','Kotangen'),T('sec','\\sec\\left(‸\\right)','Sekan'),T('csc','\\csc\\left(‸\\right)','Kosekan'),
+    T('arcsin','\\arcsin\\left(‸\\right)','Arcsin'),T('arccos','\\arccos\\left(‸\\right)','Arccos'),T('arctan','\\arctan\\left(‸\\right)','Arctan'),
+    T('sinh','\\sinh\\left(‸\\right)','Sinus hiperbolik'),T('cosh','\\cosh\\left(‸\\right)','Cosinus hiperbolik'),T('tanh','\\tanh\\left(‸\\right)','Tangen hiperbolik'),
+    T('sin²','\\sin^{2}‸','Sinus kuadrat'),T('cos²','\\cos^{2}‸','Cosinus kuadrat'),
+    T('sin²+cos²','\\sin^{2}\\theta+\\cos^{2}\\theta=1','Identitas dasar'),
+    T('sin(α±β)','\\sin(\\alpha\\pm\\beta)=\\sin\\alpha\\cos\\beta\\pm\\cos\\alpha\\sin\\beta','Jumlah sudut'),
+    T('tan θ','\\tan\\theta=\\frac{\\sin\\theta}{\\cos\\theta}','Tan = sin/cos'),
+    T('sin 2θ','\\sin 2\\theta=2\\sin\\theta\\cos\\theta','Sudut ganda'),
+    T('a/sin A','\\frac{a}{\\sin A}=\\frac{b}{\\sin B}=\\frac{c}{\\sin C}','Aturan sinus'),
+    T('c²=…','c^{2}=a^{2}+b^{2}-2ab\\cos C','Aturan cosinus'),
+    T('°','^{\\circ}','Derajat'),
+    T('∠','\\angle ','Sudut'),
+    T('π','\\pi ','Pi'),
+    T('θ','\\theta ','Theta')
+  ],1],
+  x:['Aksen',[
+    T('x̂','\\hat{‸}','Topi'),T('x̄','\\overline{‸}','Garis atas'),T('x̲','\\underline{‸}','Garis bawah'),
+    T('x⃗','\\vec{‸}','Vektor'),T('ẋ','\\dot{‸}','Titik'),T('ẍ','\\ddot{‸}','Dua titik'),
+    T('x̃','\\tilde{‸}','Tilde'),T('x̆','\\breve{‸}','Breve'),T('x̌','\\check{‸}','Caron'),
+    T('x́','\\acute{‸}','Akut'),T('x̀','\\grave{‸}','Grave'),
+    T('AB→','\\overrightarrow{‸}','Panah di atas'),
+    T('⏞','\\overbrace{‸}^{}','Kurung kurawal atas'),T('⏟','\\underbrace{‸}_{}','Kurung kurawal bawah'),
+    T('atas','\\overset{‸}{}','Simbol di atas'),T('bawah','\\underset{‸}{}','Simbol di bawah'),
+    T('→ ket.','\\xrightarrow{‸}','Panah + keterangan atas'),
+    T('→ ket.2','\\xrightarrow[]{‸}','Panah + keterangan atas/bawah'),
+    T('▭','\\boxed{‸}','Kotak')
+  ],1],
+  y:['Yunani',('alpha beta gamma delta epsilon varepsilon zeta eta theta vartheta iota kappa lambda mu nu xi pi varpi rho varrho sigma varsigma tau upsilon phi varphi chi psi omega Gamma Delta Theta Lambda Xi Pi Sigma Upsilon Phi Psi Omega').split(' ').map(sy),0],
+  o:['Operator',('pm mp times div cdot ast star circ bullet oplus ominus otimes odot wedge vee cap cup uplus sqcup sqcap setminus neg partial nabla infty prime degree dagger ddagger').split(' ').map(sy),0],
+  r:['Relasi',[['=','=','sama dengan'],['<','<','kurang dari'],['>','>','lebih dari']].concat(('neq approx equiv sim simeq cong propto leq geq ll gg prec succ doteq in notin ni subset supset subseteq supseteq mid nmid perp parallel').split(' ').map(sy)),0],
+  p:['Panah',('to leftarrow leftrightarrow Rightarrow Leftarrow Leftrightarrow mapsto uparrow downarrow updownarrow implies impliedby iff longrightarrow longleftarrow longleftrightarrow hookrightarrow rightleftharpoons nearrow searrow swarrow nwarrow').split(' ').map(sy),0],
+  h:['Himpunan',[
+    T('∈','\\in ','Anggota'),T('∉','\\notin ','Bukan anggota'),T('⊂','\\subset ','Himpunan bagian'),T('⊆','\\subseteq ','Bagian/sama'),
+    T('∪','\\cup ','Gabungan'),T('∩','\\cap ','Irisan'),T('∅','\\emptyset ','Himpunan kosong'),T('∖','\\setminus ','Selisih'),
+    T('∀','\\forall ','Untuk semua'),T('∃','\\exists ','Ada'),T('¬','\\neg ','Negasi'),T('∧','\\wedge ','Dan'),T('∨','\\vee ','Atau'),
+    T('⇒','\\Rightarrow ','Maka'),T('⇔','\\Leftrightarrow ','Jika dan hanya jika'),T('∴','\\therefore ','Jadi'),T('∵','\\because ','Karena'),
+    T('ℝ','\\mathbb{R}','Bilangan real'),T('ℕ','\\mathbb{N}','Bilangan asli'),T('ℤ','\\mathbb{Z}','Bilangan bulat'),T('ℚ','\\mathbb{Q}','Bilangan rasional'),T('ℂ','\\mathbb{C}','Bilangan kompleks'),
+    T('{x|…}','\\{x\\mid ‸\\}','Himpunan {x | syarat}'),T('{ }','\\{‸\\}','Himpunan'),
+    T('A∪B','A\\cup B','Gabungan A dan B'),T('A∩B','A\\cap B','Irisan A dan B'),T('Aᶜ','A^{c}','Komplemen'),T('A×B','A\\times B','Hasil kali Cartesius'),T('n(A)','n(A)','Banyak anggota')
+  ],1],
+  z:['Statistik',[
+    T('x̄','\\bar{‸}','Rata-rata'),
+    T('Σx/n','\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n}x_{i}','Rata-rata hitung'),
+    T('s²','s^{2}=\\frac{1}{n-1}\\sum_{i=1}^{n}(x_{i}-\\bar{x})^{2}','Variansi sampel'),
+    T('σ','\\sigma=\\sqrt{\\frac{1}{n}\\sum_{i=1}^{n}(x_{i}-\\mu)^{2}}','Simpangan baku'),
+    T('P(A)','P(‸)','Peluang'),
+    T('P(A|B)','P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}','Peluang bersyarat'),
+    T('E[X]','\\mathbb{E}\\left[‸\\right]','Nilai harapan'),
+    T('Var','\\mathrm{Var}(‸)','Variansi'),
+    T('N(μ,σ²)','X\\sim N(\\mu,\\sigma^{2})','Distribusi normal'),
+    T('z','z=\\frac{x-\\mu}{\\sigma}','Nilai z'),
+    T('P(X=k)','P(X=k)=\\binom{n}{k}p^{k}(1-p)^{n-k}','Peluang binomial'),
+    T('r','r=\\frac{\\sum(x-\\bar{x})(y-\\bar{y})}{\\sqrt{\\sum(x-\\bar{x})^{2}\\sum(y-\\bar{y})^{2}}}','Korelasi'),
+    T('ₙCᵣ','\\prescript{}{n}{C_{r}}','Kombinasi'),T('(n k)','\\binom{n}{k}','Binomial'),T('n!','n!','Faktorial')
+  ],1],
+  f:['Fisika & Geometri',[
+    T('F=ma','\\vec{F}=m\\vec{a}','Hukum II Newton'),
+    T('E=mc²','E=mc^{2}','Energi massa'),
+    T('Ek','E_{k}=\\frac{1}{2}mv^{2}','Energi kinetik'),
+    T('F=G…','F=G\\frac{m_{1}m_{2}}{r^{2}}','Gravitasi Newton'),
+    T('V=IR','V=IR','Hukum Ohm'),
+    T('v=Δx/Δt','v=\\frac{\\Delta x}{\\Delta t}','Kecepatan'),
+    T('m/s²','\\mathrm{m/s^{2}}','Satuan percepatan'),
+    T('ħ','\\hbar ','h-bar'),
+    T('△ABC','\\triangle ABC','Segitiga'),
+    T('AB̅','\\overline{AB}','Ruas garis'),
+    T('∠ABC','\\angle ABC','Sudut ABC'),
+    T('∥','AB\\parallel CD','Sejajar'),
+    T('⊥','AB\\perp CD','Tegak lurus'),
+    T('≅','\\triangle ABC\\cong\\triangle DEF','Kongruen'),
+    T('πr²','L=\\pi r^{2}','Luas lingkaran'),
+    T('4/3πr³','V=\\frac{4}{3}\\pi r^{3}','Volume bola'),
+    T('c²=a²+b²','c^{2}=a^{2}+b^{2}','Pythagoras'),
+    T('jarak','d=\\sqrt{(x_{2}-x_{1})^{2}+(y_{2}-y_{1})^{2}}','Jarak dua titik')
+  ],1],
+  c:['Kimia',[
+    T('H₂O','\\mathrm{H_{2}O}','Air'),
+    T('H₂SO₄','\\mathrm{H_{2}SO_{4}}','Asam sulfat'),
+    T('CO₂','\\mathrm{CO_{2}}','Karbon dioksida'),
+    T('Na⁺','\\mathrm{Na^{+}}','Ion positif'),
+    T('SO₄²⁻','\\mathrm{SO_{4}^{2-}}','Ion bermuatan'),
+    T('→','\\rightarrow ','Panah reaksi'),
+    T('⇌','\\rightleftharpoons ','Kesetimbangan'),
+    T('→Δ','\\xrightarrow{\\Delta}','Reaksi dipanaskan'),
+    T('↑','\\uparrow ','Gas naik'),T('↓','\\downarrow ','Endapan'),
+    T('ΔH','\\Delta H','Perubahan entalpi'),
+    T('¹⁴₆C','\\prescript{14}{6}{\\mathrm{C}}','Isotop'),
+    T('pH','\\mathrm{pH}=-\\log\\left[\\mathrm{H^{+}}\\right]','Rumus pH'),
+    T('reaksi','2\\mathrm{H_{2}}+\\mathrm{O_{2}}\\rightarrow 2\\mathrm{H_{2}O}','Contoh reaksi')
+  ],1],
+  l:['Lainnya',[
+    T('teks','\\text{‸}','Teks biasa','\\text{abc}'),
+    T('abc','\\mathrm{‸}','Huruf tegak'),
+    T('𝐱','\\mathbf{‸}','Huruf tebal'),
+    T('𝑥','\\mathit{‸}','Huruf miring'),
+    T('𝒜','\\mathcal{‸}','Kaligrafi'),
+    T('𝔄','\\mathfrak{‸}','Fraktur'),
+    T('𝖠','\\mathsf{‸}','Tanpa kait'),
+    T('𝚊','\\mathtt{‸}','Mesin tik'),
+    T('…','\\ldots ','Titik tiga'),T('⋯','\\cdots ','Titik tiga tengah'),T('⋮','\\vdots ','Titik vertikal'),T('⋱','\\ddots ','Titik diagonal'),
+    T('ℏ','\\hbar ','h-bar'),T('ℓ','\\ell ','l kecil'),T('ℵ','\\aleph ','Aleph'),T('ℜ','\\Re ','Bagian real'),T('ℑ','\\Im ','Bagian imajiner'),
+    T('spasi','\\quad ','Spasi lebar'),T('spasi²','\\qquad ','Spasi sangat lebar'),T(',','\\, ','Spasi tipis')
+  ],1]
+};
+/* rumus bawaan: [id, nama, LaTeX, kelompok] (id dipakai juga oleh dropdown "Rumus Umum" di pita) */
 const GALLERY=[
-  ['circ','Luas lingkaran','A=\\pi r^{2}'],
-  ['pyth','Teorema Pythagoras','a^{2}+b^{2}=c^{2}'],
-  ['abc','Rumus kuadrat (ABC)','x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}'],
-  ['binom','Teorema binomial','(x+a)^{n}=\\sum_{k=0}^{n}\\binom{n}{k}x^{k}a^{n-k}'],
-  ['taylor','Deret Taylor','e^{x}=1+\\frac{x}{1!}+\\frac{x^{2}}{2!}+\\frac{x^{3}}{3!}+\\cdots'],
-  ['trig','Identitas trigonometri','\\sin\\alpha\\pm\\sin\\beta=2\\sin\\frac{1}{2}(\\alpha\\pm\\beta)\\cos\\frac{1}{2}(\\alpha\\mp\\beta)'],
-  ['fourier','Deret Fourier','f(x)=a_{0}+\\sum_{n=1}^{\\infty}\\left(a_{n}\\cos\\frac{n\\pi x}{L}+b_{n}\\sin\\frac{n\\pi x}{L}\\right)'],
-  ['deriv','Definisi turunan',"f'(x)=\\lim_{h\\to 0}\\frac{f(x+h)-f(x)}{h}"],
-  ['integ','Teorema dasar kalkulus','\\int_{a}^{b}f(x)\\,dx=F(b)-F(a)'],
-  ['normal','Distribusi normal','f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^{2}}{2\\sigma^{2}}}'],
-  ['mean','Rata-rata','\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n}x_{i}']
+  ['circ','Luas lingkaran','A=\\pi r^{2}','Geometri'],
+  ['kell','Keliling lingkaran','K=2\\pi r','Geometri'],
+  ['bola','Volume bola','V=\\frac{4}{3}\\pi r^{3}','Geometri'],
+  ['tabung','Volume tabung','V=\\pi r^{2}t','Geometri'],
+  ['kerucut','Volume kerucut','V=\\frac{1}{3}\\pi r^{2}t','Geometri'],
+  ['segitiga','Luas segitiga','L=\\frac{1}{2}\\times a\\times t','Geometri'],
+  ['heron','Rumus Heron','L=\\sqrt{s(s-a)(s-b)(s-c)}','Geometri'],
+  ['pyth','Teorema Pythagoras','a^{2}+b^{2}=c^{2}','Geometri'],
+  ['jarak','Jarak dua titik','d=\\sqrt{(x_{2}-x_{1})^{2}+(y_{2}-y_{1})^{2}}','Geometri'],
+  ['garis','Persamaan garis lurus','y-y_{1}=m(x-x_{1})','Geometri'],
+  ['abc','Rumus kuadrat (ABC)','x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}','Aljabar'],
+  ['kuad','Kuadrat jumlah','(a+b)^{2}=a^{2}+2ab+b^{2}','Aljabar'],
+  ['selisih','Selisih kuadrat','a^{2}-b^{2}=(a+b)(a-b)','Aljabar'],
+  ['binom','Teorema binomial','(x+a)^{n}=\\sum_{k=0}^{n}\\binom{n}{k}x^{k}a^{n-k}','Aljabar'],
+  ['deretar','Deret aritmetika','S_{n}=\\frac{n}{2}\\left(2a+(n-1)b\\right)','Aljabar'],
+  ['deretge','Deret geometri','S_{n}=\\frac{a\\left(1-r^{n}\\right)}{1-r}','Aljabar'],
+  ['logs','Sifat logaritma','\\log_{a}(bc)=\\log_{a}b+\\log_{a}c','Aljabar'],
+  ['eksp','Sifat eksponen','a^{m}\\cdot a^{n}=a^{m+n}','Aljabar'],
+  ['det2','Determinan 2×2','\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}=ad-bc','Aljabar'],
+  ['inv','Invers matriks 2×2','A^{-1}=\\frac{1}{ad-bc}\\begin{pmatrix} d & -b \\\\ -c & a \\end{pmatrix}','Aljabar'],
+  ['sistem','Sistem persamaan','\\begin{cases} 2x+y=5 \\\\ x-y=1 \\end{cases}','Aljabar'],
+  ['euler','Identitas Euler','e^{i\\pi}+1=0','Aljabar'],
+  ['trig','Identitas trigonometri','\\sin\\alpha\\pm\\sin\\beta=2\\sin\\frac{1}{2}(\\alpha\\pm\\beta)\\cos\\frac{1}{2}(\\alpha\\mp\\beta)','Trigonometri'],
+  ['sin2','Sin² + Cos² = 1','\\sin^{2}\\theta+\\cos^{2}\\theta=1','Trigonometri'],
+  ['singanda','Sinus sudut ganda','\\sin 2\\theta=2\\sin\\theta\\cos\\theta','Trigonometri'],
+  ['arsin','Aturan sinus','\\frac{a}{\\sin A}=\\frac{b}{\\sin B}=\\frac{c}{\\sin C}','Trigonometri'],
+  ['arcos','Aturan cosinus','c^{2}=a^{2}+b^{2}-2ab\\cos C','Trigonometri'],
+  ['deriv','Definisi turunan',"f'(x)=\\lim_{h\\to 0}\\frac{f(x+h)-f(x)}{h}",'Kalkulus'],
+  ['integ','Teorema dasar kalkulus','\\int_{a}^{b}f(x)\\,dx=F(b)-F(a)','Kalkulus'],
+  ['rantai','Aturan rantai','\\frac{dy}{dx}=\\frac{dy}{du}\\cdot\\frac{du}{dx}','Kalkulus'],
+  ['parsial','Integral parsial','\\int u\\,dv=uv-\\int v\\,du','Kalkulus'],
+  ['limsin','Limit sin x / x','\\lim_{x\\to 0}\\frac{\\sin x}{x}=1','Kalkulus'],
+  ['gauss','Integral Gauss','\\int_{-\\infty}^{\\infty}e^{-x^{2}}\\,dx=\\sqrt{\\pi}','Kalkulus'],
+  ['jumlah','Jumlah n bilangan asli','\\sum_{k=1}^{n}k=\\frac{n(n+1)}{2}','Kalkulus'],
+  ['taylor','Deret Taylor','e^{x}=1+\\frac{x}{1!}+\\frac{x^{2}}{2!}+\\frac{x^{3}}{3!}+\\cdots','Kalkulus'],
+  ['fourier','Deret Fourier','f(x)=a_{0}+\\sum_{n=1}^{\\infty}\\left(a_{n}\\cos\\frac{n\\pi x}{L}+b_{n}\\sin\\frac{n\\pi x}{L}\\right)','Kalkulus'],
+  ['normal','Distribusi normal','f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^{2}}{2\\sigma^{2}}}','Statistika'],
+  ['mean','Rata-rata','\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n}x_{i}','Statistika'],
+  ['stdev','Simpangan baku','\\sigma=\\sqrt{\\frac{1}{n}\\sum_{i=1}^{n}(x_{i}-\\mu)^{2}}','Statistika'],
+  ['bayes','Teorema Bayes','P(A\\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}','Statistika'],
+  ['binp','Peluang binomial','P(X=k)=\\binom{n}{k}p^{k}(1-p)^{n-k}','Statistika'],
+  ['emc','Energi massa Einstein','E=mc^{2}','Fisika'],
+  ['newton','Hukum II Newton','\\vec{F}=m\\vec{a}','Fisika'],
+  ['grav','Gravitasi Newton','F=G\\frac{m_{1}m_{2}}{r^{2}}','Fisika'],
+  ['kinetik','Energi kinetik','E_{k}=\\frac{1}{2}mv^{2}','Fisika'],
+  ['gerak','Gerak lurus berubah beraturan','s=v_{0}t+\\frac{1}{2}at^{2}','Fisika'],
+  ['schrod','Persamaan Schrödinger','i\\hbar\\frac{\\partial}{\\partial t}\\Psi=\\hat{H}\\Psi','Fisika'],
+  ['air','Reaksi pembentukan air','2\\mathrm{H_{2}}+\\mathrm{O_{2}}\\rightarrow 2\\mathrm{H_{2}O}','Kimia'],
+  ['amonia','Sintesis amonia','\\mathrm{N_{2}}+3\\mathrm{H_{2}}\\rightleftharpoons 2\\mathrm{NH_{3}}','Kimia'],
+  ['ph','Rumus pH','\\mathrm{pH}=-\\log\\left[\\mathrm{H^{+}}\\right]','Kimia'],
+  ['gasideal','Gas ideal','PV=nRT','Kimia']
 ];
+const SW_COL=['000000','7F7F7F','C00000','FF0000','FF8000','FFC000','92D050','00A000','00B0F0','0070C0','002060','7030A0','FF00FF','8B4513'];
+const SW_HL=['FFFF00','92D050','00FFFF','FF99CC','FFC000','D9D9D9','BDD7EE','FFD6D6'];
+const SIZES_PT=[8,9,10,11,12,14,16,18,20,24,28,36,48];
+
+/* kotak "‸" jadi \square, skrip tanpa dasar diberi x, supaya pratinjau tombol mewakili fungsi aslinya */
+const glyphOf=it=>{
+  if(it[3])return it[3];
+  let t=it[1];if(/^[\^_]/.test(t))t='x'+t;
+  return t.replace(CM,'\\square ');
+};
 
 let cssDone=false;
 function ensureCSS(){
   if(cssDone||typeof document==='undefined')return;cssDone=true;
   const st=document.createElement('style');
   st.textContent=`
-.wd .eqdg{width:min(520px,94%);max-width:94%;padding:12px 14px}
+.wd .eqdg{width:min(560px,96%);max-width:96%;max-height:96%;overflow:auto;padding:12px 14px;box-sizing:border-box}
 .wd .eqdg .eqpv{min-height:56px;max-height:26vh;overflow:auto;border:1px solid #c8c8c8;background:#fafafa;display:grid;place-items:center;padding:6px 8px;margin-bottom:8px;color:#222}
 .wd .eqdg .eqpv math{font-family:"Cambria Math","STIX Two Math","Noto Sans Math","Latin Modern Math",math;font-size:1.45em}
 .wd .eqdg .eqpv .e{color:#a4262c;font-size:12px;text-align:left;white-space:pre-wrap}
 .wd .eqdg .eqpv .h{color:#999;font-size:12px}
-.wd .eqdg textarea{width:100%;font:15px/1.35 Consolas,"Courier New",monospace;border:1px solid #aaa;padding:5px 6px;resize:none;min-height:48px;display:block}
+.wd .eqdg textarea{width:100%;font:15px/1.35 Consolas,"Courier New",monospace;border:1px solid #aaa;padding:5px 6px;resize:none;min-height:48px;display:block;box-sizing:border-box}
 .wd .eqdg .eqnote{font-size:11px;color:#8a6d00;background:#fff8e1;border:1px solid #f0dc9a;padding:4px 6px;margin-top:6px}
+.wd .eqdg .eqst{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:8px 0 2px;position:relative}
+.wd .eqdg .eqst button,.wd .eqdg .eqst select{height:32px;min-width:32px;padding:0 8px;border:1px solid #c8c8c8;background:#f7f7f7;cursor:pointer;font-size:13px;color:#222;box-sizing:border-box}
+.wd .eqdg .eqst button:active,.wd .eqdg .eqst button:hover{background:#dbe7f7;border-color:var(--blue)}
+.wd .eqdg .eqst .eqa{display:block;font-weight:700;line-height:15px}
+.wd .eqdg .eqst .eqcu{display:block;height:3px;margin:0 0 -1px}
+.wd .eqdg .eqst .sp{flex:1}
+.wd .eqdg .eqhint{font-size:11px;color:#666;margin:2px 0 4px}
+.wd .eqdg .eqrow{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.wd .eqdg .eqrow button{height:28px;padding:0 8px;border:1px solid #c8c8c8;background:#f7f7f7;cursor:pointer;font-size:12px;white-space:nowrap;flex:none}
+.wd .eqdg .eqrow button:active{background:#dbe7f7}
+.wd .eqdg .eqpal .gl{display:grid;place-items:center;max-width:100%;overflow:hidden}
+.wd .eqdg .eqsw,.wd .eqbar .eqsw{position:absolute;z-index:6;left:0;top:36px;background:#fff;border:1px solid #888;box-shadow:0 2px 8px rgba(0,0,0,.3);padding:6px;width:max-content;max-width:94vw;text-align:left}
+.wd .eqbar .eqsw{top:100%;margin-top:2px}
+.wd .eqsw .gr{display:grid;grid-template-columns:repeat(7,28px);gap:4px;margin-bottom:6px}
+.wd .eqsw .sl{font-size:11px;color:#555;margin:2px 0 3px}
+.wd .eqsw .gr button{width:28px;height:28px;min-width:0;padding:0;border:1px solid #999;cursor:pointer}
+.wd .eqsw .gr button:hover{outline:2px solid var(--blue);outline-offset:1px}
+.wd .eqsw .oto{display:block;width:100%;height:28px;border:1px solid #bbb;background:#f5f5f5;cursor:pointer;font-size:12px;margin-bottom:6px;padding:0 8px}
+.wd .eqsw label.cu{font-size:12px;display:flex;align-items:center;gap:6px}
+.wd .eqsw input[type=color]{width:34px;height:26px;padding:0;border:1px solid #999}
 .wd .eqdg .eqtabs{display:flex;gap:2px;margin:8px 0 4px;overflow-x:auto;scrollbar-width:none}
-.wd .eqdg .eqtabs button{flex:none;height:28px;padding:0 10px;border:1px solid #c8c8c8;border-bottom-color:#c8c8c8;background:#f3f3f3;cursor:pointer}
+.wd .eqdg .eqtabs button{flex:none;height:30px;padding:0 10px;border:1px solid #c8c8c8;background:#f3f3f3;cursor:pointer;white-space:nowrap}
 .wd .eqdg .eqtabs button.on{background:#fff;color:var(--blue);border-color:var(--blue);font-weight:600}
-.wd .eqdg .eqpal{display:flex;flex-wrap:wrap;gap:3px;max-height:128px;overflow:auto;padding:2px;border:1px solid #e1e1e1;background:#fff}
-.wd .eqdg .eqpal button{min-width:36px;height:36px;padding:0 5px;border:1px solid #d4d4d4;background:#fbfbfb;cursor:pointer;font-size:14px;display:grid;place-items:center}
+.wd .eqdg .eqpal{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:4px;max-height:200px;overflow:auto;padding:3px;border:1px solid #e1e1e1;background:#fff;align-content:start}
+.wd .eqdg .eqpal.sym{grid-template-columns:repeat(auto-fill,minmax(38px,1fr))}
+.wd .eqdg .eqpal.ex{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.wd .eqdg .eqpal button{min-height:36px;padding:2px 4px;border:1px solid #d4d4d4;background:#fbfbfb;cursor:pointer;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#222;min-width:0}
+.wd .eqdg .eqpal:not(.sym) button{min-height:58px}
 .wd .eqdg .eqpal button:hover,.wd .eqdg .eqpal button:active{background:#dbe7f7;border-color:var(--blue)}
-.wd .eqdg .eqpal math{font-size:15px;font-family:"Cambria Math","STIX Two Math","Noto Sans Math",math}
-.wd .eqdg .eqmode{display:flex;gap:14px;margin-top:8px;font-size:12px}
+.wd .eqdg .eqpal button small{font-size:9.5px;line-height:1.1;color:#555;text-align:center;overflow:hidden;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wd .eqdg .eqpal math{font-size:15px;font-family:"Cambria Math","STIX Two Math","Noto Sans Math",math;pointer-events:none}
+.wd .eqdg .eqpal.ex math{font-size:14px}
+.wd .eqdg .eqpal .gh{grid-column:1/-1;font-size:11px;font-weight:600;color:var(--blue);padding:4px 2px 0;border-bottom:1px solid #e1e1e1}
+.wd .eqdg .eqmode{display:flex;gap:14px;margin-top:8px;font-size:12px;flex-wrap:wrap}
 .wd .eqdg .eqmode label{display:flex;align-items:center;gap:5px;cursor:pointer}
 .wd .eqdg .eqmode input{width:auto;height:auto}
 .wd .page .eq.eqsel{outline:2px solid var(--blue);outline-offset:2px;background:rgba(43,87,154,.08)}
 .wd .eqbar{position:absolute;z-index:25;display:flex;background:#fff;border:1px solid #8a8a8a;box-shadow:0 2px 8px rgba(0,0,0,.28)}
-.wd .eqbar button{border:0;background:none;height:34px;padding:0 12px;cursor:pointer;font-size:13px;white-space:nowrap}
-.wd .eqbar button+button{border-left:1px solid #ddd}
-.wd .eqbar button:active,.wd .eqbar button:hover{background:#dbe7f7}
-.wd .eqbar button[data-q=del]{color:#a4262c}`;
+.wd .eqbar>button{border:0;background:none;height:34px;padding:0 11px;cursor:pointer;font-size:13px;white-space:nowrap;position:relative}
+.wd .eqbar>button+button{border-left:1px solid #ddd}
+.wd .eqbar>button:active,.wd .eqbar>button:hover{background:#dbe7f7}
+.wd .eqbar button[data-q=del]{color:#a4262c}
+.wd .eqbar button[data-q=col] u{position:absolute;left:9px;right:9px;bottom:4px;height:3px;background:linear-gradient(90deg,#c00,#fc0,#0a0,#07c,#70a)}`;
   document.head.appendChild(st);
 }
 
@@ -671,20 +1021,93 @@ function mathHTML(omml,display){
   return xe(WM&&WM.plainText?WM.plainText(el):'');
 }
 
+/* ---------- gaya di kotak LaTeX: bungkus / lepas perintah pada teks terpilih ---------- */
+function matchBrace(s,i){let d=0;for(let j=i;j<s.length;j++){const c=s[j];if(c==='\\'){j++;continue;}if(c==='{')d++;else if(c==='}'){d--;if(d===0)return j;}}return -1;}
+function unwrapCmd(sel,names,nargs){                 /* sel persis \perintah{..}(..)  -> {args:[..]} atau null */
+  const m=/^\\([A-Za-z]+)\s*/.exec(sel);if(!m||!names.includes(m[1]))return null;
+  let j=m[0].length;const args=[];
+  for(let k=0;k<nargs;k++){
+    while(/\s/.test(sel[j]||''))j++;
+    if(sel[j]!=='{')return null;const e=matchBrace(sel,j);if(e<0)return null;
+    args.push(sel.slice(j+1,e));j=e+1;
+  }
+  return j===sel.length?{args,inner:args[args.length-1]}:null;
+}
+const STYLE_ONE=['mathbf','textbf','boldsymbol','bm','mathit','textit','mathrm','textrm','mathup'];
+const STYLE_TWO=['textcolor','colorbox','highlight','bgcolor','size'];
+function stripStyles(str){                           /* buang semua perintah gaya, isinya dipertahankan */
+  let out='',i=0;
+  while(i<str.length){
+    if(str[i]==='\\'){
+      const m=/^\\([A-Za-z]+)/.exec(str.slice(i));
+      if(m){
+        const nm=m[1],after=i+m[0].length;
+        const two=STYLE_TWO.includes(nm);
+        if(two||STYLE_ONE.includes(nm)){
+          let j=after,ok=true,inner='';
+          for(let k=0;k<(two?2:1);k++){
+            while(/\s/.test(str[j]||''))j++;
+            if(str[j]!=='{'){ok=false;break;}
+            const e=matchBrace(str,j);if(e<0){ok=false;break;}
+            inner=str.slice(j+1,e);j=e+1;
+          }
+          if(ok){out+=stripStyles(inner);i=j;continue;}
+        }
+        out+=m[0];i=after;continue;
+      }
+      out+=str.slice(i,i+2);i+=2;continue;
+    }
+    out+=str[i++];
+  }
+  return out;
+}
+const STCMD={b:['mathbf',['mathbf','textbf','boldsymbol','bm']],i:['mathit',['mathit','textit']],p:['mathrm',['mathrm','textrm','mathup']]};
+/* terapkan gaya pada string `sel`; kembalikan string baru */
+function styleText(sel,kind,val){
+  if(kind==='clr')return stripStyles(sel);
+  if(STCMD[kind]){
+    const [cmd,names]=STCMD[kind],u=unwrapCmd(sel,names,1);
+    return u?u.inner:'\\'+cmd+'{'+sel+'}';
+  }
+  const cmd={col:'textcolor',hl:'colorbox',sz:'size'}[kind];
+  const names=kind==='col'?['textcolor']:kind==='hl'?['colorbox','highlight','bgcolor']:['size'];
+  const u=unwrapCmd(sel,names,2),inner=u?u.inner:sel;
+  if(val===null||val===''||(kind==='sz'&&+val===0))return inner;           /* "Otomatis" / "Normal": lepas gaya */
+  return '\\'+cmd+'{'+val+'}{'+inner+'}';
+}
+/* seluruh rumus tanpa blok: rumus beberapa baris (dipisah \\) dibungkus per baris supaya garis baru tidak hilang */
+function styleWhole(all,kind,val){
+  if(/\\\\/.test(all)&&!/\\begin/.test(all))return all.split(/\s*\\\\\s*/).map(l=>l.trim()?styleText(l.trim(),kind,val):l).join(' \\\\ ');
+  return styleText(all,kind,val);
+}
+
 /* o: {host,title,okText,tex,display,note,onOk({tex,display,omml})->false untuk tetap terbuka} */
 function openDialog(o){
   ensureCSS();
   const ov=document.createElement('div');ov.className='ov';
+  const sw=(arr,k)=>`<div class="gr">${arr.map(c=>`<button type="button" data-k="${k}" data-c="${c}" style="background:#${c}" title="#${c}"></button>`).join('')}</div>`;
   ov.innerHTML=`<div class="dg eqdg"><h3>${xe(o.title||'Rumus')}</h3>
 <div class="eqpv"></div>
-<textarea class="eqtx" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Ketik rumus (LaTeX), mis. \\frac{a}{b}"></textarea>
+<textarea class="eqtx" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Ketik rumus (LaTeX), atau ketuk tombol di bawah, mis. \\frac{a}{b}"></textarea>
 ${o.note?`<div class="eqnote">${xe(o.note)}</div>`:''}
-<div class="eqtabs">${Object.keys(PAL).map((k,i)=>`<button type="button" data-g="${k}"${i?'':' class="on"'}>${PAL[k][0]}</button>`).join('')}</div>
+<div class="eqst">
+<button type="button" data-st="b" title="Tebal"><span class="eqa">B</span></button>
+<button type="button" data-st="i" title="Miring"><span class="eqa" style="font-style:italic;font-family:serif">I</span></button>
+<button type="button" data-st="p" title="Tegak (tidak miring)"><span class="eqa" style="font-family:serif">A</span></button>
+<button type="button" data-st="col" title="Warna rumus"><span class="eqa">A</span><u class="eqcu" style="background:linear-gradient(90deg,#c00,#fc0,#0a0,#07c,#70a)"></u></button>
+<button type="button" data-st="hl" title="Warna sorot (latar)"><span class="eqa">ab</span><u class="eqcu" style="background:#ff0"></u></button>
+<select data-st="sz" title="Ukuran rumus" style="width:84px"><option value="">Ukuran</option><option value="0">Normal</option>${SIZES_PT.map(n=>`<option value="${n}">${n} pt</option>`).join('')}</select>
+<button type="button" data-st="clr" title="Hapus semua gaya pada pilihan">⌫</button>
+<div class="eqsw" hidden></div>
+</div>
+<div class="eqhint">Gaya berlaku pada teks yang diblok; tanpa blok = seluruh rumus.</div>
+<div class="eqhint eqrow"><span>Ketuk tombol untuk menyisipkan, lalu isi kotak □.</span><button type="button" data-st="next" title="Pindah ke kotak kosong berikutnya (Tab)">⇥ Kotak berikutnya</button></div>
+<div class="eqtabs">${Object.keys(PAL).map((k,i)=>`<button type="button" data-g="${k}"${i?'':' class="on"'}>${PAL[k][0]}</button>`).join('')}<button type="button" data-g="e">Contoh</button></div>
 <div class="eqpal"></div>
 <div class="eqmode"><label><input type="radio" name="eqm" value="i"> Sebaris (dalam teks)</label><label><input type="radio" name="eqm" value="b"> Blok (di tengah)</label></div>
 <div class="dbt"><button type="button" class="x">Batal</button><button type="button" class="ok">${xe(o.okText||'Sisipkan')}</button></div></div>`;
   o.host.appendChild(ov);
-  const $=s=>ov.querySelector(s),ta=$('.eqtx'),pv=$('.eqpv'),pal=$('.eqpal'),okb=$('.ok');
+  const $=s=>ov.querySelector(s),ta=$('.eqtx'),pv=$('.eqpv'),pal=$('.eqpal'),okb=$('.ok'),swp=$('.eqsw');
   const rad=v=>ov.querySelector(`input[name=eqm][value=${v}]`);
   ta.value=o.tex||'';rad(o.display?'b':'i').checked=true;
   const WM=root.WordMath,mm=WM&&WM.supported&&WM.supported();
@@ -700,15 +1123,41 @@ ${o.note?`<div class="eqnote">${xe(o.note)}</div>`:''}
     }catch(e){pv.innerHTML=`<div class="e">${xe(e.message||String(e))}</div>`;good=false;okb.disabled=true;}
   }
   let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(update,90);};
+  const glyph=(tex)=>{try{return mathHTML(tex2omml(tex,{ph:true}),false);}catch(e){return null;}};
   function renderPal(k){
-    pal.innerHTML=PAL[k][1].map((it,i)=>{
-      let g=xe(it[0]);
-      if(k==='s'&&mm){try{g=mathHTML(tex2omml(it[1].replace(CM,''),{ph:true}),false);}catch(e){}}
-      return `<button type="button" data-i="${i}" title="${xa(it[2]||'')}">${g}</button>`;}).join('');
     pal._k=k;
+    if(k==='e'){                                            /* contoh rumus lengkap, dikelompokkan */
+      pal.className='eqpal ex';let h='',g='';
+      GALLERY.forEach((it,i)=>{
+        if(it[3]!==g){g=it[3];h+=`<div class="gh">${xe(g)}</div>`;}
+        let m=mm?glyph(it[2]):null;
+        h+=`<button type="button" data-e="${i}" title="${xa(it[1])}"><span class="gl">${m||xe(it[2])}</span><small>${xe(it[1])}</small></button>`;
+      });
+      pal.innerHTML=h;fit();return;
+    }
+    const [,items,cap]=PAL[k];
+    pal.className='eqpal'+(cap?'':' sym');
+    pal.innerHTML=items.map((it,i)=>{
+      let g=xe(it[0]);
+      if(cap&&mm){const m=glyph(glyphOf(it));if(m)g=m;}
+      return `<button type="button" data-i="${i}" title="${xa(it[2]||'')}"><span class="gl">${g}</span>${cap?`<small>${xe(it[2]||'')}</small>`:''}</button>`;}).join('');
+    fit();
+  }
+  function fit(){                                            /* perkecil glyph yang lebih besar dari tombolnya */
+    pal.querySelectorAll('button').forEach(b=>{
+      const m=b.querySelector('math');if(!m)return;
+      const maxW=b.clientWidth-10,maxH=pal.classList.contains('ex')?46:40;
+      const r=m.getBoundingClientRect();if(!r.width)return;
+      const sc=Math.min(1,maxW/r.width,maxH/r.height);
+      if(sc<1)m.style.fontSize=Math.max(7,Math.floor(parseFloat(getComputedStyle(m).fontSize)*sc*10)/10)+'px';
+    });
   }
   function insert(tpl){
     const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.slice(s,e);
+    if(/^[\^_]/.test(tpl)){                                 /* pangkat/indeks tanpa dasar di depannya: beri kotak dasar */
+      const before=ta.value.slice(0,s).replace(/\s+$/,'');
+      if(!before||/[{(\[=+\-,&|]$/.test(before)||/\\\\$/.test(before))tpl='\\square '+tpl;
+    }
     let at=tpl.indexOf(CM);const has=at>=0;
     let t=has?tpl.replace(CM,sel):tpl;
     if(!has&&/\\[A-Za-z]+$/.test(t)&&!/\s$/.test(t))t+=' ';
@@ -716,12 +1165,63 @@ ${o.note?`<div class="eqnote">${xe(o.note)}</div>`:''}
     const pos=has?s+at+sel.length:s+t.length;
     ta.setSelectionRange(pos,pos);ta.focus({preventScroll:true});later();
   }
-  renderPal('s');
-  ov.addEventListener('mousedown',e=>{if(e.target.closest('.eqpal button,.eqtabs button'))e.preventDefault();});
-  pal.addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(b)insert(PAL[pal._k][1][+b.dataset.i][1]);});
+  function nextSlot(){                                      /* loncat ke {} atau [] kosong berikutnya */
+    const v=ta.value,from=ta.selectionEnd,re=/\{\}|\[\]/g;let m,hit=null,first=null;
+    while((m=re.exec(v))){if(!first)first=m;if(!hit&&m.index>=from)hit=m;}
+    const t=hit||first;if(!t)return false;
+    ta.focus({preventScroll:true});ta.setSelectionRange(t.index+1,t.index+1);return true;
+  }
+  function applyStyle(kind,val){
+    const v=ta.value;let s=ta.selectionStart,e=ta.selectionEnd;const whole=s===e;
+    if(whole){s=0;e=v.length;}
+    while(s<e&&/\s/.test(v[s]))s++;while(e>s&&/\s/.test(v[e-1]))e--;
+    if(s>=e)return;
+    const sel=v.slice(s,e),out=whole?styleWhole(sel,kind,val):styleText(sel,kind,val);
+    ta.setRangeText(out,s,e,'select');update();
+  }
+  function closeSw(){swp.hidden=true;swp.innerHTML='';}
+  function openSw(kind){
+    if(!swp.hidden&&swp._k===kind){closeSw();return;}
+    swp._k=kind;
+    const col=kind==='col';
+    swp.innerHTML=`<button type="button" class="oto" data-k="${kind}" data-c="">${col?'Otomatis (hapus warna)':'Tanpa sorot'}</button>`+
+      `<div class="sl">${col?'Warna rumus':'Warna sorot'}</div>${sw(col?SW_COL:SW_HL,kind)}`+
+      `<label class="cu">Warna lain: <input type="color" data-k="${kind}" value="${col?'#c00000':'#ffff00'}"></label>`;
+    swp.hidden=false;
+  }
+  renderPal('d');
+  ov.addEventListener('mousedown',e=>{if(e.target.closest('.eqpal button,.eqtabs button,.eqst button,.eqsw button,.eqrow button'))e.preventDefault();});
+  pal.addEventListener('click',e=>{
+    const be=e.target.closest('button[data-e]');
+    if(be){const it=GALLERY[+be.dataset.e];
+      if(!ta.value.trim()){ta.value=it[2];ta.setSelectionRange(it[2].length,it[2].length);later();}
+      else{const s=ta.selectionStart;ta.setRangeText(it[2],s,ta.selectionEnd,'end');later();}
+      ta.focus({preventScroll:true});return;}
+    const b=e.target.closest('button[data-i]');if(b)insert(PAL[pal._k][1][+b.dataset.i][1]);
+  });
   $('.eqtabs').addEventListener('click',e=>{const b=e.target.closest('button[data-g]');if(!b)return;
-    ov.querySelectorAll('.eqtabs button').forEach(x=>x.classList.toggle('on',x===b));renderPal(b.dataset.g);});
+    ov.querySelectorAll('.eqtabs button').forEach(x=>x.classList.toggle('on',x===b));renderPal(b.dataset.g);pal.scrollTop=0;});
+  ov.addEventListener('click',e=>{
+    if(e.target.closest('.eqrow button[data-st=next]')){closeSw();nextSlot();return;}
+    if(!e.target.closest('.eqst'))return;
+    const sc=e.target.closest('.eqsw button[data-k]');
+    if(sc){applyStyle(sc.dataset.k,sc.dataset.c);closeSw();return;}
+    const b=e.target.closest('button[data-st]');if(!b)return;
+    const k=b.dataset.st;
+    if(k==='col'||k==='hl')openSw(k);
+    else if(k==='next'){closeSw();nextSlot();}
+    else{closeSw();applyStyle(k);}
+  });
+  $('.eqst').addEventListener('change',e=>{
+    const c=e.target.closest('input[type=color]');
+    if(c){applyStyle(c.dataset.k,c.value.slice(1).toUpperCase());closeSw();return;}
+    const s=e.target.closest('select[data-st=sz]');
+    if(s){if(s.value!=='')applyStyle('sz',s.value);s.value='';}
+  });
   ta.addEventListener('input',later);
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&/\{\}|\[\]/.test(ta.value)){e.preventDefault();nextSlot();}
+  });
   ov.querySelectorAll('input[name=eqm]').forEach(r=>r.addEventListener('change',update));
   const close=()=>{clearTimeout(tm);ov.remove();};
   $('.x').onclick=close;
@@ -731,12 +1231,61 @@ ${o.note?`<div class="eqnote">${xe(o.note)}</div>`:''}
     if(o.onOk({tex:ta.value,display:isPara(om),omml:om})!==false)close();
   };
   ov.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){e.stopPropagation();close();}
+    if(e.key==='Escape'){e.stopPropagation();if(!swp.hidden)closeSw();else close();}
     else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();okb.click();}
   });
   ov.addEventListener('mousedown',e=>{if(e.target===ov)e.stopPropagation();});
   update();ta.focus({preventScroll:true});ta.setSelectionRange(ta.value.length,ta.value.length);
-  return {close,ta,update};
+  return {close,ta,update,applyStyle};
+}
+
+/* ---------- ubah gaya OMML yang sudah ada (tanpa lewat LaTeX, jadi bagian lain tetap persis) ----------
+   ops: {col:'FF0000'|null(lepas), hl:..., sz:pt|null, bold:true|false|'toggle', ital:true|false|'toggle'} */
+const MPR={f:'fPr',rad:'radPr',sSup:'sSupPr',sSub:'sSubPr',sSubSup:'sSubSupPr',sPre:'sPrePr',nary:'naryPr',d:'dPr',func:'funcPr',limLow:'limLowPr',limUpp:'limUppPr',acc:'accPr',bar:'barPr',groupChr:'groupChrPr',borderBox:'borderBoxPr',phant:'phantPr',eqArr:'eqArrPr',m:'mPr'};
+function restyle(omml,ops,DP,XS){
+  DP=DP||root.DOMParser;XS=XS||root.XMLSerializer;
+  const doc=new DP().parseFromString(omml,'application/xml'),top=doc.documentElement;
+  const mk=(ns,n)=>doc.createElementNS(ns,(ns===M_NS?'m:':'w:')+n);
+  const runs=[...top.getElementsByTagNameNS(M_NS,'r')];
+  const txt=r=>[...r.getElementsByTagNameNS(M_NS,'t')].map(t=>t.textContent).join('');
+  const styV=r=>{const p=mrp(r),v=p&&mattr(kid(p,'sty'),'val');return v||null;};
+  const isNor=r=>{const p=mrp(r);return !!(p&&on(kid(p,'nor')));};
+  const isB=r=>{const v=styV(r);return v==='b'||v==='bi';};
+  const isI=r=>{const v=styV(r);return v?(v==='i'||v==='bi'):/^\p{L}+$/u.test(txt(r));};
+  const mine=runs.filter(r=>!isNor(r));
+  const tgt=(want,fn)=>want==='toggle'?!(mine.length&&mine.every(fn)):want;
+  const wantB=tgt(ops.bold,isB),wantI=tgt(ops.ital,isI);
+  if(wantB!==undefined||wantI!==undefined){
+    for(const r of mine){
+      const b=wantB===undefined?isB(r):wantB,i=wantI===undefined?isI(r):wantI;
+      let p=mrp(r);if(!p){p=mk(M_NS,'rPr');r.insertBefore(p,r.firstChild);}
+      let s=kid(p,'sty');if(!s){s=mk(M_NS,'sty');p.insertBefore(s,p.firstChild);}
+      s.setAttributeNS(M_NS,'m:val',b?(i?'bi':'b'):(i?'i':'p'));
+    }
+  }
+  const touch=('col' in ops)||('hl' in ops)||('sz' in ops);
+  const setRpr=rp=>{
+    const drop=n=>{for(const x of [...rp.childNodes])if(x.nodeType===1&&x.namespaceURI===W_NS&&x.localName===n)rp.removeChild(x);};
+    if('col' in ops){drop('color');if(ops.col){const c=mk(W_NS,'color');c.setAttributeNS(W_NS,'w:val',ops.col);rp.appendChild(c);}}
+    if('sz' in ops){drop('sz');drop('szCs');if(ops.sz>0){const h=String(Math.round(ops.sz*2));for(const n of ['sz','szCs']){const z=mk(W_NS,n);z.setAttributeNS(W_NS,'w:val',h);rp.appendChild(z);}}}
+    if('hl' in ops){drop('shd');drop('highlight');if(ops.hl){const s=mk(W_NS,'shd');s.setAttributeNS(W_NS,'w:val','clear');s.setAttributeNS(W_NS,'w:color','auto');s.setAttributeNS(W_NS,'w:fill',ops.hl);rp.appendChild(s);}}
+  };
+  if(touch){
+    for(const r of runs){
+      let rp=wkid(r,'rPr');
+      if(!rp){rp=mk(W_NS,'rPr');const t=[...r.childNodes].find(x=>x.nodeType===1&&x.localName==='t');r.insertBefore(rp,t||null);}
+      setRpr(rp);
+    }
+    for(const el of [...top.getElementsByTagName('*')]){
+      const pn=el.namespaceURI===M_NS&&MPR[el.localName];if(!pn)continue;
+      let pr=[...el.childNodes].find(x=>x.nodeType===1&&x.namespaceURI===M_NS&&x.localName===pn);
+      if(!pr){pr=mk(M_NS,pn);el.insertBefore(pr,el.firstChild);}
+      let cp=kid(pr,'ctrlPr');if(!cp){cp=mk(M_NS,'ctrlPr');pr.appendChild(cp);}
+      let rp=wkid(cp,'rPr');if(!rp){rp=mk(W_NS,'rPr');cp.appendChild(rp);}
+      setRpr(rp);
+    }
+  }
+  return new XS().serializeToString(top).replace(/^<\?xml[^>]*\?>\s*/,'');
 }
 
 /* ============================ PASANG DI EDITOR WORD ============================ */
@@ -770,12 +1319,13 @@ function attach(ctx){
     return zw?ZW+h+ZW:h;
   };
   function fill(omml,display){
-    const el=page.querySelector('[data-eqnew]');if(!el)return;
+    const el=page.querySelector('[data-eqnew]');if(!el)return null;
     el.removeAttribute('data-eqnew');
     const t=document.createElement('div');t.innerHTML=eqHTML(omml,display);
     el.innerHTML=t.firstChild?t.firstChild.innerHTML:'';
+    return el;
   }
-  const put=(omml,display)=>{document.execCommand('insertHTML',false,shell(omml,display,!display));fill(omml,display);};
+  const put=(omml,display)=>{document.execCommand('insertHTML',false,shell(omml,display,!display));return fill(omml,display);};
   function setCaretStart(el){const r=document.createRange(),s=getSelection();r.selectNodeContents(el);r.collapse(true);s.removeAllRanges();s.addRange(r);}
   function insertNew(omml,display){
     focus();
@@ -808,10 +1358,11 @@ function attach(ctx){
     const was=eq.classList.contains('eqd');
     select(eq);hide();
     if(display&&!was){                                      /* sebaris -> blok: lepas dulu, lalu sisipkan sebagai paragraf sendiri */
-      document.execCommand('delete');insertNew(omml,true);return;
+      document.execCommand('delete');insertNew(omml,true);return null;
     }
-    put(omml,display);
+    const ne=put(omml,display);
     refresh();stats();
+    return ne;
   }
   function remove(eq){select(eq);hide();document.execCommand('delete');refresh();stats();}
   function toggleMode(eq){
@@ -823,7 +1374,9 @@ function attach(ctx){
     let tex='',display=false,note='',lossy=false,orig=null;
     if(eq){
       orig=eq.getAttribute('data-omml');
-      try{const r=omml2tex(parseXML(orig));tex=r.tex;display=r.display;lossy=r.lossy;}
+      let basePt=0;
+      try{const px=parseFloat(getComputedStyle(eq.parentElement||page).fontSize);if(px>0)basePt=Math.round(px*0.75*2)/2;}catch(e){}
+      try{const r=omml2tex(parseXML(orig),{basePt});tex=r.tex;display=r.display;lossy=r.lossy;}
       catch(e){toast('Rumus tidak bisa dibuka untuk diedit: '+e.message);return;}
       if(lossy)note='Rumus ini memuat elemen Word yang tidak ada padanannya di editor; bentuknya bisa sedikit berubah jika Anda mengubah isinya.';
     }else{
@@ -843,10 +1396,18 @@ function attach(ctx){
         replace(eq,res.omml,res.display);
       }});
   }
+  /* ubah gaya rumus langsung (tanpa membuka dialog); bilah tetap terbuka di rumus yang baru */
+  function quick(eq,ops){
+    let om;try{om=restyle(eq.getAttribute('data-omml'),ops);}catch(e){toast('Gaya gagal diterapkan: '+e.message);return;}
+    const ne=replace(eq,om,eq.classList.contains('eqd'));
+    if(ne&&page.contains(ne))showBar(ne);
+  }
   function showBar(eq){
     hide();armed=eq;eq.classList.add('eqsel');
     bar=document.createElement('div');bar.className='eqbar';
-    bar.innerHTML=`<button type="button" data-q="edit">✎ Edit</button><button type="button" data-q="mode">${eq.classList.contains('eqd')?'Sebaris':'Blok'}</button><button type="button" data-q="del">Hapus</button>`;
+    const sw=(arr,k)=>`<div class="gr">${arr.map(c=>`<button type="button" data-k="${k}" data-c="${c}" style="background:#${c}" title="#${c}"></button>`).join('')}</div>`;
+    bar.innerHTML=`<button type="button" data-q="edit">✎ Edit</button><button type="button" data-q="b" title="Tebal"><b>B</b></button><button type="button" data-q="i" title="Miring"><i style="font-family:serif">I</i></button><button type="button" data-q="col" title="Warna & sorot">A<u></u></button><button type="button" data-q="mode">${eq.classList.contains('eqd')?'Sebaris':'Blok'}</button><button type="button" data-q="del">Hapus</button>`+
+      `<div class="eqsw" hidden><button type="button" class="oto" data-k="col" data-c="">Warna otomatis</button><div class="sl">Warna rumus</div>${sw(SW_COL,'col')}<button type="button" class="oto" data-k="hl" data-c="">Tanpa sorot</button><div class="sl">Warna sorot</div>${sw(SW_HL,'hl')}</div>`;
     host.appendChild(bar);
     const hr=host.getBoundingClientRect(),er=eq.getBoundingClientRect(),bw=bar.offsetWidth,bh=bar.offsetHeight;
     let L=er.left-hr.left,T=er.top-hr.top-bh-6;
@@ -855,8 +1416,14 @@ function attach(ctx){
     bar.style.left=L+'px';bar.style.top=T+'px';
     bar.addEventListener('mousedown',e=>e.preventDefault());
     bar.addEventListener('click',e=>{
-      const b=e.target.closest('button[data-q]');if(!b)return;const q=b.dataset.q,t=armed;if(!t)return;
+      const t=armed;if(!t)return;
+      const sc=e.target.closest('.eqsw button[data-k]');
+      if(sc){quick(t,sc.dataset.k==='col'?{col:sc.dataset.c||null}:{hl:sc.dataset.c||null});return;}
+      const b=e.target.closest('button[data-q]');if(!b)return;const q=b.dataset.q;
       if(q==='edit'){hide();dialog(t);}else if(q==='mode')toggleMode(t);else if(q==='del')remove(t);
+      else if(q==='b')quick(t,{bold:'toggle'});
+      else if(q==='i')quick(t,{ital:'toggle'});
+      else if(q==='col'){const p=bar.querySelector('.eqsw');p.hidden=!p.hidden;}
     });
   }
   function onDown(e){
@@ -897,5 +1464,5 @@ function attach(ctx){
   };
 }
 
-root.WordEq={tex2omml,omml2tex,setDisplay,openDialog,attach,GALLERY,EqError,_parse:parseTex};
+root.WordEq={tex2omml,omml2tex,setDisplay,restyle,openDialog,attach,GALLERY,PAL,EqError,_parse:parseTex};
 })(typeof window!=='undefined'?window:globalThis);
