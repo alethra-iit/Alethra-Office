@@ -477,7 +477,7 @@ function renderAbout(){
     (canUpd && U.enabled ?
       `<section class="ab-card"><button class="ab-sw" data-a="upd-auto"><span class="tx"><div class="tt">Periksa pembaruan otomatis</div>` +
       `<div class="ss">Cek versi baru di GitHub Releases saat aplikasi dibuka, maksimal sekali sehari. Hanya mengirim satu permintaan ke api.github.com.</div></span>` +
-      `<span class="sw${auto ? ' on' : ''}"></span></button></section>` : '') +
+      `<span class="tgl${auto ? ' on' : ''}"></span></button></section>` : '') +
     '<section class="ab-card"><h2>Tentang aplikasi</h2>' +
       '<p>Word, Excel, PowerPoint, dan PDF yang berjalan sepenuhnya <b>offline</b> di perangkat Anda.</p>' +
       '<p class="mut">Pembaruan diunduh dari GitHub Releases, diperiksa ukuran, checksum, dan tanda tangannya sebelum dipasang.</p></section>' +
