@@ -774,6 +774,8 @@ const CSS=`
 .xl .clr .b{padding:0 3px}
 .xl .clr .sw{display:inline-block;line-height:1.1;padding:0 2px;border-bottom:3px solid var(--sw,#ff0000);font-weight:600}
 .xl .clr .sw .sw{border-bottom:0;padding:0;display:block}
+.xl .cpv{width:36px;height:22px;border:1px solid #777;border-radius:0;padding:0;cursor:pointer;vertical-align:middle}
+.xl .ipal{border:1px solid #ccc;margin:6px 0;background:#fff;display:inline-block}
 .xl .gal{display:grid;grid-template-columns:repeat(3,70px);grid-template-rows:repeat(2,28px);gap:3px;padding:2px;border:1px solid var(--ln);height:64px;align-self:flex-start}
 .xl .gal button{border:1px solid #d0d0d0;cursor:pointer;padding:0 4px;font-size:12px;white-space:nowrap;overflow:hidden;text-align:left;background:#fff;font-family:Calibri,Carlito,sans-serif}
 .xl .gal button:hover{outline:2px solid #f5c35d;outline-offset:-1px}
@@ -2538,6 +2540,15 @@ function mount(root,opts={}){
   };
   document.addEventListener('pointerdown',docDown,true);
 
+  /* pemilih warna persegi di dalam dialog (pengganti <input type=color> bawaan sistem yang tampil bulat di Android) */
+  const colorBtn=(cls,v)=>`<button type="button" class="cpv ${cls}" style="background:${v}" title="Pilih warna"></button>`;
+  function inlinePal(P,btn,cb){
+    const old=P.querySelector('.ipal');if(old){old.remove();if(old._for===btn)return;}
+    const pal=document.createElement('div');pal.className='pal ipal';pal._for=btn;
+    pal.innerHTML=PAL.map(r=>`<div class="pr">${r.map(c=>`<button type="button" style="background:${c}" data-c="${c}" title="${c}"></button>`).join('')}</div>`).join('')+`<div class="pr" style="margin-top:6px">${PALSTD.map(c=>`<button type="button" style="background:${c}" data-c="${c}" title="${c}"></button>`).join('')}</div>`;
+    pal.onclick=e=>{const b=e.target.closest('button[data-c]');if(!b)return;btn.style.background=b.dataset.c;pal.remove();cb(b.dataset.c);};
+    (btn.closest('.r2')||btn.parentNode).after(pal);
+  }
   /* palet warna */
   function palette(cb,opt){
     const rows=PAL.map(r=>`<div class="pr">${r.map(c=>`<button style="background:${c}" data-c="${c}" title="${c}"></button>`).join('')}</div>`).join('');
@@ -3185,22 +3196,22 @@ function mount(root,opts={}){
           <span>Gaya:</span><select class="gs">${['Reguler','Miring','Tebal','Tebal Miring'].map((x,i)=>`<option value="${i}" ${(S.b?2:0)+(S.i?1:0)===i?'selected':''}>${x}</option>`).join('')}</select>
           <span>Ukuran:</span><input type="number" class="sz" min="1" max="409" value="${S.sz}" style="width:70px">
           <span>Garis bawah:</span><select class="ul">${[['0','Tidak ada'],['1','Tunggal'],['2','Ganda']].map(x=>`<option value="${x[0]}" ${+x[0]===S.u?'selected':''}>${x[1]}</option>`).join('')}</select>
-          <span>Warna:</span><input type="color" class="co" value="${S.color}"></div><label><input type="checkbox" class="st" ${S.s?'checked':''}> Coret</label><div class="prev" style="font-size:14px">AaBbCcYyZz</div>`;
+          <span>Warna:</span>${colorBtn('co',S.color)}</div><label><input type="checkbox" class="st" ${S.s?'checked':''}> Coret</label><div class="prev" style="font-size:14px">AaBbCcYyZz</div>`;
         const pv=()=>{const e=P.querySelector('.prev');e.style.cssText=`font-family:${S.font};font-size:${Math.min(S.sz,28)}pt;font-weight:${S.b?700:400};font-style:${S.i?'italic':'normal'};color:${S.color};text-decoration:${S.u?'underline':''} ${S.s?'line-through':''}`;};
         P.querySelector('.fo').onchange=e=>{S.font=e.target.value;pv();};
         P.querySelector('.gs').onchange=e=>{const v=+e.target.value;S.b=v>=2;S.i=v%2===1;pv();};
         P.querySelector('.sz').oninput=e=>{S.sz=+e.target.value||11;pv();};P.querySelector('.ul').onchange=e=>{S.u=+e.target.value;pv();};
-        P.querySelector('.co').oninput=e=>{S.color=e.target.value;pv();};P.querySelector('.st').onchange=e=>{S.s=e.target.checked;pv();};pv();
+        P.querySelector('.co').onclick=e=>inlinePal(P,e.currentTarget,c=>{S.color=c;pv();});P.querySelector('.st').onchange=e=>{S.s=e.target.checked;pv();};pv();
       }else if(t==='border'){
         const sides=[['t','Atas'],['b','Bawah'],['l','Kiri'],['r','Kanan'],['h','Dalam horizontal'],['v','Dalam vertikal']];
-        P.innerHTML=`<div class="r2"><span>Gaya:</span><select class="bs">${Object.keys(BTYPES).filter(x=>x!=='hair').map(x=>`<option ${x===bdStyleSel?'selected':''}>${x}</option>`).join('')}</select><span>Warna:</span><input type="color" class="bc" value="${bdColorSel}"></div>
+        P.innerHTML=`<div class="r2"><span>Gaya:</span><select class="bs">${Object.keys(BTYPES).filter(x=>x!=='hair').map(x=>`<option ${x===bdStyleSel?'selected':''}>${x}</option>`).join('')}</select><span>Warna:</span>${colorBtn('bc',bdColorSel)}</div>
           <div class="bdl">${sides.map(x=>`<label><input type="checkbox" data-s="${x[0]}"> ${x[1]}</label>`).join('')}</div>
           <div style="display:flex;gap:6px"><button class="bt" data-p="none">Tidak ada</button><button class="bt" data-p="outer">Garis luar</button><button class="bt" data-p="all">Semua</button></div>`;
         const bx=[...P.querySelectorAll('[data-s]')];
         bx.forEach(b=>{b.checked=bdSet[b.dataset.s]!==undefined&&bdSet[b.dataset.s]!==null;
           b.onchange=()=>{bdTouched=true;const k=b.dataset.s;bdSet[k]=b.checked?[bdStyleSel,bdColorSel]:(['h','v'].includes(k)?null:null);};});
         P.querySelector('.bs').onchange=e=>{bdStyleSel=e.target.value;bx.forEach(b=>{if(b.checked)bdSet[b.dataset.s]=[bdStyleSel,bdColorSel];});};
-        P.querySelector('.bc').oninput=e=>{bdColorSel=e.target.value;bx.forEach(b=>{if(b.checked)bdSet[b.dataset.s]=[bdStyleSel,bdColorSel];});};
+        P.querySelector('.bc').onclick=e=>inlinePal(P,e.currentTarget,c=>{bdColorSel=c;bx.forEach(b=>{if(b.checked)bdSet[b.dataset.s]=[bdStyleSel,bdColorSel];});});
         P.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{bdTouched=true;const p=b.dataset.p;
           bx.forEach(x=>{const k=x.dataset.s;const on=p==='all'||(p==='outer'&&'tblr'.includes(k));x.checked=on;bdSet[k]=on?[bdStyleSel,bdColorSel]:null;});});
       }else if(t==='prot'){
